@@ -33,6 +33,7 @@ class Issue extends Model
             'generation_stage' => GenerationStage::class,
             'scheduled_for' => 'datetime',
             'published_at' => 'datetime',
+            'views' => 'integer',
         ];
     }
 

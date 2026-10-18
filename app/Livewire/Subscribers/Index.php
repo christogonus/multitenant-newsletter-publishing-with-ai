@@ -67,6 +67,41 @@ class Index extends Component
                 ->paginate(25),
             'total' => $newsletter->activeSubscriberCount(),
             'thisWeek' => $newsletter->subscribers()->active()->where('created_at', '>=', now()->subWeek())->count(),
+            'daily' => $this->dailySignups(30),
+            'sources' => $newsletter->subscribers()
+                ->active()
+                ->selectRaw('source, count(*) as total')
+                ->groupBy('source')
+                ->orderByDesc('total')
+                ->pluck('total', 'source'),
         ]);
+    }
+
+    /**
+     * Sign-ups per day for the last N days, oldest first, including days with none.
+     *
+     * @return list<array{date: string, label: string, count: int}>
+     */
+    private function dailySignups(int $days): array
+    {
+        $since = now()->subDays($days - 1)->startOfDay();
+
+        $counts = $this->newsletter->subscribers()
+            ->where('created_at', '>=', $since)
+            ->selectRaw('DATE(created_at) as day, count(*) as total')
+            ->groupBy('day')
+            ->pluck('total', 'day');
+
+        return collect(range(0, $days - 1))
+            ->map(function (int $offset) use ($since, $counts) {
+                $date = $since->copy()->addDays($offset);
+
+                return [
+                    'date' => $date->toDateString(),
+                    'label' => $date->format('j M'),
+                    'count' => (int) ($counts[$date->toDateString()] ?? 0),
+                ];
+            })
+            ->all();
     }
 }

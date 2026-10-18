@@ -18,15 +18,26 @@ class Index extends Component
     #[Url]
     public string $status = 'all';
 
+    #[Url]
+    public string $search = '';
+
     public function updatedStatus(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSearch(): void
     {
         $this->resetPage();
     }
 
     public function render(): View
     {
+        $term = '%'.str_replace(['%', '_'], ['\%', '\_'], trim($this->search)).'%';
+
         $issues = $this->newsletter->issues()
             ->when($this->status !== 'all' && IssueStatus::tryFrom($this->status), fn ($query) => $query->where('status', $this->status))
+            ->when(trim($this->search) !== '', fn ($query) => $query->where(fn ($inner) => $inner->where('title', 'like', $term)->orWhere('subject_line', 'like', $term)))
             ->latest()
             ->paginate(15);
 

@@ -50,7 +50,7 @@ class Reports extends Component
     {
         return view('livewire.admin.reports', [
             'reports' => Report::query()
-                ->with('newsletter:id,name,subdomain,moderated_at', 'issue:id,title,public_slug')
+                ->with('newsletter:id,name,subdomain,moderated_at', 'newsletter.domain', 'issue:id,title,public_slug')
                 ->when(! $this->showResolved, fn ($query) => $query->whereNull('resolved_at'))
                 ->latest()
                 ->paginate(25),

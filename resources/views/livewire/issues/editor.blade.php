@@ -70,6 +70,7 @@
                     @if ($canRepurpose)
                         <x-ui.dropdown-item :href="route('social.index', ['issue' => $issue->id])" icon="share">Turn into social posts</x-ui.dropdown-item>
                     @endif
+                    <x-ui.dropdown-item wire:click="duplicate" icon="clipboard">Duplicate</x-ui.dropdown-item>
                     @if ($issue->isPublished())
                         <x-ui.dropdown-item wire:click="unpublish" icon="x-mark">Hide from my page</x-ui.dropdown-item>
                     @endif

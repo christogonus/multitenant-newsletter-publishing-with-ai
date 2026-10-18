@@ -11,6 +11,58 @@
         <x-ui.stat-card label="New this week" :value="number_format($thisWeek)" icon="sparkles" area="grow" />
     </div>
 
+    @if ($total > 0)
+        @php
+            $peak = max(1, max(array_column($daily, 'count')));
+            $sourceLabels = ['hosted_page' => 'Your page', 'lead_page' => 'Sign-up pages', 'added_by_owner' => 'Added by you'];
+            $sourceMax = max(1, $sources->max());
+        @endphp
+        <div class="grid gap-6 lg:grid-cols-3">
+            <x-ui.card title="New readers per day" description="Last 30 days" class="lg:col-span-2">
+                <div class="flex h-40 items-end gap-0.5" role="img" aria-label="New readers per day for the last 30 days. Peak {{ $peak }} in a day.">
+                    @foreach ($daily as $day)
+                        <div class="group relative flex h-full flex-1 items-end" wire:key="day-{{ $day['date'] }}">
+                            <div
+                                @class(['w-full rounded-t-[4px] bg-publish transition-opacity group-hover:opacity-80', 'min-h-px' => $day['count'] > 0])
+                                style="height: {{ $day['count'] > 0 ? max(2, round($day['count'] / $peak * 100)) : 0 }}%"
+                            ></div>
+                            <div class="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden -translate-x-1/2 rounded-control border border-line bg-card px-2 py-1 text-xs whitespace-nowrap text-ink shadow-raised group-hover:block">
+                                {{ $day['label'] }}: <strong>{{ $day['count'] }}</strong>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+                <div class="mt-2 flex justify-between border-t border-line pt-2 text-xs text-muted">
+                    <span>{{ $daily[0]['label'] }}</span>
+                    <span>Today</span>
+                </div>
+                <table class="sr-only">
+                    <caption>New readers per day</caption>
+                    <thead><tr><th>Day</th><th>New readers</th></tr></thead>
+                    <tbody>
+                        @foreach ($daily as $day)<tr><td>{{ $day['label'] }}</td><td>{{ $day['count'] }}</td></tr>@endforeach
+                    </tbody>
+                </table>
+            </x-ui.card>
+
+            <x-ui.card title="Where readers come from">
+                <ul class="space-y-4">
+                    @foreach ($sources as $source => $count)
+                        <li>
+                            <div class="mb-1 flex justify-between text-sm">
+                                <span class="text-ink">{{ $sourceLabels[$source] ?? ucfirst(str_replace('_', ' ', $source)) }}</span>
+                                <span class="font-semibold text-ink tabular-nums">{{ number_format($count) }}</span>
+                            </div>
+                            <div class="h-2 overflow-hidden rounded-full bg-subtle">
+                                <div class="h-full rounded-full bg-publish" style="width: {{ round($count / $sourceMax * 100) }}%"></div>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            </x-ui.card>
+        </div>
+    @endif
+
     <x-ui.input wire:model.live.debounce.300ms="search" icon="search" placeholder="Search by email" aria-label="Search readers" />
 
     <x-ui.table :headers="['Email', 'Joined from', 'Joined', 'Friends invited', '']" :empty="$subscribers->isEmpty()">

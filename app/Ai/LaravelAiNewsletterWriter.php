@@ -110,6 +110,7 @@ class LaravelAiNewsletterWriter implements NewsletterWriter
             'Frequency: '.$newsletter->frequency->label(),
             "Active readers: {$stats['subscribers']}",
             "Issues published: {$stats['issues']}",
+            'Average web views per issue: '.($stats['average_views'] ?? 'not tracked yet'),
             'Suggested prices: '.collect(app(RateGuide::class)->packages($stats['subscribers']))->map(fn ($package) => $package['name'].' '.$package['price'])->implode(', '),
         ]));
         $this->usage->record($response, AiUsageKind::MediaKit, $newsletter);

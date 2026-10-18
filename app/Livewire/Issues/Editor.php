@@ -14,6 +14,7 @@ use App\Support\PublicPageCache;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
@@ -227,6 +228,27 @@ class Editor extends Component
         ]);
         $this->dispatch('close-modal', 'schedule');
         $this->toast('Scheduled for '.$this->issue->scheduled_for->format('D j M, g:ia').'.');
+    }
+
+    /**
+     * Copies this issue into a new draft. Copies are not AI-written, so they never use the weekly quota.
+     */
+    public function duplicate(): void
+    {
+        $this->authorize('update', $this->issue);
+        $this->save(quiet: true);
+
+        $copy = $this->issue->newsletter->issues()->create([
+            'title' => Str::limit('Copy of '.$this->issue->title, 180, ''),
+            'topic' => $this->issue->topic,
+            'subject_line' => $this->issue->subject_line,
+            'preheader' => $this->issue->preheader,
+            'blocks' => Blocks::normalize(array_map(fn (array $block) => [...$block, 'id' => null], $this->blocks)),
+            'status' => IssueStatus::Draft,
+            'is_ai_generated' => false,
+        ]);
+
+        $this->redirectRoute('issues.edit', $copy);
     }
 
     public function delete(): void

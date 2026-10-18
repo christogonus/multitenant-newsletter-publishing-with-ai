@@ -28,6 +28,7 @@ class Index extends Component
 
         return view('livewire.publications.index', [
             'publications' => $user->newsletters()
+                ->with('domain')
                 ->withCount([
                     'subscribers' => fn ($query) => $query->whereNull('unsubscribed_at'),
                     'issues as live_issues_count' => fn ($query) => $query->where('status', IssueStatus::Published),

@@ -56,6 +56,8 @@ class PublicationController extends Controller
 
         $issue->setRelation('newsletter', $newsletter);
 
+        $this->countView($request, $issue);
+
         return $this->cached($request, $newsletter, 'issue:'.$slug, fn () => view('public.issue', [
             'newsletter' => $newsletter,
             'theme' => Theme::for($newsletter),
@@ -93,6 +95,24 @@ class PublicationController extends Controller
             'shareUrl' => PublicLinks::referralShareUrl($newsletter, $subscriber),
             'unsubscribeUrl' => URL::signedRoute('readers.unsubscribe', ['subscriber' => $subscriber->id]),
         ]);
+    }
+
+    /**
+     * Counts a reader view. Previews and obvious bots are skipped, and updated_at is left alone
+     * so the sitemap's last-modified dates stay accurate.
+     */
+    private function countView(Request $request, Issue $issue): void
+    {
+        if (PublicLinks::mode() === 'preview' || self::isBot((string) $request->userAgent())) {
+            return;
+        }
+
+        Issue::query()->whereKey($issue->id)->toBase()->increment('views');
+    }
+
+    public static function isBot(string $userAgent): bool
+    {
+        return $userAgent === '' || (bool) preg_match('/bot|crawl|spider|slurp|preview|fetch|monitor|curl|wget|python|headless|lighthouse|k6/i', $userAgent);
     }
 
     private function newsletter(Request $request): Newsletter

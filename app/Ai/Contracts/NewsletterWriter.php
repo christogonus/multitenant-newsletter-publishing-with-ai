@@ -28,7 +28,7 @@ interface NewsletterWriter
     public function repurpose(Issue $issue, SocialChannel $channel): string;
 
     /**
-     * @param  array{subscribers: int, issues: int}  $stats
+     * @param  array{subscribers: int, issues: int, average_views?: int}  $stats
      * @return array{headline: string, about: string, audience: string, why_sponsor: list<string>, packages: list<array{name: string, description: string, price: string}>}
      */
     public function mediaKit(Newsletter $newsletter, array $stats): array;

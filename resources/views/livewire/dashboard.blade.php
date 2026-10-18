@@ -49,10 +49,11 @@
             </x-ui.card>
         @endif
 
-        <div class="grid gap-4 sm:grid-cols-3">
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <x-ui.stat-card label="Issues left this week" :value="$unlimited ? 'Unlimited' : $remaining.' of '.$weeklyLimit" icon="sparkles" area="create" />
             <x-ui.stat-card label="Readers" :value="number_format($readers)" icon="users" area="publish" />
             <x-ui.stat-card label="Live issues" :value="$liveIssues" icon="globe" area="grow" />
+            <x-ui.stat-card label="Issue views" :value="number_format($views)" hint="People who read on your page" icon="eye" area="grow" />
         </div>
 
         <x-ui.card title="Recent issues">

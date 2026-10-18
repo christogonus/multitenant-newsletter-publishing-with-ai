@@ -21,7 +21,9 @@
         @endforeach
     </div>
 
-    <x-ui.table :headers="['Issue', 'Status', 'Updated', '']" :empty="$issues->isEmpty()">
+    <x-ui.input wire:model.live.debounce.300ms="search" icon="search" placeholder="Search your issues" aria-label="Search issues" />
+
+    <x-ui.table :headers="['Issue', 'Status', 'Views', 'Updated', '']" :empty="$issues->isEmpty()">
         <x-slot:emptyState>
             <x-ui.empty-state icon="newspaper" area="create" title="Nothing here yet" description="Write an issue and it shows up here.">
                 <x-ui.button :href="route('issues.create')" area="create" icon="sparkles">Write a new issue</x-ui.button>
@@ -37,6 +39,7 @@
                 <td class="px-4 py-3 whitespace-nowrap">
                     <x-ui.pill :tone="$issue->status->tone()" :pulse="$issue->status === \App\Enums\IssueStatus::Generating">{{ $issue->status->label() }}</x-ui.pill>
                 </td>
+                <td class="px-4 py-3 text-muted tabular-nums">{{ $issue->isPublished() ? number_format($issue->views) : '—' }}</td>
                 <td class="px-4 py-3 whitespace-nowrap text-muted">{{ $issue->updated_at->diffForHumans() }}</td>
                 <td class="px-4 py-3 text-right whitespace-nowrap">
                     <x-ui.button variant="secondary" size="sm" :href="route('issues.edit', $issue)">Open</x-ui.button>

@@ -50,6 +50,7 @@ class Index extends Component
             $content = $writer->mediaKit($newsletter, [
                 'subscribers' => $newsletter->activeSubscriberCount(),
                 'issues' => $newsletter->issues()->where('status', IssueStatus::Published)->count(),
+                'average_views' => (int) round((float) $newsletter->issues()->where('status', IssueStatus::Published)->avg('views')),
             ]);
         } catch (Throwable $exception) {
             report($exception);

@@ -29,6 +29,7 @@ class Dashboard extends Component
             'weeklyLimit' => $entitlements->weeklyIssueLimit($user),
             'readers' => $newsletter?->activeSubscriberCount() ?? 0,
             'liveIssues' => $newsletter?->issues()->where('status', IssueStatus::Published)->count() ?? 0,
+            'views' => (int) ($newsletter?->issues()->sum('views') ?? 0),
             'recentIssues' => $newsletter?->issues()->latest()->limit(5)->get() ?? collect(),
             'offer' => collect(Product::cases())
                 ->reject(fn (Product $product) => in_array($product, [Product::FrontEnd, Product::Oto1Lite], true) || $user->owns($product))
