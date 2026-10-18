@@ -140,5 +140,8 @@
     </div>
 
     <x-ui.toasts />
+
+    {{-- Livewire only injects its assets (and Alpine with them) when a component renders, so plain views like the locked screen need them too. --}}
+    @livewireScripts
 </body>
 </html>

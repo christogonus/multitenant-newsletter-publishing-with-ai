@@ -22,6 +22,10 @@ test('a refunded buyer sees a locked screen, not an error', function () {
     $this->actingAs($user)->get(route('dashboard'))->assertOk()->assertSee('not active');
 });
 
+test('screens without a Livewire component still load the scripts the account menu needs', function (string $routeName) {
+    $this->actingAs(User::factory()->create())->get(route($routeName))->assertOk()->assertSee('data-update-uri', false);
+})->with(['dashboard', 'upgrades', 'support', 'account']);
+
 test('a buyer without a publication is sent to the start wizard', function () {
     $this->actingAs(buyer())->get(route('issues.index'))->assertRedirect(route('newsletters.create'));
 });

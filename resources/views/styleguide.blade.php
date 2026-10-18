@@ -165,5 +165,7 @@
     </x-ui.modal>
     <x-ui.slide-over name="sg-slide" title="A slide-over"><p class="text-sm text-muted">Good for forms that need room.</p></x-ui.slide-over>
     <x-ui.toasts />
+
+    @livewireScripts
 </body>
 </html>

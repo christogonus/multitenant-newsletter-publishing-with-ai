@@ -33,5 +33,7 @@
     @endisset
 
     <x-ui.toasts />
+
+    @livewireScripts
 </body>
 </html>
