@@ -13,7 +13,9 @@ use App\Jobs\SyncSubscribersJob;
 use App\Livewire\Concerns\InteractsWithPublication;
 use App\Models\IssueDelivery;
 use App\Models\PlatformConnection;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -95,7 +97,24 @@ class Index extends Component
             return;
         }
 
-        $connection->fill(['status' => ConnectionStatus::Connected, 'last_error' => null])->save();
+        $saved = DB::transaction(function () use ($connection) {
+            // Lock the owner row and re-check the plan limit, so two tabs cannot both add a connection.
+            User::query()->whereKey($this->user()->id)->lockForUpdate()->first();
+
+            if (! $connection->exists && ! $this->canAddConnection()) {
+                return false;
+            }
+
+            $connection->fill(['status' => ConnectionStatus::Connected, 'last_error' => null])->save();
+
+            return true;
+        });
+
+        if (! $saved) {
+            $this->toast('Your plan includes one email service. Upgrade to Pro to connect more.', 'warning');
+
+            return;
+        }
         SyncSubscribersJob::dispatch($newsletter);
 
         $this->reset('editing', 'credentials');

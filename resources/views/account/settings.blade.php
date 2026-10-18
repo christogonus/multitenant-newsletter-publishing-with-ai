@@ -79,5 +79,27 @@
             </ul>
             <x-ui.button class="mt-4" variant="ghost" :href="route('upgrades')" icon-right="arrow-right">See all upgrades</x-ui.button>
         </x-ui.card>
+
+        <x-ui.card title="Delete my account" class="border-danger/40">
+            <p class="text-sm text-muted">This erases your account, every publication, every issue and every reader. It cannot be undone. Your purchases cannot be used again after this.</p>
+            <x-ui.button variant="danger" class="mt-4" icon="trash" x-data x-on:click="$dispatch('open-modal', 'delete-account')">Delete my account</x-ui.button>
+        </x-ui.card>
+
+        <x-ui.modal name="delete-account" title="Delete your account?" max-width="md">
+            <form method="POST" action="{{ route('account.destroy') }}" id="delete-account-form" class="space-y-4">
+                @csrf
+                @method('DELETE')
+                <x-ui.input name="password" type="password" label="Your password" autocomplete="current-password" />
+                <x-ui.input name="confirm" label="Type DELETE to confirm" autocomplete="off" />
+            </form>
+            <x-slot:footer>
+                <x-ui.button variant="secondary" x-on:click="open = false">Keep my account</x-ui.button>
+                <x-ui.button type="submit" form="delete-account-form" variant="danger">Delete everything</x-ui.button>
+            </x-slot:footer>
+        </x-ui.modal>
+
+        @if ($errors->has('password') || $errors->has('confirm'))
+            <div x-data x-init="$dispatch('open-modal', 'delete-account')"></div>
+        @endif
     </div>
 </x-layouts::app>

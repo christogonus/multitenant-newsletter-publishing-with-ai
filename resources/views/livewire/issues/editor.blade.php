@@ -139,7 +139,19 @@
                                             <x-ui.input wire:model.blur="blocks.{{ $index }}.description" placeholder="Short description (optional)" aria-label="Link description" />
                                             @break
                                         @case('image')
-                                            <x-ui.input wire:model.blur="blocks.{{ $index }}.url" type="url" placeholder="Picture web address, starting with https://" aria-label="Picture address" />
+                                            @if (! empty($block['url']))
+                                                <img src="{{ $block['url'] }}" alt="" class="max-h-40 rounded-control border border-line">
+                                            @endif
+                                            <div>
+                                                <label class="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-control border border-line bg-card px-4 text-sm font-semibold text-ink hover:bg-subtle">
+                                                    <x-ui.icon name="upload" size="4" />
+                                                    <span wire:loading.remove wire:target="imageUploads.{{ $block['id'] }}">{{ empty($block['url']) ? 'Upload a picture' : 'Replace picture' }}</span>
+                                                    <span wire:loading wire:target="imageUploads.{{ $block['id'] }}">Uploading…</span>
+                                                    <input type="file" class="sr-only" accept="image/jpeg,image/png,image/webp,image/gif" wire:model="imageUploads.{{ $block['id'] }}">
+                                                </label>
+                                                @error('imageUploads.'.$block['id'])<p class="mt-1 text-sm text-danger" role="alert">{{ $message }}</p>@enderror
+                                            </div>
+                                            <x-ui.input wire:model.blur="blocks.{{ $index }}.url" type="url" placeholder="Or paste a picture web address, starting with https://" aria-label="Picture address" />
                                             <x-ui.input wire:model.blur="blocks.{{ $index }}.alt" placeholder="Describe the picture for screen readers" aria-label="Picture description" />
                                             <x-ui.input wire:model.blur="blocks.{{ $index }}.caption" placeholder="Caption (optional)" aria-label="Caption" />
                                             @break

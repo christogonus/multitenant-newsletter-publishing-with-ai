@@ -3,6 +3,7 @@
 namespace App\Livewire\Kits;
 
 use App\Actions\InstallKit;
+use App\Exceptions\PublicationLimitReachedException;
 use App\Livewire\Concerns\InteractsWithPublication;
 use App\Models\Kit;
 use Illuminate\Contracts\View\View;
@@ -21,13 +22,13 @@ class Index extends Component
     {
         $kit = Kit::query()->findOrFail($kitId);
 
-        if (! $this->entitlements()->canCreatePublication($this->user())) {
+        try {
+            $newsletter = $installKit->handle($this->user(), $kit);
+        } catch (PublicationLimitReachedException) {
             $this->toast('You have reached your publication limit. Upgrade to the Multi-Newsletter Manager for unlimited publications.', 'warning');
 
             return;
         }
-
-        $newsletter = $installKit->handle($this->user(), $kit);
 
         $this->redirectRoute('dashboard');
         session()->flash('toast', ['message' => $newsletter->name.' is installed with '.count($kit->seed_issues).' ready issues.', 'tone' => 'success']);

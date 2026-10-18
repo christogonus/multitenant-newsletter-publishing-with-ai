@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\DeleteAccountController;
 use App\Http\Controllers\Auth\WelcomeController;
 use App\Http\Controllers\Dashboard\IssueExportController;
 use App\Http\Controllers\Dashboard\IssuePreviewController;
@@ -33,6 +34,7 @@ Route::domain(config('newspub.app_host'))->group(function () {
 
     Route::middleware('auth')->group(function () {
         Route::view('/account', 'account.settings')->name('account');
+        Route::delete('/account', DeleteAccountController::class)->middleware('throttle:5,1')->name('account.destroy');
         Route::view('/support', 'support')->name('support');
         Route::view('/upgrades', 'upgrades')->name('upgrades');
 

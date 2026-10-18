@@ -2,13 +2,18 @@
 
 namespace App\Actions;
 
+use App\Exceptions\PublicationLimitReachedException;
 use App\Models\Newsletter;
 use App\Models\User;
+use App\Support\Entitlements;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class CreateNewsletter
 {
+    public function __construct(private Entitlements $entitlements) {}
+
     /**
      * @return array<int, mixed>
      */
@@ -29,6 +34,23 @@ class CreateNewsletter
      * @param  array{niche: string, name: string, audience?: ?string, frequency: string, subdomain?: string, tagline?: ?string, voice?: ?string, kit_key?: ?string, topic_pipeline?: ?array<int, string>}  $attributes
      */
     public function handle(User $user, array $attributes): Newsletter
+    {
+        return DB::transaction(function () use ($user, $attributes) {
+            // Lock the owner row and re-check the limit, so parallel requests cannot exceed it.
+            User::query()->whereKey($user->id)->lockForUpdate()->first();
+
+            if (! $this->entitlements->canCreatePublication($user)) {
+                throw new PublicationLimitReachedException('You have reached your publication limit.');
+            }
+
+            return $this->create($user, $attributes);
+        });
+    }
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    private function create(User $user, array $attributes): Newsletter
     {
         $newsletter = $user->newsletters()->create([
             'name' => $attributes['name'],

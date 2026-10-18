@@ -5,6 +5,7 @@ namespace App\Livewire\Onboarding;
 use App\Actions\CreateNewsletter;
 use App\Actions\StartIssueGeneration;
 use App\Enums\Frequency;
+use App\Exceptions\PublicationLimitReachedException;
 use App\Exceptions\QuotaExceededException;
 use App\Livewire\Concerns\InteractsWithPublication;
 use Illuminate\Contracts\View\View;
@@ -120,7 +121,13 @@ class CreatePublication extends Component
             'subdomain.regex' => 'Use only letters, numbers and dashes.',
         ]);
 
-        $newsletter = $createNewsletter->handle($this->user(), $validated);
+        try {
+            $newsletter = $createNewsletter->handle($this->user(), $validated);
+        } catch (PublicationLimitReachedException) {
+            $this->redirectRoute('publications.index');
+
+            return;
+        }
 
         try {
             $issue = $startIssueGeneration->handle($newsletter);

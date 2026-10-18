@@ -13,11 +13,14 @@ use App\Support\Blocks;
 use App\Support\PublicPageCache;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Livewire\WithFileUploads;
 
 class Editor extends Component
 {
-    use InteractsWithPublication;
+    use InteractsWithPublication, WithFileUploads;
 
     public Issue $issue;
 
@@ -33,6 +36,13 @@ class Editor extends Component
     public string $scheduleAt = '';
 
     public int $previewVersion = 0;
+
+    /**
+     * Pictures being uploaded, keyed by the id of the picture block they belong to.
+     *
+     * @var array<string, TemporaryUploadedFile|null>
+     */
+    public array $imageUploads = [];
 
     public function mount(Issue $issue): void
     {
@@ -133,6 +143,33 @@ class Editor extends Component
         $block = $this->blocks[$index];
         array_splice($this->blocks, $index, 1);
         array_splice($this->blocks, max(0, min($position, count($this->blocks))), 0, [$block]);
+        $this->save(quiet: true);
+    }
+
+    /**
+     * Stores an uploaded picture and points its block at the public, absolute URL (so it works in emails too).
+     */
+    public function updatedImageUploads(mixed $value, string $blockId): void
+    {
+        $this->authorize('update', $this->issue);
+
+        $this->validate(
+            ['imageUploads.'.$blockId => ['required', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:2048', 'dimensions:max_width=4000,max_height=4000']],
+            ['imageUploads.*.max' => 'Pictures must be smaller than 2 MB.', 'imageUploads.*.image' => 'That file is not a picture.'],
+        );
+
+        $index = collect($this->blocks)->search(fn (array $block) => $block['id'] === $blockId && $block['type'] === BlockType::Image->value);
+
+        if ($index === false) {
+            unset($this->imageUploads[$blockId]);
+
+            return;
+        }
+
+        $path = $this->imageUploads[$blockId]->store('issue-images/'.$this->issue->newsletter_id, 'public');
+        unset($this->imageUploads[$blockId]);
+
+        $this->blocks[$index]['url'] = url(Storage::disk('public')->url($path));
         $this->save(quiet: true);
     }
 

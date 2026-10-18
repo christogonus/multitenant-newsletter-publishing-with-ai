@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Public\FeedController;
 use App\Http\Controllers\Public\LeadPageController;
 use App\Http\Controllers\Public\PublicationController;
 use App\Http\Controllers\Public\ReferralController;
@@ -23,6 +24,8 @@ $publicationRoutes = function (string $namePrefix) {
     Route::middleware('publication.public')->name($namePrefix)->group(function () {
         Route::get('/', [PublicationController::class, 'home'])->name('home');
         Route::get('/archive', [PublicationController::class, 'archive'])->name('archive');
+        Route::get('/feed', [FeedController::class, 'rss'])->name('feed');
+        Route::get('/sitemap.xml', [FeedController::class, 'sitemap'])->name('sitemap');
         Route::get('/issues/{slug}', [PublicationController::class, 'issue'])->name('issue');
         Route::post('/subscribe', SubscribeController::class)->middleware('throttle:subscribe')->name('subscribe');
         Route::get('/thanks', [PublicationController::class, 'thanks'])->name('thanks');

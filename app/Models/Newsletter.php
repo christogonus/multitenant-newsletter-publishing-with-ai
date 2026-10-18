@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Storage;
 
 #[Fillable([
     'user_id', 'name', 'tagline', 'niche', 'audience', 'frequency', 'subdomain', 'voice', 'template',
@@ -21,6 +22,15 @@ class Newsletter extends Model
 {
     /** @use HasFactory<NewsletterFactory> */
     use HasFactory;
+
+    protected static function booted(): void
+    {
+        // Uploaded logos and issue pictures go with the publication.
+        static::deleted(function (Newsletter $newsletter) {
+            Storage::disk('public')->deleteDirectory('logos/'.$newsletter->id);
+            Storage::disk('public')->deleteDirectory('issue-images/'.$newsletter->id);
+        });
+    }
 
     /**
      * @return array<string, mixed>

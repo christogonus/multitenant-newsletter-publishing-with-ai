@@ -10,6 +10,7 @@
     <meta property="og:title" content="{{ $title ?? $newsletter->name }}">
     <meta property="og:description" content="{{ $description ?? $newsletter->tagline ?? $newsletter->niche }}">
     <meta property="og:type" content="{{ $title ? 'article' : 'website' }}">
+    <link rel="alternate" type="application/rss+xml" title="{{ $newsletter->name }}" href="{{ \App\Support\PublicLinks::route('feed') }}">
     @if ($canonical)
         <link rel="canonical" href="{{ $canonical }}">
         <meta property="og:url" content="{{ $canonical }}">
