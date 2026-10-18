@@ -26,6 +26,15 @@ test('screens without a Livewire component still load the scripts the account me
     $this->actingAs(User::factory()->create())->get(route($routeName))->assertOk()->assertSee('data-update-uri', false);
 })->with(['dashboard', 'upgrades', 'support', 'account']);
 
+test('the account menu\'s sign out button submits its form', function () {
+    $html = $this->actingAs(buyer())->get(route('dashboard'))->assertOk()->getContent();
+
+    expect($html)->toMatch('#<form method="POST" action="'.preg_quote(route('logout'), '#').'">\s*<input[^>]+_token[^>]+>\s*<button type="submit"#');
+
+    $this->post(route('logout'))->assertRedirect();
+    $this->assertGuest();
+});
+
 test('a buyer without a publication is sent to the start wizard', function () {
     $this->actingAs(buyer())->get(route('issues.index'))->assertRedirect(route('newsletters.create'));
 });
