@@ -4,6 +4,7 @@
             <x-ui.button icon="plus" wire:click="openDemoForm">Create demo account</x-ui.button>
             <x-ui.button variant="ghost" :href="route('admin.reports')">Reports</x-ui.button>
             <x-ui.button variant="ghost" :href="route('admin.spend')">AI spend</x-ui.button>
+            <x-ui.button variant="ghost" :href="route('admin.bumps')">Order bumps</x-ui.button>
             <x-ui.button variant="ghost" :href="route('admin.content')">Content</x-ui.button>
             <x-ui.button variant="ghost" href="/pulse" icon-right="external">Pulse</x-ui.button>
             <x-ui.button variant="ghost" href="/horizon" icon-right="external">Queues</x-ui.button>
@@ -49,9 +50,9 @@
                         @foreach ($selected->purchases as $purchase)
                             <li class="flex flex-wrap items-center gap-2 py-2">
                                 <x-ui.pill :tone="$purchase->action->revokes() ? 'danger' : 'success'">{{ ucfirst($purchase->action->value) }}</x-ui.pill>
-                                <span class="flex-1 text-ink">{{ $purchase->product_key->label() }}</span>
+                                <span class="flex-1 text-ink">{{ $purchase->itemLabel() }}</span>
                                 <span class="text-xs text-muted">{{ $purchase->source->value }} · {{ $purchase->created_at->toDateString() }}</span>
-                                @if (! $purchase->action->revokes() && ! in_array($purchase->transaction_id.'|'.$purchase->product_key->value, $reversedTxns, true))
+                                @if (! $purchase->action->revokes() && ! in_array($purchase->transaction_id.'|'.$purchase->item_key, $reversedTxns, true))
                                     <x-ui.button variant="ghost" size="sm" wire:click="revoke({{ $purchase->id }})" wire:confirm="Revoke this purchase? The feature switches off.">Revoke</x-ui.button>
                                 @endif
                             </li>
@@ -60,7 +61,7 @@
                 </div>
 
                 <form wire:submit="grant" class="flex items-end gap-2">
-                    <x-ui.select wire:model="grantProduct" label="Grant a product" :options="$products" class="flex-1" />
+                    <x-ui.select wire:model="grantProduct" label="Grant a product or order bump" :options="$grantOptions" class="flex-1" />
                     <x-ui.button type="submit" loading="grant">Grant</x-ui.button>
                 </form>
 

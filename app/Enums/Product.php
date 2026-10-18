@@ -127,14 +127,6 @@ enum Product: string
     }
 
     /**
-     * The list price in dollars, used to split a LaunchpadJV total that includes the order bump.
-     */
-    public function priceInDollars(): float
-    {
-        return (float) ltrim($this->price(), '$');
-    }
-
-    /**
      * Products whose ownership also grants this one (Pro includes Lite).
      *
      * @return list<self>

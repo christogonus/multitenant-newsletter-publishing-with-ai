@@ -32,6 +32,7 @@ class Navigation
                 'label' => '',
                 'items' => [
                     $item('Home', 'dashboard', 'home'),
+                    ...($user->purchases()->standing()->whereNotNull('bump_offer_id')->exists() ? [$item('Downloads', 'downloads.index', 'download')] : []),
                 ],
             ],
             [

@@ -7,6 +7,7 @@ use App\Actions\RecordPurchase;
 use App\Enums\Product;
 use App\Enums\PurchaseAction;
 use App\Enums\PurchaseSource;
+use App\Models\BumpOffer;
 use App\Models\Purchase;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
@@ -67,21 +68,37 @@ class Users extends Component
     public function grant(RecordPurchase $recordPurchase): void
     {
         $this->authorizeAdmin();
-        $this->validate(['grantProduct' => ['required', Rule::enum(Product::class)]]);
+
+        // "bump:12" grants an order bump (its files, and the product it unlocks); anything else is a product.
+        $bumpOffer = str_starts_with($this->grantProduct, 'bump:')
+            ? BumpOffer::query()->find((int) substr($this->grantProduct, 5))
+            : null;
+
+        if (! $bumpOffer) {
+            $this->validate(['grantProduct' => ['required', Rule::enum(Product::class)]]);
+        }
 
         $user = User::query()->findOrFail($this->selectedId);
+        $transactionId = 'ADMIN-'.Str::upper(Str::random(16));
+        $products = $bumpOffer ? array_filter([$bumpOffer->unlocks_product]) : [Product::from($this->grantProduct)];
 
-        $recordPurchase->handle(
-            email: $user->email,
-            name: $user->name,
-            product: Product::from($this->grantProduct),
-            action: PurchaseAction::Sale,
-            transactionId: 'ADMIN-'.Str::upper(Str::random(16)),
-            source: PurchaseSource::AdminGrant,
-            payload: ['granted_by' => auth()->id()],
-        );
+        if ($bumpOffer) {
+            $recordPurchase->handle($user->email, $user->name, null, PurchaseAction::Sale, $transactionId, source: PurchaseSource::AdminGrant, payload: ['granted_by' => auth()->id()], bumpOffer: $bumpOffer);
+        }
 
-        $this->dispatch('toast', message: 'Granted '.Product::from($this->grantProduct)->label().'.', tone: 'success');
+        foreach ($products as $product) {
+            $recordPurchase->handle(
+                email: $user->email,
+                name: $user->name,
+                product: $product,
+                action: PurchaseAction::Sale,
+                transactionId: $transactionId,
+                source: PurchaseSource::AdminGrant,
+                payload: ['granted_by' => auth()->id()],
+            );
+        }
+
+        $this->dispatch('toast', message: 'Granted '.($bumpOffer?->name ?? Product::from($this->grantProduct)->label()).'.', tone: 'success');
     }
 
     public function revoke(int $purchaseId, RecordPurchase $recordPurchase): void
@@ -97,6 +114,7 @@ class Users extends Component
             transactionId: $purchase->transaction_id,
             source: PurchaseSource::AdminGrant,
             payload: ['revoked_by' => auth()->id()],
+            bumpOffer: $purchase->bumpOffer,
         );
 
         $this->dispatch('toast', message: 'Revoked.', tone: 'success');
@@ -188,13 +206,18 @@ class Users extends Component
             ->latest()
             ->paginate(25);
 
-        $selected = $this->selectedId ? User::query()->with(['purchases' => fn ($query) => $query->latest()])->find($this->selectedId) : null;
+        $selected = $this->selectedId ? User::query()->with(['purchases' => fn ($query) => $query->latest(), 'purchases.bumpOffer'])->find($this->selectedId) : null;
+
+        $products = collect(Product::cases())->mapWithKeys(fn (Product $product) => [$product->value => $product->label()])->all();
 
         return view('livewire.admin.users', [
             'users' => $users,
             'selected' => $selected,
-            'products' => collect(Product::cases())->mapWithKeys(fn (Product $product) => [$product->value => $product->label()])->all(),
-            'reversedTxns' => $selected ? $selected->purchases->filter(fn (Purchase $purchase) => $purchase->action->revokes())->map(fn (Purchase $purchase) => $purchase->transaction_id.'|'.$purchase->product_key->value)->all() : [],
+            'products' => $products,
+            'grantOptions' => $products + BumpOffer::query()->get()
+                ->mapWithKeys(fn (BumpOffer $bumpOffer) => ['bump:'.$bumpOffer->id => 'Order bump: '.$bumpOffer->name.' ('.$bumpOffer->product_key->label().')'])
+                ->all(),
+            'reversedTxns' => $selected ? $selected->purchases->filter(fn (Purchase $purchase) => $purchase->action->revokes())->map(fn (Purchase $purchase) => $purchase->transaction_id.'|'.$purchase->item_key)->all() : [],
         ]);
     }
 

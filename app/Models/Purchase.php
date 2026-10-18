@@ -13,9 +13,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * One row per product per IPN event (a LaunchpadJV sale with the order bump writes two). The ledger is the single source of truth for what a buyer owns.
+ * One row per item (a product or an order bump) per IPN event. The ledger is the single source of truth for what a buyer owns.
  */
-#[Fillable(['user_id', 'source', 'transaction_id', 'gateway_product_id', 'product_key', 'amount', 'action', 'payload'])]
+#[Fillable(['user_id', 'source', 'transaction_id', 'gateway_product_id', 'product_key', 'bump_offer_id', 'item_key', 'amount', 'action', 'payload'])]
 class Purchase extends Model
 {
     /** @use HasFactory<PurchaseFactory> */
@@ -33,6 +33,41 @@ class Purchase extends Model
             'amount' => 'decimal:2',
             'payload' => 'array',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (Purchase $purchase) {
+            if ($purchase->item_key === null || $purchase->item_key === '') {
+                $purchase->item_key = self::itemKey($purchase->product_key, $purchase->bump_offer_id);
+            }
+        });
+    }
+
+    /**
+     * "oto1_pro" for a product, "bump:12" for an order bump.
+     */
+    public static function itemKey(?Product $product, ?int $bumpOfferId): string
+    {
+        return $bumpOfferId !== null ? 'bump:'.$bumpOfferId : (string) $product?->value;
+    }
+
+    /**
+     * What was bought, for admin screens.
+     */
+    public function itemLabel(): string
+    {
+        return $this->bump_offer_id !== null
+            ? 'Order bump: '.($this->bumpOffer?->name ?? 'removed')
+            : (string) $this->product_key?->label();
+    }
+
+    /**
+     * @return BelongsTo<BumpOffer, $this>
+     */
+    public function bumpOffer(): BelongsTo
+    {
+        return $this->belongsTo(BumpOffer::class);
     }
 
     /**
@@ -55,7 +90,7 @@ class Purchase extends Model
                 $reversals->selectRaw('1')
                     ->from('purchases as reversals')
                     ->whereColumn('reversals.transaction_id', 'purchases.transaction_id')
-                    ->whereColumn('reversals.product_key', 'purchases.product_key')
+                    ->whereColumn('reversals.item_key', 'purchases.item_key')
                     ->whereIn('reversals.action', [PurchaseAction::Refund->value, PurchaseAction::Chargeback->value]);
             });
     }

@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\BumpFileUploadController;
 use App\Http\Controllers\Auth\DeleteAccountController;
 use App\Http\Controllers\Auth\WelcomeController;
+use App\Http\Controllers\Dashboard\BumpFileController;
 use App\Http\Controllers\Dashboard\IssueExportController;
 use App\Http\Controllers\Dashboard\IssuePreviewController;
 use App\Http\Controllers\Dashboard\SubscriberExportController;
@@ -37,6 +39,9 @@ Route::domain(config('newspub.app_host'))->group(function () {
         Route::delete('/account', DeleteAccountController::class)->middleware('throttle:5,1')->name('account.destroy');
         Route::view('/support', 'support')->name('support');
         Route::view('/upgrades', 'upgrades')->name('upgrades');
+        Route::get('/downloads', Livewire\Downloads\Index::class)->name('downloads.index');
+        Route::get('/downloads/files/{file}', [BumpFileController::class, 'show'])->name('downloads.file');
+        Route::get('/downloads/{bumpOffer}/all', [BumpFileController::class, 'zip'])->middleware('throttle:10,1')->name('downloads.zip');
 
         Route::middleware('product:front_end')->group(function () {
             Route::get('/dashboard', Livewire\Dashboard::class)->name('dashboard');
@@ -83,6 +88,8 @@ Route::domain(config('newspub.app_host'))->group(function () {
             Route::get('/reports', Livewire\Admin\Reports::class)->name('reports');
             Route::get('/spend', Livewire\Admin\Spend::class)->name('spend');
             Route::get('/content', Livewire\Admin\Content::class)->name('content');
+            Route::get('/bumps', Livewire\Admin\Bumps::class)->name('bumps');
+            Route::post('/bumps/{bumpOffer}/files', BumpFileUploadController::class)->name('bumps.files.store');
         });
     });
 });

@@ -6,10 +6,14 @@ use App\Actions\RecordPurchase;
 use App\Enums\Product;
 use App\Enums\PurchaseAction;
 use App\Http\Controllers\Controller;
+use App\Models\BumpOffer;
 use App\Models\Purchase;
+use App\Models\User;
+use App\Notifications\IpnNeedsAttention;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 
 /**
  * Receives LaunchpadJV IPNs for every sale, refund and chargeback. A sale looks like:
@@ -23,6 +27,7 @@ use Illuminate\Support\Facades\Log;
  * }
  *
  * - "bump" says the order bump was taken on this same transaction, and "total_amount" includes it.
+ *   It does not say which bump: that is the product's active bump, set up under Admin, Order bumps.
  * - "action" has been seen as "SALE", "Purchase" and "REFUND", so it is compared case-insensitively.
  * - A refund covers the whole transaction, order bump included.
  */
@@ -74,8 +79,9 @@ class LaunchpadIpnController extends Controller
         }
 
         $total = (float) $request->input('total_amount', 0);
-        $tookBump = filter_var($request->input('bump', false), FILTER_VALIDATE_BOOLEAN) && $product !== Product::BumpVault;
-        $bumpAmount = $tookBump ? min($total, Product::BumpVault->priceInDollars()) : 0;
+        $tookBump = filter_var($request->input('bump', false), FILTER_VALIDATE_BOOLEAN);
+        $bumpOffer = $tookBump ? BumpOffer::activeFor($product) : null;
+        $bumpAmount = $bumpOffer ? min($total, (float) $bumpOffer->price) : 0;
 
         $result = $recordPurchase->handle(
             email: $email,
@@ -88,21 +94,52 @@ class LaunchpadIpnController extends Controller
             payload: $payload,
         );
 
-        if ($tookBump) {
+        if ($bumpOffer) {
+            $this->deliverBump($recordPurchase, $bumpOffer, $email, $name, $action, $transactionId, $bumpAmount, $productId, $payload);
+        } elseif ($tookBump && ! $result['duplicate']) {
+            // Never fail the sale over it, but make sure someone notices and gives the bump by hand.
+            Log::error('IPN: buyer took the order bump but no active bump is set up', ['product' => $product->value, 'transaction_id' => $transactionId]);
+            Notification::send(
+                User::query()->where('is_admin', true)->get(),
+                new IpnNeedsAttention("{$email} took the order bump on {$product->label()} (transaction {$transactionId}), but no active order bump is set up for that product. Set one up under Admin, Order bumps, then give it to this buyer from Admin, Buyers."),
+            );
+        }
+
+        return response($result['duplicate'] ? 'Duplicate' : 'OK', 200);
+    }
+
+    /**
+     * Records the bump line, plus the built-in product it unlocks (if any) on the same transaction.
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    private function deliverBump(RecordPurchase $recordPurchase, BumpOffer $bumpOffer, string $email, ?string $name, PurchaseAction $action, string $transactionId, float $amount, string $productId, array $payload): void
+    {
+        $recordPurchase->handle(
+            email: $email,
+            name: $name,
+            product: null,
+            action: $action,
+            transactionId: $transactionId,
+            amount: $amount,
+            gatewayProductId: $productId,
+            payload: $payload,
+            sendWelcome: false,
+            bumpOffer: $bumpOffer,
+        );
+
+        if ($bumpOffer->unlocks_product) {
             $recordPurchase->handle(
                 email: $email,
                 name: $name,
-                product: Product::BumpVault,
+                product: $bumpOffer->unlocks_product,
                 action: $action,
                 transactionId: $transactionId,
-                amount: $bumpAmount,
                 gatewayProductId: $productId,
                 payload: $payload,
                 sendWelcome: false,
             );
         }
-
-        return response($result['duplicate'] ? 'Duplicate' : 'OK', 200);
     }
 
     /**
@@ -113,7 +150,7 @@ class LaunchpadIpnController extends Controller
      */
     private function reverse(RecordPurchase $recordPurchase, string $email, ?string $name, Product $product, PurchaseAction $action, string $transactionId, array $payload): bool
     {
-        $sales = Purchase::query()->with('user')->standing()->where('transaction_id', $transactionId)->get();
+        $sales = Purchase::query()->with('user', 'bumpOffer')->standing()->where('transaction_id', $transactionId)->get();
         $recorded = false;
 
         if ($sales->isEmpty()) {
@@ -131,6 +168,7 @@ class LaunchpadIpnController extends Controller
                 amount: (float) $sale->amount,
                 gatewayProductId: $sale->gateway_product_id,
                 payload: $payload,
+                bumpOffer: $sale->bumpOffer,
             );
 
             $recorded = $recorded || ! $result['duplicate'];

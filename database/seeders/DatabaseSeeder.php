@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             SponsorSeeder::class,
             KitSeeder::class,
             NetworkSeeder::class,
+            BumpOfferSeeder::class,
         ]);
 
         if (app()->environment('local')) {

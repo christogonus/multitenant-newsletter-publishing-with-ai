@@ -2,6 +2,7 @@
 
 use App\Enums\Product;
 use App\Enums\PurchaseAction;
+use App\Models\BumpOffer;
 use App\Models\Purchase;
 use App\Models\User;
 use App\Notifications\WelcomeBuyer;
@@ -43,19 +44,23 @@ test('the checkout details are used when the LaunchpadJV account has no email', 
     expect(User::sole()->only('email', 'name'))->toBe(['email' => 'typed@example.com', 'name' => 'Typed Name']);
 });
 
-test('a sale with the order bump unlocks the vault too, splits the total and sends one welcome email', function () {
+test('a sale with the vault bump unlocks the vault too, splits the total and sends one welcome email', function () {
+    $vault = BumpOffer::factory()->create(['price' => 17, 'unlocks_product' => Product::BumpVault]);
+
     postIpn(ipnPayload(['bump' => 'true', 'total_amount' => '34.00']))->assertOk();
 
     $user = User::sole();
     expect($user->owns(Product::FrontEnd))->toBeTrue()
         ->and($user->owns(Product::BumpVault))->toBeTrue()
+        ->and($vault->isOwnedBy($user))->toBeTrue()
         ->and(Purchase::where('product_key', Product::FrontEnd)->sole()->amount)->toBe('17.00')
-        ->and(Purchase::where('product_key', Product::BumpVault)->sole()->amount)->toBe('17.00');
+        ->and(Purchase::where('bump_offer_id', $vault->id)->sole()->amount)->toBe('17.00');
 
     Notification::assertSentTimes(WelcomeBuyer::class, 1);
 });
 
 test('refunding a transaction with the order bump takes back both', function () {
+    BumpOffer::factory()->create(['unlocks_product' => Product::BumpVault]);
     postIpn(ipnPayload(['bump' => 'true', 'total_amount' => '34.00']));
 
     postIpn(ipnPayload(['action' => 'REFUND']))->assertOk()->assertSee('OK');
@@ -63,20 +68,21 @@ test('refunding a transaction with the order bump takes back both', function () 
     $user = User::sole();
     expect($user->owns(Product::FrontEnd))->toBeFalse()
         ->and($user->owns(Product::BumpVault))->toBeFalse()
-        ->and(Purchase::where('action', PurchaseAction::Refund)->count())->toBe(2);
+        ->and(Purchase::where('action', PurchaseAction::Refund)->count())->toBe(3);
 });
 
 test('the same IPN delivered twice records one purchase and one welcome email', function () {
+    BumpOffer::factory()->create(['unlocks_product' => Product::BumpVault]);
     postIpn(ipnPayload(['bump' => 'true']))->assertOk();
     postIpn(ipnPayload(['bump' => 'true']))->assertOk()->assertSee('Duplicate');
 
-    expect(Purchase::count())->toBe(2);
+    expect(Purchase::count())->toBe(3);
     Notification::assertSentTimes(WelcomeBuyer::class, 1);
 
     postIpn(ipnPayload(['action' => 'REFUND']));
     postIpn(ipnPayload(['action' => 'REFUND']))->assertOk()->assertSee('Duplicate');
 
-    expect(Purchase::where('action', PurchaseAction::Refund)->count())->toBe(2);
+    expect(Purchase::where('action', PurchaseAction::Refund)->count())->toBe(3);
 });
 
 test('a refund revokes the feature it bought', function () {
