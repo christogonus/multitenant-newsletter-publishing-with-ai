@@ -52,9 +52,18 @@ class LeadPageController extends Controller
             name: $request->validated('name'),
         );
 
-        $request->session()->put('subscribed.'.$newsletter->id, $subscriber->id);
+        // Only a brand-new reader gets their personal referral link; typing someone else's email reveals nothing about them.
+        $isNew = $subscriber->wasRecentlyCreated;
 
-        return redirect(PublicLinks::signed('lead.gift', ['leadPageSlug' => $leadPage->slug, 'subscriber' => $subscriber->id], days: 30));
+        if ($isNew) {
+            $request->session()->put('subscribed.'.$newsletter->id, $subscriber->id);
+        }
+
+        return redirect(PublicLinks::signed('lead.gift', [
+            'leadPageSlug' => $leadPage->slug,
+            'subscriber' => $subscriber->id,
+            'share' => (int) $isNew,
+        ], days: 30));
     }
 
     public function gift(Request $request, string $leadPageSlug, Subscriber $subscriber): Response
@@ -67,7 +76,7 @@ class LeadPageController extends Controller
             'newsletter' => $newsletter,
             'theme' => Theme::for($newsletter),
             'leadPage' => $leadPage,
-            'shareUrl' => PublicLinks::referralShareUrl($newsletter, $subscriber),
+            'shareUrl' => $request->boolean('share') ? PublicLinks::referralShareUrl($newsletter, $subscriber) : null,
         ]);
     }
 

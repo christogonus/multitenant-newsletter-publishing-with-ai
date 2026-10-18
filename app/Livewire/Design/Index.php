@@ -121,7 +121,7 @@ class Index extends Component
                 'max:253',
                 'regex:/^(?=.{4,253}$)([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/',
                 'not_regex:/'.preg_quote(config('newspub.public_root'), '/').'$/',
-                Rule::unique('domains', 'hostname')->ignore($newsletter->domain?->id),
+                Rule::unique('domains', 'hostname')->whereNotNull('verified_at')->ignore($newsletter->domain?->id),
             ],
         ], [
             'hostname.regex' => 'Enter an address like news.yourname.com.',

@@ -16,7 +16,9 @@
         "fortify-development",
         "laravel-best-practices",
         "testing-best-practices",
+        "configuring-horizon",
         "pennant-development",
+        "pulse-development",
         "livewire-development",
         "tailwindcss-development"
     ]

@@ -3,14 +3,22 @@
 namespace App\Providers;
 
 use App\Ai\Contracts\NewsletterWriter;
+use App\Ai\FakeNewsletterWriter;
 use App\Ai\LaravelAiNewsletterWriter;
+use App\Http\Middleware\EnsureAdmin;
+use App\Http\Middleware\EnsureProduct;
+use App\Http\Middleware\EnsurePublication;
 use App\Integrations\PlatformManager;
+use App\Livewire\Pulse\AiSpend;
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Pennant\Feature;
+use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(NewsletterWriter::class, LaravelAiNewsletterWriter::class);
+        $this->app->bind(NewsletterWriter::class, config('newspub.ai.fake') ? FakeNewsletterWriter::class : LaravelAiNewsletterWriter::class);
         $this->app->singleton(PlatformManager::class, fn ($app) => new PlatformManager($app));
     }
 
@@ -31,6 +39,13 @@ class AppServiceProvider extends ServiceProvider
         Model::preventLazyLoading(! $this->app->isProduction());
 
         Feature::discover();
+
+        Gate::define('viewPulse', fn (?User $user = null) => (bool) $user?->is_admin);
+        Livewire::component('pulse.ai-spend', AiSpend::class);
+
+        // Re-run the paid-feature and admin gates on every Livewire action, not only on page load,
+        // so a refund or a removed admin flag takes effect in tabs that are already open.
+        Livewire::addPersistentMiddleware([EnsureProduct::class, EnsurePublication::class, EnsureAdmin::class]);
 
         RateLimiter::for('subscribe', function (Request $request) {
             $perMinute = (int) config('newspub.limits.subscribe_per_minute');

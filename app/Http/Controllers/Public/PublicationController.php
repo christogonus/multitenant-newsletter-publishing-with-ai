@@ -111,6 +111,7 @@ class PublicationController extends Controller
             ? $render()
             : PublicPageCache::remember($newsletter, PublicLinks::mode().':'.$page, $render);
 
-        return response($html)->header('Cache-Control', 'public, max-age=60');
+        // The HTML is cached server-side; responses carry a session cookie, so shared caches must not store them.
+        return response($html)->header('Cache-Control', 'private, max-age=60');
     }
 }

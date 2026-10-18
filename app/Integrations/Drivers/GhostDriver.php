@@ -3,6 +3,7 @@
 namespace App\Integrations\Drivers;
 
 use App\Enums\Platform;
+use App\Integrations\OutboundUrlGuard;
 use App\Integrations\PlatformException;
 use App\Models\Issue;
 use App\Models\PlatformConnection;
@@ -93,6 +94,7 @@ class GhostDriver extends HttpDriver
     protected function client(PlatformConnection $connection): PendingRequest
     {
         $site = rtrim($this->required($connection, 'site_url', 'site address'), '/');
+        OutboundUrlGuard::assertPublic($site, Platform::Ghost);
 
         return $this->http()
             ->baseUrl($site.'/ghost/api/admin')

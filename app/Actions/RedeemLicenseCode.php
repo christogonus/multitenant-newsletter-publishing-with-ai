@@ -2,6 +2,7 @@
 
 namespace App\Actions;
 
+use App\Enums\Product;
 use App\Enums\PurchaseAction;
 use App\Enums\PurchaseSource;
 use App\Models\LicenseCode;
@@ -31,7 +32,8 @@ class RedeemLicenseCode
                 ->lockForUpdate()
                 ->first();
 
-            if (! $licenseCode || ! $licenseCode->isAvailable()) {
+            // Codes stop working once the reseller's own licence is refunded or charged back.
+            if (! $licenseCode || ! $licenseCode->isAvailable() || ! $licenseCode->reseller?->owns(Product::Oto12Reseller)) {
                 throw ValidationException::withMessages(['code' => 'That code is not valid or has already been used.']);
             }
 

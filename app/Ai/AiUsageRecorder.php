@@ -6,6 +6,7 @@ use App\Enums\AiUsageKind;
 use App\Models\AiUsage;
 use App\Models\Newsletter;
 use Laravel\Ai\Responses\TextResponse;
+use Laravel\Pulse\Facades\Pulse;
 
 /**
  * Writes one ai_usage row per generation. Feeds the quota service, the admin spend page and the spend alert.
@@ -17,15 +18,25 @@ class AiUsageRecorder
         $inputTokens = $response->usage->inputTokens;
         $outputTokens = $response->usage->outputTokens;
 
+        $cost = self::cost($inputTokens, $outputTokens);
+        $userId ??= $newsletter?->user_id;
+
+        // Pulse stores integers, so spend is recorded in hundredths of a cent.
+        Pulse::record('ai_spend', $kind->value, (int) round($cost * 10_000))->sum()->count();
+
+        if ($userId) {
+            Pulse::record('ai_spend_user', (string) $userId, (int) round($cost * 10_000))->sum()->count();
+        }
+
         return AiUsage::create([
-            'user_id' => $userId ?? $newsletter?->user_id,
+            'user_id' => $userId,
             'newsletter_id' => $newsletter?->id,
             'kind' => $kind,
             'provider' => $response->meta->provider,
             'model' => $response->meta->model,
             'input_tokens' => $inputTokens,
             'output_tokens' => $outputTokens,
-            'cost' => self::cost($inputTokens, $outputTokens),
+            'cost' => $cost,
             'created_at' => now(),
         ]);
     }

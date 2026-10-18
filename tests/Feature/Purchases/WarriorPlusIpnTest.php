@@ -62,13 +62,23 @@ test('a chargeback revokes only the product that was charged back', function () 
         ->and($user->owns(Product::FrontEnd))->toBeTrue();
 });
 
-test('a second purchase by an existing buyer does not create another account or welcome email', function () {
+test('a second purchase by an activated buyer does not create another account or welcome email', function () {
     $this->post(appUrl('ipn/warriorplus'), ipnPayload());
+    User::sole()->forceFill(['email_verified_at' => now()])->save();
+
     $this->post(appUrl('ipn/warriorplus'), ipnPayload(['product_id' => 'wso_oto2_unlimited', 'transaction_id' => 'TXN-3003', 'buyer_email' => 'BUYER@example.com']));
 
     expect(User::count())->toBe(1)
         ->and(User::sole()->owns(Product::Oto2Unlimited))->toBeTrue();
     Notification::assertSentTimes(WelcomeBuyer::class, 1);
+});
+
+test('a buyer who has not chosen a password yet gets the set-password link again with an upsell', function () {
+    $this->post(appUrl('ipn/warriorplus'), ipnPayload());
+    $this->post(appUrl('ipn/warriorplus'), ipnPayload(['product_id' => 'wso_oto2_unlimited', 'transaction_id' => 'TXN-3003']));
+
+    expect(User::count())->toBe(1);
+    Notification::assertSentTimes(WelcomeBuyer::class, 2);
 });
 
 test('pro grants lite but lite does not grant pro', function () {

@@ -3,7 +3,9 @@
 use App\Enums\Product;
 use App\Models\Newsletter;
 use App\Models\User;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\DuskTestCase;
 use Tests\TestCase;
 
 /*
@@ -15,6 +17,10 @@ use Tests\TestCase;
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature');
+
+pest()->extend(DuskTestCase::class)
+    ->use(DatabaseMigrations::class)
+    ->in('Browser');
 
 /*
 |--------------------------------------------------------------------------

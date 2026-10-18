@@ -8,7 +8,11 @@
 
     <div class="card section">
         <h2 style="font-size: 20px;">Know someone who would like this?</h2>
-        <input class="field" type="text" readonly value="{{ $shareUrl }}" aria-label="Your share link" onfocus="this.select()">
-        <x-public.share :url="$shareUrl" :text="$leadPage->magnet_title" />
+        @if ($shareUrl)
+            <input class="field" type="text" readonly value="{{ $shareUrl }}" aria-label="Your share link" onfocus="this.select()">
+            <x-public.share :url="$shareUrl" :text="$leadPage->magnet_title" />
+        @else
+            <x-public.share :url="$leadPage->publicUrl()" :text="$leadPage->magnet_title" />
+        @endif
     </div>
 </x-public.layout>

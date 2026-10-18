@@ -6,6 +6,7 @@ use App\Enums\Platform;
 use App\Enums\Product;
 use App\Integrations\Drivers\GhostDriver;
 use App\Integrations\Drivers\MailchimpDriver;
+use App\Integrations\OutboundUrlGuard;
 use App\Integrations\PlatformException;
 use App\Integrations\PlatformManager;
 use App\Jobs\PushIssueJob;
@@ -36,6 +37,7 @@ function connectionFor(Platform $platform, array $credentials, ?Newsletter $news
 }
 
 beforeEach(fn () => Http::preventStrayRequests());
+afterEach(fn () => OutboundUrlGuard::resolveUsing(null));
 
 test('credentials are stored encrypted', function () {
     $connection = connectionFor(Platform::Kit, ['api_key' => 'super-secret-key']);
@@ -79,6 +81,7 @@ test('ghost signs requests with a short-lived admin token', function () {
 });
 
 test('ghost creates a draft post from html and treats existing members as fine', function () {
+    OutboundUrlGuard::resolveUsing(fn () => ['93.184.216.34']);
     Http::fake([
         'myblog.ghost.io/ghost/api/admin/members/' => Http::response(['errors' => [['message' => 'Member already exists']]], 422),
         'myblog.ghost.io/ghost/api/admin/posts/*' => Http::response(['posts' => [['id' => 'ghost_1']]], 201),

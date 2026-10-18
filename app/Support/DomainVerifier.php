@@ -15,10 +15,24 @@ class DomainVerifier
         $records = $this->txtRecords($domain->verificationRecordName());
         $verified = in_array($domain->verificationRecordValue(), $records, true);
 
+        // Another publication already proved ownership of this hostname.
+        $takenByOther = Domain::query()
+            ->where('hostname', $domain->hostname)
+            ->whereNotNull('verified_at')
+            ->whereKeyNot($domain->id)
+            ->exists();
+
+        $verified = $verified && ! $takenByOther;
+
         $domain->forceFill([
             'verified_at' => $verified ? ($domain->verified_at ?? now()) : null,
             'last_checked_at' => now(),
         ])->save();
+
+        // The proven owner wins: competing unverified claims on the same hostname are removed.
+        if ($verified) {
+            Domain::query()->where('hostname', $domain->hostname)->whereNull('verified_at')->whereKeyNot($domain->id)->delete();
+        }
 
         return $verified;
     }

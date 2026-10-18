@@ -25,17 +25,9 @@ class SubscribeReader
 
         $subscriber = Subscriber::query()->whereBelongsTo($newsletter)->where('email', $email)->first();
 
+        // An existing reader is returned untouched. A public form can never clear an opt-out or rewrite consent,
+        // and callers only reveal reader-specific links when $subscriber->wasRecentlyCreated is true.
         if ($subscriber) {
-            if ($subscriber->unsubscribed_at) {
-                $subscriber->update([
-                    'unsubscribed_at' => null,
-                    'consent_at' => now(),
-                    'consent_ip' => $ip,
-                    'synced_at' => null,
-                ]);
-                $this->sync($newsletter);
-            }
-
             return $subscriber;
         }
 

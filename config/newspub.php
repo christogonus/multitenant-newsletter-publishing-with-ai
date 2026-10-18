@@ -70,6 +70,11 @@ return [
 
     'ai' => [
         'provider' => env('NEWSPUB_AI_PROVIDER', 'anthropic'),
+
+        /*
+         * Use the deterministic App\Ai\FakeNewsletterWriter (browser tests, demos without a key). Never in production.
+         */
+        'fake' => (bool) env('NEWSPUB_AI_FAKE', false) && env('APP_ENV') !== 'production',
         'model' => env('NEWSPUB_AI_MODEL'),
         'research_enabled' => (bool) env('NEWSPUB_AI_RESEARCH', true),
         'research_cache_hours' => (int) env('NEWSPUB_RESEARCH_CACHE_HOURS', 6),
@@ -79,5 +84,10 @@ return [
     ],
 
     'support_email' => env('NEWSPUB_SUPPORT_EMAIL', 'support@example.com'),
+
+    /*
+     * Where Horizon long-wait alerts go. Admins also get AI spend alerts by email.
+     */
+    'alert_email' => env('NEWSPUB_ALERT_EMAIL'),
 
 ];

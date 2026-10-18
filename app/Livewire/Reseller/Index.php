@@ -5,6 +5,7 @@ namespace App\Livewire\Reseller;
 use App\Enums\Product;
 use App\Livewire\Concerns\InteractsWithPublication;
 use App\Models\LicenseCode;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -49,11 +50,26 @@ class Index extends Component
             return;
         }
 
-        DB::transaction(function () use ($user) {
+        $created = DB::transaction(function () use ($user) {
+            // Lock the reseller row and recount, so parallel requests cannot go over the quota.
+            User::query()->whereKey($user->id)->lockForUpdate()->first();
+
+            if ($this->quantity > $this->remaining()) {
+                return false;
+            }
+
             for ($i = 0; $i < $this->quantity; $i++) {
                 $user->licenseCodes()->create(['code' => $this->newCode(), 'product_key' => Product::FrontEnd]);
             }
+
+            return true;
         });
+
+        if (! $created) {
+            $this->addError('quantity', 'You can create up to '.$this->remaining().' more codes.');
+
+            return;
+        }
 
         $this->toast($this->quantity.' new codes ready. Each one works once.');
     }

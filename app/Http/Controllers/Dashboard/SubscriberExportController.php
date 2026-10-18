@@ -23,14 +23,14 @@ class SubscriberExportController extends Controller
 
             $newsletter->subscribers()->active()->orderBy('id')->chunk(500, function ($subscribers) use ($handle) {
                 foreach ($subscribers as $subscriber) {
-                    fputcsv($handle, [
+                    fputcsv($handle, array_map($this->safeCell(...), [
                         $subscriber->email,
-                        $this->safeCell($subscriber->name),
+                        $subscriber->name,
                         $subscriber->source,
                         $subscriber->consent_at?->toIso8601String(),
                         $subscriber->consent_ip,
                         $subscriber->created_at->toIso8601String(),
-                    ]);
+                    ]));
                 }
             });
 

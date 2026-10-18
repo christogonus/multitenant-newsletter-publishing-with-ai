@@ -3,6 +3,8 @@
         <x-slot:actions>
             <x-ui.button variant="ghost" :href="route('admin.users')">Buyers</x-ui.button>
             <x-ui.button variant="ghost" :href="route('admin.reports')">Reports</x-ui.button>
+            <x-ui.button variant="ghost" href="/pulse" icon-right="external">Pulse</x-ui.button>
+            <x-ui.button variant="ghost" href="/horizon" icon-right="external">Queues</x-ui.button>
         </x-slot:actions>
     </x-ui.page-header>
 

@@ -23,7 +23,12 @@ abstract class HttpDriver implements PlatformDriver
 
     protected function http(): PendingRequest
     {
-        return Http::acceptJson()->asJson()->timeout(20)->connectTimeout(10)->withUserAgent('NewsPubAI/1.0');
+        return Http::acceptJson()
+            ->asJson()
+            ->timeout(20)
+            ->connectTimeout(10)
+            ->withUserAgent('NewsPubAI/1.0')
+            ->withOptions(['allow_redirects' => false]);
     }
 
     /**

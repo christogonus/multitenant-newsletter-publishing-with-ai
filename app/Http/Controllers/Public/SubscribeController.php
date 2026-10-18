@@ -25,7 +25,11 @@ class SubscribeController extends Controller
             referralCode: $request->input('ref') ?: $request->cookie('np_ref_'.$newsletter->id),
         );
 
-        $request->session()->put('subscribed.'.$newsletter->id, $subscriber->id);
+        if ($subscriber->wasRecentlyCreated) {
+            $request->session()->put('subscribed.'.$newsletter->id, $subscriber->id);
+        } else {
+            $request->session()->forget('subscribed.'.$newsletter->id);
+        }
 
         return redirect(PublicLinks::route('thanks'));
     }

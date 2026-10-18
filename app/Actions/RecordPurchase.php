@@ -10,7 +10,6 @@ use App\Models\User;
 use App\Notifications\WelcomeBuyer;
 use App\Support\Entitlements;
 use Illuminate\Database\UniqueConstraintViolationException;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -50,30 +49,26 @@ class RecordPurchase
             return ['purchase' => null, 'duplicate' => false, 'created_user' => false];
         }
 
-        $createdUser = false;
+        // Two IPNs for a new buyer (front end + bump) can arrive together; createOrFirst lets the
+        // unique email index pick one winner instead of failing the second purchase.
+        $user ??= User::createOrFirst(['email' => $email], [
+            'name' => $name ?: Str::before($email, '@'),
+            'password' => Hash::make(Str::random(40)),
+        ]);
+        $createdUser = $user->wasRecentlyCreated;
 
         try {
-            $purchase = DB::transaction(function () use ($email, $name, $product, $action, $transactionId, $amount, $warriorPlusProductId, $source, $payload, &$user, &$createdUser) {
-                if (! $user) {
-                    $user = User::create([
-                        'name' => $name ?: Str::before($email, '@'),
-                        'email' => $email,
-                        'password' => Hash::make(Str::random(40)),
-                    ]);
-                    $createdUser = true;
-                }
-
-                return $user->purchases()->create([
-                    'source' => $source,
-                    'wp_txn_id' => $transactionId,
-                    'wp_product_id' => $warriorPlusProductId,
-                    'product_key' => $product,
-                    'amount' => $amount,
-                    'action' => $action,
-                    'payload' => $payload,
-                ]);
-            });
+            $purchase = $user->purchases()->create([
+                'source' => $source,
+                'wp_txn_id' => $transactionId,
+                'wp_product_id' => $warriorPlusProductId,
+                'product_key' => $product,
+                'amount' => $amount,
+                'action' => $action,
+                'payload' => $payload,
+            ]);
         } catch (UniqueConstraintViolationException) {
+            // Only the (wp_txn_id, action) index can fail here, so this is a genuine redelivery.
             return [
                 'purchase' => Purchase::query()->where('wp_txn_id', $transactionId)->where('action', $action)->first(),
                 'duplicate' => true,
@@ -83,7 +78,9 @@ class RecordPurchase
 
         $this->entitlements->refresh($user);
 
-        if ($createdUser && $source === PurchaseSource::WarriorPlus) {
+        // A purchase that lands on an account whose email was never confirmed (for example one made with a
+        // reseller code) also gets the set-password link, so whoever owns the inbox controls the account.
+        if ($source === PurchaseSource::WarriorPlus && ! $action->revokes() && ($createdUser || $user->email_verified_at === null)) {
             $user->notify(new WelcomeBuyer);
         }
 
