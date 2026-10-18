@@ -1,0 +1,142 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../../app/**/*.php';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * NewsPub AI design tokens. Neutral slate surfaces carry the page; colour does the guiding.
+ * Each product area has a solid (white text at AA), a tint (backgrounds) and an ink (text on the tint).
+ */
+@theme {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+
+    --color-page: #f8fafc;
+    --color-card: #ffffff;
+    --color-line: #e2e8f0;
+    --color-ink: #0f172a;
+    --color-muted: #475569;
+    --color-subtle: #f1f5f9;
+
+    --color-brand: #4f46e5;
+    --color-brand-hover: #4338ca;
+    --color-brand-tint: #eef2ff;
+    --color-brand-ink: #3730a3;
+
+    --color-create: #7c3aed;
+    --color-create-hover: #6d28d9;
+    --color-create-tint: #f5f3ff;
+    --color-create-ink: #5b21b6;
+
+    --color-publish: #2563eb;
+    --color-publish-hover: #1d4ed8;
+    --color-publish-tint: #eff6ff;
+    --color-publish-ink: #1e40af;
+
+    --color-grow: #047857;
+    --color-grow-hover: #065f46;
+    --color-grow-tint: #ecfdf5;
+    --color-grow-ink: #064e3b;
+
+    --color-earn: #b45309;
+    --color-earn-hover: #92400e;
+    --color-earn-tint: #fffbeb;
+    --color-earn-ink: #78350f;
+
+    --color-social: #e11d48;
+    --color-social-hover: #be123c;
+    --color-social-tint: #fff1f2;
+    --color-social-ink: #9f1239;
+
+    --color-automate: #0e7490;
+    --color-automate-hover: #155e75;
+    --color-automate-tint: #ecfeff;
+    --color-automate-ink: #164e63;
+
+    --color-success: #15803d;
+    --color-success-tint: #f0fdf4;
+    --color-success-ink: #14532d;
+    --color-warning: #b45309;
+    --color-warning-tint: #fffbeb;
+    --color-warning-ink: #78350f;
+    --color-danger: #b91c1c;
+    --color-danger-hover: #991b1b;
+    --color-danger-tint: #fef2f2;
+    --color-danger-ink: #7f1d1d;
+
+    --radius-control: 8px;
+    --radius-card: 12px;
+    --radius-hero: 16px;
+
+    --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.06), 0 1px 3px 0 rgb(15 23 42 / 0.08);
+    --shadow-raised: 0 10px 25px -5px rgb(15 23 42 / 0.12), 0 8px 10px -6px rgb(15 23 42 / 0.08);
+
+    --text-display: 2.25rem;
+    --text-display--line-height: 2.75rem;
+    --text-display--font-weight: 700;
+}
+
+.dark {
+    --color-page: #0b1120;
+    --color-card: #111827;
+    --color-line: #1f2a3c;
+    --color-ink: #f1f5f9;
+    --color-muted: #a3b1c6;
+    --color-subtle: #182134;
+
+    --color-brand-tint: #1e1b4b;
+    --color-brand-ink: #c7d2fe;
+    --color-create-tint: #2e1065;
+    --color-create-ink: #ddd6fe;
+    --color-publish-tint: #172554;
+    --color-publish-ink: #bfdbfe;
+    --color-grow-tint: #022c22;
+    --color-grow-ink: #a7f3d0;
+    --color-earn-tint: #3b1d06;
+    --color-earn-ink: #fde68a;
+    --color-social-tint: #4c0519;
+    --color-social-ink: #fecdd3;
+    --color-automate-tint: #083344;
+    --color-automate-ink: #a5f3fc;
+
+    --color-success-tint: #052e16;
+    --color-success-ink: #bbf7d0;
+    --color-warning-tint: #3b1d06;
+    --color-warning-ink: #fde68a;
+    --color-danger-tint: #450a0a;
+    --color-danger-ink: #fecaca;
+
+    --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+    --shadow-raised: 0 10px 25px -5px rgb(0 0 0 / 0.5);
+}
+
+@layer base {
+    html {
+        -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+        @apply bg-page text-ink;
+    }
+
+    :focus-visible {
+        @apply outline-2 outline-offset-2 outline-brand;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
+}

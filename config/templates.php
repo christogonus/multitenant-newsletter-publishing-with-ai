@@ -1,0 +1,156 @@
+<?php
+
+/*
+|--------------------------------------------------------------------------
+| Newsletter templates
+|--------------------------------------------------------------------------
+|
+| Public pages and email HTML keep their own themes and never use the
+| dashboard palette. Premium templates and custom branding need OTO 8.
+| Fonts are email-safe stacks so the web page and the email match.
+|
+*/
+
+return [
+
+    'templates' => [
+        'classic' => [
+            'name' => 'Classic',
+            'description' => 'Warm paper tones and a serif headline. Feels like a trusted weekly letter.',
+            'premium' => false,
+            'font' => 'georgia',
+            'heading_font' => 'georgia',
+            'background' => '#f6f2ea',
+            'surface' => '#ffffff',
+            'text' => '#1f2933',
+            'muted' => '#5f6b7a',
+            'accent' => '#9a3412',
+            'header' => 'center',
+            'radius' => '6px',
+        ],
+        'modern' => [
+            'name' => 'Modern',
+            'description' => 'Clean sans-serif with a bold accent. Great for tech, business and money.',
+            'premium' => false,
+            'font' => 'system',
+            'heading_font' => 'system',
+            'background' => '#f3f4f6',
+            'surface' => '#ffffff',
+            'text' => '#111827',
+            'muted' => '#4b5563',
+            'accent' => '#4f46e5',
+            'header' => 'left',
+            'radius' => '12px',
+        ],
+        'minimal' => [
+            'name' => 'Minimal',
+            'description' => 'Black on white with lots of space. Lets your words do the work.',
+            'premium' => false,
+            'font' => 'system',
+            'heading_font' => 'system',
+            'background' => '#ffffff',
+            'surface' => '#ffffff',
+            'text' => '#111111',
+            'muted' => '#555555',
+            'accent' => '#111111',
+            'header' => 'left',
+            'radius' => '0px',
+        ],
+        'bold' => [
+            'name' => 'Bold',
+            'description' => 'A strong colour band and chunky headings. Made to stand out in the inbox.',
+            'premium' => false,
+            'font' => 'helvetica',
+            'heading_font' => 'helvetica',
+            'background' => '#0f172a',
+            'surface' => '#ffffff',
+            'text' => '#0f172a',
+            'muted' => '#475569',
+            'accent' => '#e11d48',
+            'header' => 'band',
+            'radius' => '10px',
+        ],
+        'digest' => [
+            'name' => 'Digest',
+            'description' => 'Compact sections with clear dividers. Perfect for roundups and quick reads.',
+            'premium' => false,
+            'font' => 'verdana',
+            'heading_font' => 'trebuchet',
+            'background' => '#eef6f3',
+            'surface' => '#ffffff',
+            'text' => '#12312a',
+            'muted' => '#4a6560',
+            'accent' => '#047857',
+            'header' => 'left',
+            'radius' => '8px',
+        ],
+
+        'editorial' => [
+            'name' => 'Editorial',
+            'description' => 'Magazine-style serif headings with elegant rules.',
+            'premium' => true,
+            'font' => 'georgia',
+            'heading_font' => 'palatino',
+            'background' => '#fbfaf7',
+            'surface' => '#ffffff',
+            'text' => '#1c1917',
+            'muted' => '#57534e',
+            'accent' => '#7c2d12',
+            'header' => 'center',
+            'radius' => '0px',
+        ],
+        'midnight' => [
+            'name' => 'Midnight',
+            'description' => 'A dark, premium look with glowing accents.',
+            'premium' => true,
+            'font' => 'system',
+            'heading_font' => 'system',
+            'background' => '#020617',
+            'surface' => '#0f172a',
+            'text' => '#e2e8f0',
+            'muted' => '#94a3b8',
+            'accent' => '#38bdf8',
+            'header' => 'left',
+            'radius' => '14px',
+        ],
+        'sunrise' => [
+            'name' => 'Sunrise',
+            'description' => 'Bright and optimistic, with a warm colour band.',
+            'premium' => true,
+            'font' => 'trebuchet',
+            'heading_font' => 'trebuchet',
+            'background' => '#fff7ed',
+            'surface' => '#ffffff',
+            'text' => '#431407',
+            'muted' => '#7c2d12',
+            'accent' => '#ea580c',
+            'header' => 'band',
+            'radius' => '16px',
+        ],
+        'studio' => [
+            'name' => 'Studio',
+            'description' => 'Crisp monospace details for builders and creators.',
+            'premium' => true,
+            'font' => 'system',
+            'heading_font' => 'mono',
+            'background' => '#f5f5f4',
+            'surface' => '#ffffff',
+            'text' => '#1c1917',
+            'muted' => '#57534e',
+            'accent' => '#0e7490',
+            'header' => 'left',
+            'radius' => '4px',
+        ],
+    ],
+
+    'fonts' => [
+        'system' => ['label' => 'Clean (system)', 'stack' => "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"],
+        'helvetica' => ['label' => 'Helvetica', 'stack' => "'Helvetica Neue', Helvetica, Arial, sans-serif"],
+        'verdana' => ['label' => 'Verdana', 'stack' => 'Verdana, Geneva, sans-serif'],
+        'trebuchet' => ['label' => 'Trebuchet', 'stack' => "'Trebuchet MS', 'Lucida Grande', sans-serif"],
+        'georgia' => ['label' => 'Georgia (serif)', 'stack' => "Georgia, 'Times New Roman', serif"],
+        'palatino' => ['label' => 'Palatino (serif)', 'stack' => "'Palatino Linotype', Palatino, 'Book Antiqua', serif"],
+        'mono' => ['label' => 'Monospace', 'stack' => "ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace"],
+    ],
+
+];
