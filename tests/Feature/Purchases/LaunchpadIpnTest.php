@@ -140,6 +140,33 @@ test('a buyer who has not chosen a password yet gets the set-password link again
     Notification::assertSentTimes(WelcomeBuyer::class, 2);
 });
 
+test('a buyer who changes their login email keeps getting upsells and refunds on the same account', function () {
+    postIpn(ipnPayload());
+    $user = User::sole();
+    $user->forceFill(['email' => 'new-login@example.com', 'email_verified_at' => now()])->save();
+
+    postIpn(ipnPayload(['product_id' => launchpadId(Product::Oto2Unlimited), 'transaction_id' => 'pi_3003']))->assertOk();
+    postIpn(ipnPayload(['action' => 'REFUND']))->assertOk();
+
+    $user = $user->fresh();
+    expect(User::count())->toBe(1)
+        ->and($user->owns(Product::Oto2Unlimited))->toBeTrue()
+        ->and($user->owns(Product::FrontEnd))->toBeFalse()
+        ->and(Purchase::pluck('buyer_email')->unique()->all())->toBe(['buyer@example.com']);
+});
+
+test('nobody can switch their login to an email another account paid with', function () {
+    postIpn(ipnPayload());
+    User::sole()->forceFill(['email' => 'new-login@example.com'])->save();
+    $other = User::factory()->create();
+
+    $this->actingAs($other)
+        ->put(route('user-profile-information.update'), ['name' => $other->name, 'email' => 'buyer@example.com'])
+        ->assertSessionHasErrorsIn('updateProfileInformation', 'email');
+
+    expect($other->fresh()->email)->not->toBe('buyer@example.com');
+});
+
 test('pro grants lite but lite does not grant pro', function () {
     $pro = buyer(Product::Oto1Pro);
     $lite = buyer(Product::Oto1Lite);

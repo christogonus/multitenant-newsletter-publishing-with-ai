@@ -29,7 +29,8 @@ use Illuminate\Support\Facades\Notification;
  * - "bump" says the order bump was taken on this same transaction, and "total_amount" includes it.
  *   It does not say which bump: that is the product's active bump, set up under Admin, Order bumps.
  * - "action" has been seen as "SALE", "Purchase" and "REFUND", so it is compared case-insensitively.
- * - A refund covers the whole transaction, order bump included.
+ * - A refund covers the whole transaction, order bump included, and lands on the account that made the sale.
+ * - Buyers are matched on the email they paid with before their login email, so changing it on /account loses nothing.
  */
 class LaunchpadIpnController extends Controller
 {
@@ -160,7 +161,7 @@ class LaunchpadIpnController extends Controller
 
         foreach ($sales as $sale) {
             $result = $recordPurchase->handle(
-                email: $sale->user->email,
+                email: $email,
                 name: $name,
                 product: $sale->product_key,
                 action: $action,
@@ -169,6 +170,7 @@ class LaunchpadIpnController extends Controller
                 gatewayProductId: $sale->gateway_product_id,
                 payload: $payload,
                 bumpOffer: $sale->bumpOffer,
+                user: $sale->user,
             );
 
             $recorded = $recorded || ! $result['duplicate'];

@@ -14,8 +14,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * One row per item (a product or an order bump) per IPN event. The ledger is the single source of truth for what a buyer owns.
+ * buyer_email is the email the buyer paid with, which stays put when they change their login email.
  */
-#[Fillable(['user_id', 'source', 'transaction_id', 'gateway_product_id', 'product_key', 'bump_offer_id', 'item_key', 'amount', 'action', 'payload'])]
+#[Fillable(['user_id', 'buyer_email', 'source', 'transaction_id', 'gateway_product_id', 'product_key', 'bump_offer_id', 'item_key', 'amount', 'action', 'payload'])]
 class Purchase extends Model
 {
     /** @use HasFactory<PurchaseFactory> */

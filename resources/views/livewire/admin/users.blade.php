@@ -51,7 +51,7 @@
                             <li class="flex flex-wrap items-center gap-2 py-2">
                                 <x-ui.pill :tone="$purchase->action->revokes() ? 'danger' : 'success'">{{ ucfirst($purchase->action->value) }}</x-ui.pill>
                                 <span class="flex-1 text-ink">{{ $purchase->itemLabel() }}</span>
-                                <span class="text-xs text-muted">{{ $purchase->source->value }} · {{ $purchase->created_at->toDateString() }}</span>
+                                <span class="text-xs text-muted">{{ $purchase->source->value }} · {{ $purchase->created_at->toDateString() }}@if ($purchase->buyer_email && $purchase->buyer_email !== $selected->email) · paid as {{ $purchase->buyer_email }}@endif</span>
                                 @if (! $purchase->action->revokes() && ! in_array($purchase->transaction_id.'|'.$purchase->item_key, $reversedTxns, true))
                                     <x-ui.button variant="ghost" size="sm" wire:click="revoke({{ $purchase->id }})" wire:confirm="Revoke this purchase? The feature switches off.">Revoke</x-ui.button>
                                 @endif

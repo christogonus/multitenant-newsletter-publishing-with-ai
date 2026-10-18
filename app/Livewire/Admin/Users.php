@@ -83,7 +83,7 @@ class Users extends Component
         $products = $bumpOffer ? array_filter([$bumpOffer->unlocks_product]) : [Product::from($this->grantProduct)];
 
         if ($bumpOffer) {
-            $recordPurchase->handle($user->email, $user->name, null, PurchaseAction::Sale, $transactionId, source: PurchaseSource::AdminGrant, payload: ['granted_by' => auth()->id()], bumpOffer: $bumpOffer);
+            $recordPurchase->handle($user->email, $user->name, null, PurchaseAction::Sale, $transactionId, source: PurchaseSource::AdminGrant, payload: ['granted_by' => auth()->id()], bumpOffer: $bumpOffer, user: $user);
         }
 
         foreach ($products as $product) {
@@ -95,6 +95,7 @@ class Users extends Component
                 transactionId: $transactionId,
                 source: PurchaseSource::AdminGrant,
                 payload: ['granted_by' => auth()->id()],
+                user: $user,
             );
         }
 
@@ -107,7 +108,7 @@ class Users extends Component
         $purchase = Purchase::query()->where('action', PurchaseAction::Sale)->findOrFail($purchaseId);
 
         $recordPurchase->handle(
-            email: $purchase->user->email,
+            email: $purchase->buyer_email ?? $purchase->user->email,
             name: $purchase->user->name,
             product: $purchase->product_key,
             action: PurchaseAction::Refund,
@@ -115,6 +116,7 @@ class Users extends Component
             source: PurchaseSource::AdminGrant,
             payload: ['revoked_by' => auth()->id()],
             bumpOffer: $purchase->bumpOffer,
+            user: $purchase->user,
         );
 
         $this->dispatch('toast', message: 'Revoked.', tone: 'success');
@@ -170,6 +172,7 @@ class Users extends Component
                 transactionId: 'DEMO-'.Str::upper(Str::random(16)),
                 source: PurchaseSource::AdminGrant,
                 payload: ['granted_by' => auth()->id(), 'demo' => true],
+                user: $user,
             );
         }
 
@@ -200,7 +203,10 @@ class Users extends Component
     {
         $users = User::query()
             ->withCount('newsletters')
-            ->when($this->search !== '', fn ($query) => $query->where(fn ($inner) => $inner->where('email', 'like', '%'.$this->search.'%')->orWhere('name', 'like', '%'.$this->search.'%')))
+            ->when($this->search !== '', fn ($query) => $query->where(fn ($inner) => $inner
+                ->where('email', 'like', '%'.$this->search.'%')
+                ->orWhere('name', 'like', '%'.$this->search.'%')
+                ->orWhereHas('purchases', fn ($purchases) => $purchases->where('buyer_email', 'like', '%'.$this->search.'%'))))
             ->when($this->revokedOnly, fn ($query) => $query->whereHas('purchases', fn ($purchases) => $purchases->whereIn('action', [PurchaseAction::Refund, PurchaseAction::Chargeback])))
             ->when($this->demoOnly, fn ($query) => $query->where('is_demo', true))
             ->latest()

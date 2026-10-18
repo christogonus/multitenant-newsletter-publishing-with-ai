@@ -56,6 +56,7 @@ class RedeemLicenseCode
                 transactionId: self::transactionId($licenseCode),
                 source: PurchaseSource::LicenseCode,
                 payload: ['license_code_id' => $licenseCode->id, 'reseller_id' => $licenseCode->reseller_id],
+                user: $user,
             );
 
             $licenseCode->update(['redeemed_by' => $user->id, 'redeemed_at' => now()]);

@@ -23,8 +23,10 @@ class RecordPurchase
     public function __construct(private Entitlements $entitlements) {}
 
     /**
+     * @param  string  $email  the email the buyer paid with, stored on the row as buyer_email
      * @param  array<string, mixed>  $payload
      * @param  bool  $sendWelcome  false for the second item of one IPN, so the buyer gets one email
+     * @param  User|null  $user  the account to record against, when the caller already knows it (admin grants, refunds of a known sale)
      * @return array{purchase: ?Purchase, duplicate: bool, created_user: bool}
      */
     public function handle(
@@ -39,6 +41,7 @@ class RecordPurchase
         array $payload = [],
         bool $sendWelcome = true,
         ?BumpOffer $bumpOffer = null,
+        ?User $user = null,
     ): array {
         $email = Str::lower(trim($email));
         $product = $bumpOffer ? null : $product;
@@ -49,7 +52,7 @@ class RecordPurchase
             return ['purchase' => $existing, 'duplicate' => true, 'created_user' => false];
         }
 
-        $user = User::query()->where('email', $email)->first();
+        $user ??= self::findBuyer($email);
 
         if (! $user && $action->revokes()) {
             return ['purchase' => null, 'duplicate' => false, 'created_user' => false];
@@ -65,6 +68,7 @@ class RecordPurchase
 
         try {
             $purchase = $user->purchases()->create([
+                'buyer_email' => $email,
                 'source' => $source,
                 'transaction_id' => $transactionId,
                 'gateway_product_id' => $gatewayProductId,
@@ -89,5 +93,18 @@ class RecordPurchase
         }
 
         return ['purchase' => $purchase, 'duplicate' => false, 'created_user' => $createdUser];
+    }
+
+    /**
+     * The account that has paid with this email before, even if its login email has since changed;
+     * otherwise the account that logs in with it.
+     */
+    public static function findBuyer(string $email): ?User
+    {
+        $email = Str::lower(trim($email));
+        $userId = Purchase::query()->where('buyer_email', $email)->latest('id')->value('user_id');
+
+        return ($userId ? User::query()->find($userId) : null)
+            ?? User::query()->where('email', $email)->first();
     }
 }

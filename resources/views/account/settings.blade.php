@@ -21,7 +21,7 @@
                 @csrf
                 @method('PUT')
                 <x-ui.input name="name" label="Name" :value="old('name', $user->name)" required />
-                <x-ui.input name="email" type="email" label="Email" :value="old('email', $user->email)" required />
+                <x-ui.input name="email" type="email" label="Email" :value="old('email', $user->email)" hint="The email you sign in with. Your purchases stay linked to this account if you change it." required />
                 <div class="sm:col-span-2 flex justify-end"><x-ui.button type="submit">Save details</x-ui.button></div>
             </form>
         </x-ui.card>

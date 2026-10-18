@@ -29,7 +29,11 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
                 'email',
                 'max:255',
                 Rule::unique('users')->ignore($user->id),
+                // Purchases are matched on the email they were paid with, so it must keep pointing at the account that paid.
+                Rule::unique('purchases', 'buyer_email')->ignore($user->id, 'user_id'),
             ],
+        ], [
+            'email.unique' => 'That email is already used by another account.',
         ])->validateWithBag('updateProfileInformation');
 
         if ($input['email'] !== $user->email &&
