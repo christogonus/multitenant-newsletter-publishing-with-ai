@@ -22,9 +22,9 @@ class PurchaseFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'source' => PurchaseSource::WarriorPlus,
-            'wp_txn_id' => 'TXN-'.Str::upper(Str::random(12)),
-            'wp_product_id' => (string) fake()->numberBetween(100000, 999999),
+            'source' => PurchaseSource::LaunchpadJv,
+            'transaction_id' => 'TXN-'.Str::upper(Str::random(12)),
+            'gateway_product_id' => (string) fake()->numberBetween(100000, 999999),
             'product_key' => Product::FrontEnd,
             'amount' => 17,
             'action' => PurchaseAction::Sale,

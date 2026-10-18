@@ -39,7 +39,7 @@ test('every dashboard screen loads for a buyer who owns everything', function (s
 ]);
 
 test('locked areas show the upgrade card with the checkout link', function (string $routeName, Product $product) {
-    configureWarriorPlus();
+    configureLaunchpad();
     $newsletter = Newsletter::factory()->create();
 
     $this->actingAs($newsletter->user)

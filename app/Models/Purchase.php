@@ -13,9 +13,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * One row per IPN event. The ledger is the single source of truth for what a buyer owns.
+ * One row per product per IPN event (a LaunchpadJV sale with the order bump writes two). The ledger is the single source of truth for what a buyer owns.
  */
-#[Fillable(['user_id', 'source', 'wp_txn_id', 'wp_product_id', 'product_key', 'amount', 'action', 'payload'])]
+#[Fillable(['user_id', 'source', 'transaction_id', 'gateway_product_id', 'product_key', 'amount', 'action', 'payload'])]
 class Purchase extends Model
 {
     /** @use HasFactory<PurchaseFactory> */
@@ -54,7 +54,8 @@ class Purchase extends Model
             ->whereNotExists(function ($reversals) {
                 $reversals->selectRaw('1')
                     ->from('purchases as reversals')
-                    ->whereColumn('reversals.wp_txn_id', 'purchases.wp_txn_id')
+                    ->whereColumn('reversals.transaction_id', 'purchases.transaction_id')
+                    ->whereColumn('reversals.product_key', 'purchases.product_key')
                     ->whereIn('reversals.action', [PurchaseAction::Refund->value, PurchaseAction::Chargeback->value]);
             });
     }

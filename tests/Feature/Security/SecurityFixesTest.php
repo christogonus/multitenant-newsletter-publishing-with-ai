@@ -80,7 +80,7 @@ test('codes from a refunded reseller stop working', function () {
     $reseller = buyer(Product::Oto12Reseller);
     $reseller->licenseCodes()->create(['code' => 'NPAI-AAAA-BBBB-CCCC']);
     $sale = $reseller->purchases()->where('product_key', Product::Oto12Reseller)->sole();
-    app(RecordPurchase::class)->handle($reseller->email, null, Product::Oto12Reseller, PurchaseAction::Refund, $sale->wp_txn_id);
+    app(RecordPurchase::class)->handle($reseller->email, null, Product::Oto12Reseller, PurchaseAction::Refund, $sale->transaction_id);
 
     expect(fn () => app(RedeemLicenseCode::class)->handle('NPAI-AAAA-BBBB-CCCC', 'X', 'x@example.com', 'secret-pass-1'))
         ->toThrow(ValidationException::class);

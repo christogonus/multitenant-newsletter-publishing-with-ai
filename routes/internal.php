@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\Internal\DomainAllowedController;
 use App\Http\Controllers\Internal\DomainCertificateCallbackController;
-use App\Http\Controllers\Internal\WarriorPlusIpnController;
+use App\Http\Controllers\Internal\LaunchpadIpnController;
 use App\Http\Controllers\Public\UnsubscribeController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::domain(config('newspub.app_host'))->group(function () {
-    Route::post('/ipn/warriorplus', WarriorPlusIpnController::class)->middleware('throttle:120,1')->name('ipn.warriorplus');
+    Route::post('/ipn/launchpad', LaunchpadIpnController::class)->middleware('throttle:120,1')->name('ipn.launchpad');
 
     Route::get('/internal/domains/allowed', DomainAllowedController::class)->middleware('throttle:600,1')->name('internal.domains.allowed');
     Route::post('/internal/domains/{domain}/certificate-callback', DomainCertificateCallbackController::class)

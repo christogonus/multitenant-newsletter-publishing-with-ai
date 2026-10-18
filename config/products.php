@@ -5,44 +5,37 @@
 | Products
 |--------------------------------------------------------------------------
 |
-| Maps each feature key to its WarriorPlus product IDs (comma separated in
+| Maps each feature key to its LaunchpadJV product IDs (comma separated in
 | the environment, so test and live products can both unlock a feature)
 | and to the checkout URL used by the locked-feature Upgrade buttons.
+|
+| An ID is either "product_id" or "product_id:offer_id", the second for
+| when two of our products are offers of one LaunchpadJV product.
 |
 */
 
 $product = fn (string $envKey): array => [
-    'wp_product_ids' => array_values(array_filter(array_map('trim', explode(',', (string) env("WP_PRODUCT_{$envKey}", ''))))),
+    'launchpad_ids' => array_values(array_filter(array_map('trim', explode(',', (string) env("LAUNCHPAD_PRODUCT_{$envKey}", ''))))),
     'checkout_url' => env("CHECKOUT_{$envKey}", '#'),
 ];
 
 return [
 
-    'warriorplus' => [
-        'security_key' => env('WARRIORPLUS_SECURITY_KEY'),
-
+    'launchpad' => [
         /*
-         * IPN field names. Confirm these against the vendor account before launch.
+         * LaunchpadJV does not sign its IPNs, so the IPN address carries this secret instead:
+         * POST {APP_URL}/ipn/launchpad?key=LAUNCHPAD_WEBHOOK_KEY (or an X-Webhook-Key header).
          */
-        'fields' => [
-            'security_key' => 'WP_SECURITYKEY',
-            'action' => 'WP_ACTION',
-            'product_id' => 'WP_ITEM_NUMBER',
-            'transaction_id' => 'WP_TXNID',
-            'sale_id' => 'WP_SALEID',
-            'buyer_email' => 'WP_BUYER_EMAIL',
-            'buyer_name' => 'WP_BUYER_NAME',
-            'amount' => 'WP_SALE_AMOUNT',
-        ],
+        'webhook_key' => env('LAUNCHPAD_WEBHOOK_KEY'),
 
         /*
-         * IPN action values mapped to ledger actions.
+         * IPN "action" values (compared case-insensitively) mapped to ledger actions.
          */
         'actions' => [
             'sale' => 'sale',
+            'purchase' => 'sale',
             'refund' => 'refund',
             'chargeback' => 'chargeback',
-            'reversal' => 'chargeback',
         ],
     ],
 

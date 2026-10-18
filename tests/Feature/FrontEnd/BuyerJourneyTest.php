@@ -32,7 +32,7 @@ function fakeIssueOutput(array $overrides = []): array
 }
 
 beforeEach(function () {
-    configureWarriorPlus();
+    configureLaunchpad();
     config(['newspub.ai.research_enabled' => true]);
     Notification::fake();
 });
@@ -42,7 +42,7 @@ test('a buyer goes from purchase to a live public issue', function () {
     IssueWriter::fake([fakeIssueOutput()]);
 
     // Purchase arrives and the buyer sets a password from the welcome email.
-    $this->post(appUrl('ipn/warriorplus'), ipnPayload())->assertOk();
+    postIpn(ipnPayload())->assertOk();
     $user = User::where('email', 'buyer@example.com')->sole();
     $welcomeUrl = WelcomeBuyer::setPasswordUrl($user);
     $this->post($welcomeUrl, ['password' => 'a-strong-password-1', 'password_confirmation' => 'a-strong-password-1', 'terms' => '1'])

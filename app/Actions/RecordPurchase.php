@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
- * Writes one ledger row and refreshes the buyer's features. Idempotent on (transaction ID, action).
+ * Writes one ledger row and refreshes the buyer's features. Idempotent on (transaction ID, product, action).
  */
 class RecordPurchase
 {
@@ -22,6 +22,7 @@ class RecordPurchase
 
     /**
      * @param  array<string, mixed>  $payload
+     * @param  bool  $sendWelcome  false for the second product of one IPN, so the buyer gets one email
      * @return array{purchase: ?Purchase, duplicate: bool, created_user: bool}
      */
     public function handle(
@@ -31,13 +32,14 @@ class RecordPurchase
         PurchaseAction $action,
         string $transactionId,
         float $amount = 0,
-        ?string $warriorPlusProductId = null,
-        PurchaseSource $source = PurchaseSource::WarriorPlus,
+        ?string $gatewayProductId = null,
+        PurchaseSource $source = PurchaseSource::LaunchpadJv,
         array $payload = [],
+        bool $sendWelcome = true,
     ): array {
         $email = Str::lower(trim($email));
 
-        $existing = Purchase::query()->where('wp_txn_id', $transactionId)->where('action', $action)->first();
+        $existing = Purchase::query()->where('transaction_id', $transactionId)->where('product_key', $product)->where('action', $action)->first();
 
         if ($existing) {
             return ['purchase' => $existing, 'duplicate' => true, 'created_user' => false];
@@ -60,17 +62,17 @@ class RecordPurchase
         try {
             $purchase = $user->purchases()->create([
                 'source' => $source,
-                'wp_txn_id' => $transactionId,
-                'wp_product_id' => $warriorPlusProductId,
+                'transaction_id' => $transactionId,
+                'gateway_product_id' => $gatewayProductId,
                 'product_key' => $product,
                 'amount' => $amount,
                 'action' => $action,
                 'payload' => $payload,
             ]);
         } catch (UniqueConstraintViolationException) {
-            // Only the (wp_txn_id, action) index can fail here, so this is a genuine redelivery.
+            // Only the (transaction_id, product_key, action) index can fail here, so this is a genuine redelivery.
             return [
-                'purchase' => Purchase::query()->where('wp_txn_id', $transactionId)->where('action', $action)->first(),
+                'purchase' => Purchase::query()->where('transaction_id', $transactionId)->where('product_key', $product)->where('action', $action)->first(),
                 'duplicate' => true,
                 'created_user' => false,
             ];
@@ -80,7 +82,7 @@ class RecordPurchase
 
         // A purchase that lands on an account whose email was never confirmed (for example one made with a
         // reseller code) also gets the set-password link, so whoever owns the inbox controls the account.
-        if ($source === PurchaseSource::WarriorPlus && ! $action->revokes() && ($createdUser || $user->email_verified_at === null)) {
+        if ($sendWelcome && $source === PurchaseSource::LaunchpadJv && ! $action->revokes() && ($createdUser || $user->email_verified_at === null)) {
             $user->notify(new WelcomeBuyer);
         }
 

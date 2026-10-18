@@ -99,22 +99,39 @@ enum Product: string
     }
 
     /**
+     * LaunchpadJV IDs for this product, each "product_id" or "product_id:offer_id".
+     *
      * @return list<string>
      */
-    public function warriorPlusProductIds(): array
+    public function launchpadIds(): array
     {
-        return array_values(array_filter((array) config("products.products.{$this->value}.wp_product_ids", [])));
+        return array_values(array_filter((array) config("products.products.{$this->value}.launchpad_ids", [])));
     }
 
-    public static function fromWarriorPlusProductId(string $productId): ?self
+    /**
+     * The product a LaunchpadJV sale belongs to. A "product_id:offer_id" mapping wins over a plain "product_id" one.
+     */
+    public static function fromLaunchpad(string $productId, ?string $offerId = null): ?self
     {
-        foreach (self::cases() as $product) {
-            if (in_array($productId, $product->warriorPlusProductIds(), true)) {
-                return $product;
+        $candidates = array_filter([$offerId !== null && $offerId !== '' ? $productId.':'.$offerId : null, $productId]);
+
+        foreach ($candidates as $candidate) {
+            foreach (self::cases() as $product) {
+                if (in_array($candidate, $product->launchpadIds(), true)) {
+                    return $product;
+                }
             }
         }
 
         return null;
+    }
+
+    /**
+     * The list price in dollars, used to split a LaunchpadJV total that includes the order bump.
+     */
+    public function priceInDollars(): float
+    {
+        return (float) ltrim($this->price(), '$');
     }
 
     /**

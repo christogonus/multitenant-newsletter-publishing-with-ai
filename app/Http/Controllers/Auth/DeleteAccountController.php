@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Actions\DeleteAccount;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Lets an account holder erase their account, publications, readers and files.
  */
 class DeleteAccountController extends Controller
 {
-    public function __invoke(Request $request): RedirectResponse
+    public function __invoke(Request $request, DeleteAccount $deleteAccount): RedirectResponse
     {
         $request->validate(
             ['password' => ['required', 'current_password'], 'confirm' => ['required', 'in:DELETE']],
@@ -27,11 +27,7 @@ class DeleteAccountController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        DB::transaction(function () use ($user) {
-            // Delete publications one by one so their model events remove uploaded files.
-            $user->newsletters()->each(fn ($newsletter) => $newsletter->delete());
-            $user->delete();
-        });
+        $deleteAccount->handle($user);
 
         return redirect()->route('login')->with('status', 'Your account and everything in it has been deleted.');
     }

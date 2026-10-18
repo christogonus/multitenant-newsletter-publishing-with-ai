@@ -5,6 +5,7 @@ use App\Models\Newsletter;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\TestResponse;
 use Tests\DuskTestCase;
 use Tests\TestCase;
 
@@ -29,45 +30,58 @@ pest()->extend(DuskTestCase::class)
 */
 
 /**
- * A WarriorPlus IPN body using the field names from config/products.php.
+ * A LaunchpadJV IPN body, shaped like a real sale.
  *
  * @param  array<string, mixed>  $overrides
  * @return array<string, mixed>
  */
 function ipnPayload(array $overrides = []): array
 {
-    $fields = config('products.warriorplus.fields');
-
-    $payload = [
-        $fields['security_key'] => 'test-security-key',
-        $fields['action'] => 'sale',
-        $fields['product_id'] => 'wso_fe',
-        $fields['transaction_id'] => 'TXN-1001',
-        $fields['sale_id'] => 'SALE-1001',
-        $fields['buyer_email'] => 'buyer@example.com',
-        $fields['buyer_name'] => 'Pat Buyer',
-        $fields['amount'] => '17.00',
-    ];
-
-    foreach ($overrides as $key => $value) {
-        $payload[$fields[$key] ?? $key] = $value;
-    }
-
-    return $payload;
+    return array_replace_recursive([
+        'user_id' => 129,
+        'product_id' => 3001,
+        'offer_id' => null,
+        'vendor_id' => 2,
+        'transaction_id' => 'pi_1001',
+        'total_amount' => '17.00',
+        'bump' => 'false',
+        'action' => 'SALE',
+        'status' => 'success',
+        'checkout_name' => 'Pat Buyer',
+        'checkout_email' => 'buyer@example.com',
+        'user' => ['id' => 129, 'name' => 'Pat Buyer', 'email' => 'buyer@example.com'],
+    ], $overrides);
 }
 
 /**
- * Point every product at a predictable WarriorPlus product ID: front_end => wso_fe, oto1_pro => wso_oto1_pro, ...
+ * Posts an IPN the way LaunchpadJV does: JSON, with the secret key in the address.
+ *
+ * @param  array<string, mixed>  $payload
  */
-function configureWarriorPlus(): void
+function postIpn(array $payload, string $key = 'test-webhook-key'): TestResponse
 {
-    config(['products.warriorplus.security_key' => 'test-security-key']);
+    return test()->postJson(appUrl('ipn/launchpad?key='.$key), $payload);
+}
 
-    foreach (Product::cases() as $product) {
-        $id = $product === Product::FrontEnd ? 'wso_fe' : 'wso_'.$product->value;
-        config(["products.products.{$product->value}.wp_product_ids" => [$id]]);
+/**
+ * Point every product at a predictable LaunchpadJV product ID: front_end => 3001, bump_vault => 3002, oto1_lite => 3003, ...
+ */
+function configureLaunchpad(): void
+{
+    config(['products.launchpad.webhook_key' => 'test-webhook-key']);
+
+    foreach (Product::cases() as $index => $product) {
+        config(["products.products.{$product->value}.launchpad_ids" => [(string) (3001 + $index)]]);
         config(["products.products.{$product->value}.checkout_url" => 'https://checkout.test/'.$product->value]);
     }
+}
+
+/**
+ * The LaunchpadJV product ID configureLaunchpad() gives a product.
+ */
+function launchpadId(Product $product): int
+{
+    return 3001 + array_search($product, Product::cases(), true);
 }
 
 function appUrl(string $path = ''): string

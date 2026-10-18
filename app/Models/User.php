@@ -34,6 +34,7 @@ class User extends Authenticatable
             'terms_accepted_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'is_demo' => 'boolean',
         ];
     }
 

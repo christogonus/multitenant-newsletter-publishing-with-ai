@@ -64,8 +64,8 @@ class UserFactory extends Factory
 
             foreach ($products as $product) {
                 $user->purchases()->create([
-                    'source' => PurchaseSource::WarriorPlus,
-                    'wp_txn_id' => 'TEST-'.Str::upper(Str::random(12)),
+                    'source' => PurchaseSource::LaunchpadJv,
+                    'transaction_id' => 'TEST-'.Str::upper(Str::random(12)),
                     'product_key' => $product,
                     'amount' => 17,
                     'action' => PurchaseAction::Sale,
