@@ -81,10 +81,50 @@
             @if ($domain)
                 <div class="mt-6 space-y-4">
                     @if ($domain->verified_at)
-                        <x-ui.alert tone="success" title="Connected">
-                            {{ $domain->hostname }} now shows your newsletter.
-                            <x-slot:actions><x-ui.button variant="ghost" size="sm" wire:click="removeDomain">Remove</x-ui.button></x-slot:actions>
-                        </x-ui.alert>
+                        @php $tls = $domain->tls_status; @endphp
+                        <div class="rounded-card border border-line p-5" @if ($tls === \App\Enums\TlsStatus::Requested) wire:poll.15s @endif>
+                            <div class="flex flex-wrap items-start justify-between gap-3">
+                                <div class="min-w-0">
+                                    <p class="text-sm text-muted">Your address</p>
+                                    <a href="https://{{ $domain->hostname }}" target="_blank" rel="noopener" class="font-mono text-base font-semibold break-all text-ink hover:text-create">{{ $domain->hostname }}</a>
+                                </div>
+                                <x-ui.pill tone="success">Connected</x-ui.pill>
+                            </div>
+
+                            <div class="mt-5 flex flex-wrap items-center gap-3 border-t border-line pt-5">
+                                <x-ui.icon :name="$tls === \App\Enums\TlsStatus::Active ? 'lock-closed' : ($tls === \App\Enums\TlsStatus::Failed ? 'warning' : 'clock')" class="text-muted" />
+                                <span class="text-sm font-semibold text-ink">Secure connection (https)</span>
+                                <x-ui.pill :tone="$tls->tone()" :pulse="$tls === \App\Enums\TlsStatus::Requested">{{ $tls->label() }}</x-ui.pill>
+                            </div>
+
+                            <dl class="mt-3 grid gap-2 text-sm sm:grid-cols-3">
+                                @if ($domain->tls_issued_at)
+                                    <div><dt class="text-muted">Secure since</dt><dd class="text-ink">{{ $domain->tls_issued_at->toFormattedDateString() }}</dd></div>
+                                @endif
+                                @if ($domain->tls_expires_at)
+                                    <div><dt class="text-muted">Renews by</dt><dd class="text-ink">{{ $domain->tls_expires_at->toFormattedDateString() }}</dd></div>
+                                @endif
+                                <div><dt class="text-muted">Last checked</dt><dd class="text-ink">{{ $domain->tls_checked_at?->diffForHumans() ?? 'Not yet' }}</dd></div>
+                            </dl>
+
+                            @if ($tls === \App\Enums\TlsStatus::Requested)
+                                <p class="mt-3 text-sm text-muted">We are getting your certificate. This page updates on its own; it usually takes a few minutes.</p>
+                            @elseif ($tls === \App\Enums\TlsStatus::Active)
+                                <p class="mt-3 text-sm text-muted">Readers see the padlock. Certificates renew automatically.</p>
+                            @endif
+
+                            @if ($domain->tls_error)
+                                <x-ui.alert tone="danger" class="mt-4">{{ $domain->tls_error }}</x-ui.alert>
+                            @endif
+
+                            <div class="mt-5 flex flex-wrap gap-2">
+                                <x-ui.button variant="secondary" size="sm" wire:click="checkCertificate" icon="retry" loading="checkCertificate">Check now</x-ui.button>
+                                @if ($domain->canRequestCertificate())
+                                    <x-ui.button size="sm" area="create" wire:click="requestCertificate" icon="lock-closed" loading="requestCertificate">Request again</x-ui.button>
+                                @endif
+                                <x-ui.button variant="ghost" size="sm" wire:click="removeDomain" wire:confirm="Disconnect {{ $domain->hostname }}? Your page goes back to your free address.">Remove</x-ui.button>
+                            </div>
+                        </div>
                     @else
                         <x-ui.alert tone="warning" title="Two steps to finish">
                             Sign in where you bought your domain (for example GoDaddy, Namecheap or Cloudflare), open the settings for <strong>{{ $domain->hostname }}</strong>, and add these two records.

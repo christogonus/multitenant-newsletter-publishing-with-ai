@@ -3,11 +3,16 @@
 namespace App\Livewire\Design;
 
 use App\Enums\Product;
+use App\Enums\TlsStatus;
+use App\Jobs\RefreshDomainCertificateJob;
+use App\Jobs\RequestDomainCertificateJob;
 use App\Livewire\Concerns\InteractsWithPublication;
+use App\Models\Domain;
 use App\Support\DomainVerifier;
 use App\Support\PublicPageCache;
 use App\Support\Theme;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -154,10 +159,61 @@ class Index extends Component
 
         if ($verifier->verify($domain)) {
             PublicPageCache::bust($this->newsletter);
-            $this->toast('Your address is connected. It can take a few minutes to start working.');
+            RequestDomainCertificateJob::dispatch($domain);
+            $this->toast('Your address is connected. We are setting up the secure connection now, which usually takes a few minutes.');
         } else {
             $this->toast('We could not see the record yet. Changes can take up to an hour to show up, so try again soon.', 'warning');
         }
+
+        unset($this->newsletter);
+    }
+
+    /**
+     * Asks for a new https certificate, after a failure or when a request has been stuck.
+     */
+    public function requestCertificate(): void
+    {
+        $domain = $this->newsletter->domain;
+        abort_unless($domain, 404);
+        $this->authorize('update', $domain);
+
+        if (! $domain->canRequestCertificate()) {
+            $this->toast('Your secure connection is already being set up. Give it a few more minutes.', 'info');
+
+            return;
+        }
+
+        $key = 'certificate-request:'.$domain->id;
+
+        if (RateLimiter::tooManyAttempts($key, Domain::MAX_REQUESTS_PER_HOUR)) {
+            $this->toast('You have asked several times already. Please wait an hour, or contact support if it keeps failing.', 'warning');
+
+            return;
+        }
+
+        RateLimiter::hit($key, 3600);
+        $domain->update(['tls_status' => TlsStatus::Pending, 'tls_error' => null]);
+        RequestDomainCertificateJob::dispatch($domain);
+
+        unset($this->newsletter);
+        $this->toast('Requested. This usually takes a few minutes.');
+    }
+
+    /**
+     * Checks the secure connection right now, so the owner sees the real status.
+     */
+    public function checkCertificate(): void
+    {
+        $domain = $this->newsletter->domain;
+        abort_unless($domain, 404);
+        $this->authorize('update', $domain);
+
+        if (RateLimiter::tooManyAttempts('certificate-check:'.$domain->id, 20)) {
+            return;
+        }
+
+        RateLimiter::hit('certificate-check:'.$domain->id, 3600);
+        RefreshDomainCertificateJob::dispatchSync($domain);
 
         unset($this->newsletter);
     }

@@ -25,6 +25,11 @@ class Newsletter extends Model
 
     protected static function booted(): void
     {
+        // Delete the custom domain through the model (not the database cascade) so it leaves the web server too.
+        static::deleting(function (Newsletter $newsletter) {
+            $newsletter->domain?->delete();
+        });
+
         // Uploaded logos and issue pictures go with the publication.
         static::deleted(function (Newsletter $newsletter) {
             Storage::disk('public')->deleteDirectory('logos/'.$newsletter->id);

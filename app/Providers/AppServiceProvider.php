@@ -8,6 +8,9 @@ use App\Ai\LaravelAiNewsletterWriter;
 use App\Http\Middleware\EnsureAdmin;
 use App\Http\Middleware\EnsureProduct;
 use App\Http\Middleware\EnsurePublication;
+use App\Integrations\Certificates\CertificateProvisioner;
+use App\Integrations\Certificates\ExternalCertificateProvisioner;
+use App\Integrations\Certificates\PloiCertificateProvisioner;
 use App\Integrations\PlatformManager;
 use App\Livewire\Pulse\AiSpend;
 use App\Models\User;
@@ -29,6 +32,14 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(NewsletterWriter::class, config('newspub.ai.fake') ? FakeNewsletterWriter::class : LaravelAiNewsletterWriter::class);
         $this->app->singleton(PlatformManager::class, fn ($app) => new PlatformManager($app));
+
+        $this->app->bind(CertificateProvisioner::class, function () {
+            $ploi = config('newspub.certificates.ploi');
+
+            return config('newspub.certificates.driver') === 'ploi'
+                ? new PloiCertificateProvisioner((string) $ploi['token'], (string) $ploi['server_id'], (string) $ploi['site_id'])
+                : new ExternalCertificateProvisioner;
+        });
     }
 
     /**

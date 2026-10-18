@@ -41,10 +41,6 @@ class DomainAllowedController extends Controller
             ->whereHas('newsletter', fn ($newsletters) => $newsletters->visible())
             ->exists();
 
-        if ($allowed) {
-            Domain::query()->where('hostname', $host)->update(['tls_status' => 'requested']);
-        }
-
         return $allowed ? response('OK', 200) : response('Not allowed', 404);
     }
 }

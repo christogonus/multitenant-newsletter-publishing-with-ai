@@ -83,6 +83,26 @@ return [
         'daily_spend_alert' => (float) env('NEWSPUB_AI_DAILY_SPEND_ALERT', 50),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Custom domain certificates (OTO 8)
+    |--------------------------------------------------------------------------
+    |
+    | "ploi": each verified domain becomes a tenant of the app's Ploi site and gets its own
+    | Let's Encrypt certificate through the Ploi API. "external": the web server issues
+    | certificates itself (Caddy on-demand TLS asking /internal/domains/allowed) or none (local).
+    |
+    */
+
+    'certificates' => [
+        'driver' => env('NEWSPUB_CERTIFICATES', 'external'),
+        'ploi' => [
+            'token' => env('PLOI_API_TOKEN'),
+            'server_id' => env('PLOI_SERVER_ID'),
+            'site_id' => env('PLOI_SITE_ID'),
+        ],
+    ],
+
     'support_email' => env('NEWSPUB_SUPPORT_EMAIL', 'support@example.com'),
 
     /*

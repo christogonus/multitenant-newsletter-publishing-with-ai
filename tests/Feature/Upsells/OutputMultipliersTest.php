@@ -15,6 +15,7 @@ use App\Models\Issue;
 use App\Models\Newsletter;
 use App\Models\SocialPost;
 use App\Support\DomainVerifier;
+use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 
 test('social buyers turn an issue into posts for each channel', function () {
@@ -143,6 +144,7 @@ test('a brand colour that is not a hex colour is rejected', function () {
 });
 
 test('custom domains are verified by their record and then allowed by the proxy check', function () {
+    Http::fake();
     $newsletter = Newsletter::factory()->for(buyer(Product::Oto8Premium))->create();
     $this->actingAs($newsletter->user);
 

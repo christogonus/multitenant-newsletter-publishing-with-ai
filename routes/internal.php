@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Internal\DomainAllowedController;
+use App\Http\Controllers\Internal\DomainCertificateCallbackController;
 use App\Http\Controllers\Internal\WarriorPlusIpnController;
 use App\Http\Controllers\Public\UnsubscribeController;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +20,9 @@ Route::domain(config('newspub.app_host'))->group(function () {
     Route::post('/ipn/warriorplus', WarriorPlusIpnController::class)->middleware('throttle:120,1')->name('ipn.warriorplus');
 
     Route::get('/internal/domains/allowed', DomainAllowedController::class)->middleware('throttle:600,1')->name('internal.domains.allowed');
+    Route::post('/internal/domains/{domain}/certificate-callback', DomainCertificateCallbackController::class)
+        ->middleware(['signed', 'throttle:60,1'])
+        ->name('internal.domains.certificate-callback');
 
     Route::get('/readers/{subscriber}/unsubscribe', [UnsubscribeController::class, 'show'])->middleware('signed')->name('readers.unsubscribe');
     Route::post('/readers/{subscriber}/unsubscribe', [UnsubscribeController::class, 'store'])->middleware('signed')->name('readers.unsubscribe.store');

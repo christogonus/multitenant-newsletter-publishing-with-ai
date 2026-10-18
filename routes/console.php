@@ -10,4 +10,5 @@ Artisan::command('inspire', function () {
 
 Schedule::command('newspub:publish-scheduled')->everyMinute()->withoutOverlapping();
 Schedule::command('newspub:check-ai-spend')->hourly();
+Schedule::command('newspub:check-domain-certificates')->everyTenMinutes()->withoutOverlapping();
 Schedule::command('queue:prune-failed --hours=168')->daily();
