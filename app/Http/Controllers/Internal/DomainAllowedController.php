@@ -36,7 +36,9 @@ class DomainAllowedController extends Controller
         }
 
         $allowed = Domain::query()
-            ->where('hostname', $host)
+            ->where(fn ($query) => $query
+                ->where('hostname', $host)
+                ->orWhere(fn ($www) => $www->where('is_apex', true)->where('hostname', str_starts_with($host, 'www.') ? substr($host, 4) : null)))
             ->whereNotNull('verified_at')
             ->whereHas('newsletter', fn ($newsletters) => $newsletters->visible())
             ->exists();

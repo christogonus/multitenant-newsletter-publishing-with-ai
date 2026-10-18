@@ -56,7 +56,7 @@ class RequestDomainCertificateJob implements ShouldBeUnique, ShouldQueue
             $provisioner->addDomain($domain->hostname);
             $domain->update(['tenant_created' => true]);
 
-            $provisioner->requestCertificate($domain->hostname, self::callbackUrl($domain));
+            $provisioner->requestCertificate($domain->hostname, self::callbackUrl($domain), array_slice($domain->certificateHostnames(), 1));
         } catch (CertificateException $exception) {
             if ($exception->retryable && $this->attempts() < $this->tries) {
                 throw $exception;

@@ -29,6 +29,15 @@ class ResolvePublication
                 ->where('hostname', $host)
                 ->whereNotNull('verified_at')
                 ->first()?->newsletter;
+
+            // www of a verified bare domain forwards to the bare domain, which is the primary address.
+            if (! $newsletter && str_starts_with($host, 'www.')) {
+                $apex = Domain::query()->where('hostname', substr($host, 4))->where('is_apex', true)->whereNotNull('verified_at')->first();
+
+                if ($apex) {
+                    return redirect()->away('https://'.$apex->hostname.$request->getRequestUri(), 301);
+                }
+            }
             $mode = 'custom';
             URL::defaults(['customHost' => $host]);
         } else {

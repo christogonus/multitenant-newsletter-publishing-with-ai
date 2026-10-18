@@ -24,11 +24,14 @@ interface CertificateProvisioner
     public function addDomain(string $hostname): void;
 
     /**
-     * Asks for a certificate. The provisioner calls $callbackUrl when it has finished.
+     * Asks for a certificate for the hostname plus any extra names (www of a bare domain).
+     * The provisioner calls $callbackUrl when it has finished.
+     *
+     * @param  list<string>  $alsoCover
      *
      * @throws CertificateException
      */
-    public function requestCertificate(string $hostname, string $callbackUrl): void;
+    public function requestCertificate(string $hostname, string $callbackUrl, array $alsoCover = []): void;
 
     /**
      * Removes the hostname (and its certificates) from the server. Missing domains are fine.

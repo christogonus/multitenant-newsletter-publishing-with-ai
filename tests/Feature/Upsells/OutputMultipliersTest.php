@@ -17,6 +17,7 @@ use App\Models\SocialPost;
 use App\Support\DomainVerifier;
 use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
+use Tests\Support\FakeDnsVerifier;
 
 test('social buyers turn an issue into posts for each channel', function () {
     SocialRepurposer::fake([['body' => '1/ Hook'], ['body' => 'LinkedIn post'], ['body' => 'HOOK: watch this']]);
@@ -178,13 +179,10 @@ test('the proxy check allows publication subdomains and refuses unknown hosts', 
 test('the domain verifier reads the txt record', function () {
     $domain = Domain::create(['newsletter_id' => Newsletter::factory()->create()->id, 'hostname' => 'news.example.com', 'verification_token' => 'tok']);
 
-    $verifier = new class extends DomainVerifier
-    {
-        protected function txtRecords(string $name): array
-        {
-            return $name === '_newspub.news.example.com' ? ['newspub-verify=tok'] : [];
-        }
-    };
+    $verifier = new FakeDnsVerifier(
+        txt: ['_newspub.news.example.com' => ['newspub-verify=tok']],
+        cname: ['news.example.com' => [config('newspub.public_root')]],
+    );
 
     expect($verifier->verify($domain))->toBeTrue()->and($domain->fresh()->verified_at)->not->toBeNull();
 });

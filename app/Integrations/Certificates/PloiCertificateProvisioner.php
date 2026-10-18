@@ -39,10 +39,11 @@ class PloiCertificateProvisioner implements CertificateProvisioner
         $this->send(fn (PendingRequest $http) => $http->post($this->sitePath('tenants'), ['tenants' => [$hostname]]));
     }
 
-    public function requestCertificate(string $hostname, string $callbackUrl): void
+    public function requestCertificate(string $hostname, string $callbackUrl, array $alsoCover = []): void
     {
         $this->send(fn (PendingRequest $http) => $http->post($this->sitePath('tenants/'.rawurlencode($hostname).'/request-certificate'), [
-            'domains' => $hostname,
+            // Including www of a bare domain also makes Ploi redirect www to the bare domain.
+            'domains' => implode(',', array_values(array_unique([$hostname, ...$alsoCover]))),
             'webhook' => $callbackUrl,
         ]));
     }

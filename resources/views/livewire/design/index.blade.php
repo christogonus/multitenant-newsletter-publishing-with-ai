@@ -87,6 +87,9 @@
                                 <div class="min-w-0">
                                     <p class="text-sm text-muted">Your address</p>
                                     <a href="https://{{ $domain->hostname }}" target="_blank" rel="noopener" class="font-mono text-base font-semibold break-all text-ink hover:text-create">{{ $domain->hostname }}</a>
+                                    @if ($domain->is_apex)
+                                        <p class="text-xs text-muted">www.{{ $domain->hostname }} forwards here.</p>
+                                    @endif
                                 </div>
                                 <x-ui.pill tone="success">Connected</x-ui.pill>
                             </div>
@@ -126,26 +129,47 @@
                             </div>
                         </div>
                     @else
-                        <x-ui.alert tone="warning" title="Two steps to finish">
-                            Sign in where you bought your domain (for example GoDaddy, Namecheap or Cloudflare), open the settings for <strong>{{ $domain->hostname }}</strong>, and add these two records.
+                        @php
+                            $records = $domain->setupRecords();
+                            $checks = $domain->dns_checks ?? [];
+                        @endphp
+                        <x-ui.alert tone="warning" :title="count($records).' records to add'">
+                            Sign in where you bought your domain (for example GoDaddy, Namecheap or Cloudflare), open the settings for
+                            <strong>{{ \App\Support\Hostnames::registrable($domain->hostname) }}</strong>, and add these records. Then press "Check now".
+                            @if ($domain->is_apex)
+                                <span class="mt-2 block">{{ $domain->hostname }} becomes your main address, and www.{{ $domain->hostname }} forwards to it.</span>
+                            @endif
                         </x-ui.alert>
+
+                        @if ($domain->is_apex && $serverIpMissing)
+                            <x-ui.alert tone="danger">Our server address is not set up yet, so this address cannot be connected right now. Please contact support.</x-ui.alert>
+                        @endif
+
                         <ol class="space-y-4">
-                            <li class="rounded-card border border-line p-4">
-                                <p class="text-sm font-semibold text-ink">1. Point your address to us</p>
-                                <dl class="mt-3 grid gap-3 sm:grid-cols-3">
-                                    <div><dt class="text-xs text-muted">Type</dt><dd class="font-mono text-sm">CNAME</dd></div>
-                                    <div><dt class="text-xs text-muted">Name</dt><dd><x-ui.copy-field :value="explode('.', $domain->hostname)[0]" /></dd></div>
-                                    <div><dt class="text-xs text-muted">Value</dt><dd><x-ui.copy-field :value="$pointTo" /></dd></div>
-                                </dl>
-                            </li>
-                            <li class="rounded-card border border-line p-4">
-                                <p class="text-sm font-semibold text-ink">2. Prove it is yours</p>
-                                <dl class="mt-3 grid gap-3 sm:grid-cols-3">
-                                    <div><dt class="text-xs text-muted">Type</dt><dd class="font-mono text-sm">TXT</dd></div>
-                                    <div><dt class="text-xs text-muted">Name</dt><dd><x-ui.copy-field :value="'_newspub.'.explode('.', $domain->hostname)[0]" /></dd></div>
-                                    <div><dt class="text-xs text-muted">Value</dt><dd><x-ui.copy-field :value="$domain->verificationRecordValue()" /></dd></div>
-                                </dl>
-                            </li>
+                            @foreach ($records as $record)
+                                <li class="rounded-card border border-line p-4" wire:key="record-{{ $record['key'] }}">
+                                    <div class="flex flex-wrap items-center justify-between gap-2">
+                                        <p class="text-sm font-semibold text-ink">{{ $loop->iteration }}. {{ $record['purpose'] }}</p>
+                                        @if (array_key_exists($record['key'], $checks))
+                                            <x-ui.pill :tone="$checks[$record['key']] ? 'success' : 'danger'">{{ $checks[$record['key']] ? 'Found' : 'Not found yet' }}</x-ui.pill>
+                                        @endif
+                                    </div>
+                                    <dl class="mt-3 grid gap-3 sm:grid-cols-[6rem_1fr_2fr]">
+                                        <div><dt class="text-xs text-muted">Type</dt><dd class="font-mono text-sm text-ink">{{ $record['type'] }}</dd></div>
+                                        <div><dt class="text-xs text-muted">Name (or Host)</dt><dd><x-ui.copy-field :value="$record['name']" /></dd></div>
+                                        <div><dt class="text-xs text-muted">Value (or Points to)</dt><dd>
+                                            @if ($record['value'])
+                                                <x-ui.copy-field :value="$record['value']" />
+                                            @else
+                                                <span class="text-sm text-danger">Not available yet</span>
+                                            @endif
+                                        </dd></div>
+                                    </dl>
+                                    @if ($record['name'] === '@')
+                                        <p class="mt-2 text-xs text-muted">"@" means the domain itself. Some providers want the name left empty instead. If there is already an A record for "@", change it to this value.</p>
+                                    @endif
+                                </li>
+                            @endforeach
                         </ol>
                         <div class="flex flex-wrap gap-2">
                             <x-ui.button wire:click="verifyDomain" area="create" icon="retry" loading="verifyDomain">Check now</x-ui.button>

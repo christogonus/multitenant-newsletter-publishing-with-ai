@@ -4,12 +4,13 @@ namespace App\Models;
 
 use App\Enums\TlsStatus;
 use App\Jobs\RemoveDomainTenantJob;
+use App\Support\Hostnames;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
-    'newsletter_id', 'hostname', 'verification_token', 'verified_at', 'tls_status', 'last_checked_at', 'tls_error',
+    'newsletter_id', 'hostname', 'is_apex', 'dns_checks', 'verification_token', 'verified_at', 'tls_status', 'last_checked_at', 'tls_error',
     'tls_attempts', 'tls_requested_at', 'tls_issued_at', 'tls_expires_at', 'tls_checked_at', 'tenant_created',
 ])]
 class Domain extends Model
@@ -48,6 +49,51 @@ class Domain extends Model
             'tls_expires_at' => 'datetime',
             'tls_checked_at' => 'datetime',
             'tenant_created' => 'boolean',
+            'is_apex' => 'boolean',
+            'dns_checks' => 'array',
+        ];
+    }
+
+    /**
+     * The www address of a bare domain, which redirects to it. Subdomains have none.
+     */
+    public function wwwHostname(): ?string
+    {
+        return $this->is_apex ? 'www.'.$this->hostname : null;
+    }
+
+    /**
+     * Every name the certificate must cover. For a bare domain that includes www.
+     *
+     * @return list<string>
+     */
+    public function certificateHostnames(): array
+    {
+        return array_values(array_filter([$this->hostname, $this->wwwHostname()]));
+    }
+
+    /**
+     * The records the owner adds where they bought the domain, in order.
+     *
+     * @return list<array{key: string, type: string, name: string, value: ?string, purpose: string}>
+     */
+    public function setupRecords(): array
+    {
+        $publicRoot = (string) config('newspub.public_root');
+        $serverIp = config('newspub.certificates.server_ips')[0] ?? null;
+
+        $pointing = $this->is_apex
+            ? [
+                ['key' => 'points_to_us', 'type' => 'A', 'name' => '@', 'value' => $serverIp, 'purpose' => 'Points '.$this->hostname.' to us'],
+                ['key' => 'www_points_to_us', 'type' => 'CNAME', 'name' => 'www', 'value' => $publicRoot, 'purpose' => 'Points www.'.$this->hostname.' to us (it forwards to '.$this->hostname.')'],
+            ]
+            : [
+                ['key' => 'points_to_us', 'type' => 'CNAME', 'name' => Hostnames::recordName($this->hostname), 'value' => $publicRoot, 'purpose' => 'Points '.$this->hostname.' to us'],
+            ];
+
+        return [
+            ...$pointing,
+            ['key' => 'ownership', 'type' => 'TXT', 'name' => Hostnames::recordName($this->hostname, '_newspub'), 'value' => $this->verificationRecordValue(), 'purpose' => 'Proves the address is yours'],
         ];
     }
 

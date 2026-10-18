@@ -96,6 +96,13 @@ return [
 
     'certificates' => [
         'driver' => env('NEWSPUB_CERTIFICATES', 'external'),
+
+        /*
+         * Public IP address(es) of the web server, comma separated. Owners of bare domains
+         * (theirsite.com) point an A record here; verification checks it.
+         */
+        'server_ips' => array_values(array_filter(array_map('trim', explode(',', (string) env('NEWSPUB_SERVER_IP', ''))))),
+
         'ploi' => [
             'token' => env('PLOI_API_TOKEN'),
             'server_id' => env('PLOI_SERVER_ID'),

@@ -15,10 +15,10 @@ use App\Models\Purchase;
 use App\Models\Subscriber;
 use App\Models\User;
 use App\Notifications\WelcomeBuyer;
-use App\Support\DomainVerifier;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
+use Tests\Support\FakeDnsVerifier;
 
 afterEach(fn () => OutboundUrlGuard::resolveUsing(null));
 
@@ -136,13 +136,10 @@ test('an unverified claim cannot block the real owner of a domain', function () 
     $squat = Domain::create(['newsletter_id' => $squatter->id, 'hostname' => 'news.owner.com', 'verification_token' => 'squat']);
     $real = Domain::create(['newsletter_id' => $owner->id, 'hostname' => 'news.owner.com', 'verification_token' => 'real']);
 
-    $verifier = new class extends DomainVerifier
-    {
-        protected function txtRecords(string $name): array
-        {
-            return ['newspub-verify=real'];
-        }
-    };
+    $verifier = new FakeDnsVerifier(
+        txt: ['_newspub.news.owner.com' => ['newspub-verify=real']],
+        cname: ['news.owner.com' => [config('newspub.public_root')]],
+    );
 
     expect($verifier->verify($real))->toBeTrue()
         ->and(Domain::find($squat->id))->toBeNull()

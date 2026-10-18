@@ -9,6 +9,7 @@ use App\Jobs\RequestDomainCertificateJob;
 use App\Livewire\Concerns\InteractsWithPublication;
 use App\Models\Domain;
 use App\Support\DomainVerifier;
+use App\Support\Hostnames;
 use App\Support\PublicPageCache;
 use App\Support\Theme;
 use Illuminate\Contracts\View\View;
@@ -118,7 +119,8 @@ class Index extends Component
         $this->authorize('update', $newsletter);
         abort_unless($this->user()->owns(Product::Oto8Premium), 403);
 
-        $this->hostname = Str::lower(trim(preg_replace('#^https?://#i', '', $this->hostname), " /\t\n\r"));
+        // theirsite.com and www.theirsite.com are the same choice: the bare domain is primary, www forwards to it.
+        $this->hostname = Hostnames::normalize($this->hostname);
 
         $this->validate([
             'hostname' => [
@@ -142,13 +144,14 @@ class Index extends Component
 
         $domain?->delete();
 
-        $newsletter->domain()->create([
+        $domain = $newsletter->domain()->create([
             'hostname' => $this->hostname,
+            'is_apex' => Hostnames::isApex($this->hostname),
             'verification_token' => Str::lower(Str::random(32)),
         ]);
 
         unset($this->newsletter);
-        $this->toast('Address saved. Follow the two steps below, then press Check.');
+        $this->toast('Address saved. Add the '.count($domain->setupRecords()).' records below, then press Check.');
     }
 
     public function verifyDomain(DomainVerifier $verifier): void
@@ -162,7 +165,7 @@ class Index extends Component
             RequestDomainCertificateJob::dispatch($domain);
             $this->toast('Your address is connected. We are setting up the secure connection now, which usually takes a few minutes.');
         } else {
-            $this->toast('We could not see the record yet. Changes can take up to an hour to show up, so try again soon.', 'warning');
+            $this->toast('Not every record is showing yet (see the ticks below). Changes can take up to an hour to show up, so try again soon.', 'warning');
         }
 
         unset($this->newsletter);
@@ -241,7 +244,7 @@ class Index extends Component
             'hasPremium' => $this->user()->owns(Product::Oto8Premium),
             'premiumProduct' => Product::Oto8Premium,
             'domain' => $this->newsletter->domain,
-            'pointTo' => config('newspub.public_root'),
+            'serverIpMissing' => config('newspub.certificates.server_ips') === [],
         ]);
     }
 }

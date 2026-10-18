@@ -17,7 +17,7 @@ class ExternalCertificateProvisioner implements CertificateProvisioner
 
     public function addDomain(string $hostname): void {}
 
-    public function requestCertificate(string $hostname, string $callbackUrl): void {}
+    public function requestCertificate(string $hostname, string $callbackUrl, array $alsoCover = []): void {}
 
     public function removeDomain(string $hostname): void {}
 
