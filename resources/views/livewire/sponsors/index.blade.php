@@ -79,7 +79,9 @@
             <p class="mt-4 text-sm text-muted">Based on about {{ number_format($assumptions['opens']) }} people opening each issue and ${{ $assumptions['cpm_low'] }} to ${{ $assumptions['cpm_high'] }} per 1,000 opens, which is typical for focused newsletters.</p>
         </x-ui.card>
     @else
-        <x-ui.card title="Start paid subscriptions" description="Earn from your most loyal readers.">
+        <livewire:sponsors.paid-subscriptions />
+
+        <x-ui.card title="Tips for paid subscriptions" description="Earn from your most loyal readers.">
             <ol class="space-y-5">
                 @foreach ($paidGuide as $step)
                     <li class="flex gap-4">

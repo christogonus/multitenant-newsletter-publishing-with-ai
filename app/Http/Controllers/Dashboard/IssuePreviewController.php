@@ -16,7 +16,7 @@ class IssuePreviewController extends Controller
     {
         $this->authorize('view', $issue);
 
-        return response(IssueRenderer::emailHtml($issue))
+        return response(IssueRenderer::emailHtml($issue, complete: true))
             ->header('X-Frame-Options', 'SAMEORIGIN')
             ->header('Content-Security-Policy', "default-src 'none'; img-src https: http: data:; style-src 'unsafe-inline'; frame-ancestors 'self'");
     }

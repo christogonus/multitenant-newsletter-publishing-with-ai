@@ -16,7 +16,7 @@
                 <link>{{ $url }}</link>
                 <guid isPermaLink="true">{{ $url }}</guid>
                 <pubDate>{{ $issue->published_at->toRssString() }}</pubDate>
-                <description>{{ $issue->preheader ?: \Illuminate\Support\Str::limit($issue->plainText(), 300) }}</description>
+                <description>{{ $issue->preheader ?: \Illuminate\Support\Str::limit(trim(strip_tags(\App\Support\IssueRenderer::contentHtml($issue))), 300) }}</description>
                 <content:encoded xmlns:content="http://purl.org/rss/1.0/modules/content/"><![CDATA[{!! str_replace(']]>', ']]]]><![CDATA[>', \App\Support\IssueRenderer::contentHtml($issue)) !!}]]></content:encoded>
             </item>
         @endforeach

@@ -36,7 +36,7 @@
                     <tr>
                         <td style="background:{{ $surface }};padding:32px 28px;border-radius:{{ $theme['radius'] }};font-family:{!! $font !!};font-size:17px;line-height:1.6;color:{{ $text }};">
                             <h1 style="margin:0 0 16px;font-family:{!! $headingFont !!};font-size:28px;line-height:1.25;color:{{ $text }};">{{ $issue->title }}</h1>
-                            @foreach ($issue->blockList() as $block)
+                            @foreach ($blocks as $block)
                                 @switch($block['type'] ?? null)
                                     @case('heading')
                                         <h2 style="margin:28px 0 10px;font-family:{!! $headingFont !!};font-size:22px;line-height:1.3;color:{{ $text }};">{{ $block['text'] }}</h2>
@@ -69,11 +69,14 @@
                                         @break
                                 @endswitch
                             @endforeach
+                            @if ($locked)
+                                <p style="margin:24px 0 0;font-weight:bold;">The rest of this issue is for paying readers.</p>
+                            @endif
                             @if ($issue->public_slug)
                                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top:24px;">
                                     <tr>
                                         <td style="background:{{ $accent }};border-radius:{{ $theme['radius'] }};">
-                                            <a href="{{ $issue->publicUrl() }}" style="display:inline-block;padding:12px 20px;font-family:{!! $font !!};font-size:15px;font-weight:bold;color:{{ $onAccent }};text-decoration:none;">Read on the web</a>
+                                            <a href="{{ $issue->publicUrl() }}" style="display:inline-block;padding:12px 20px;font-family:{!! $font !!};font-size:15px;font-weight:bold;color:{{ $onAccent }};text-decoration:none;">{{ $locked ? 'Continue reading' : 'Read on the web' }}</a>
                                         </td>
                                     </tr>
                                 </table>

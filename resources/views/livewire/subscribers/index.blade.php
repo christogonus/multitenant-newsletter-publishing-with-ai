@@ -14,7 +14,7 @@
     @if ($total > 0)
         @php
             $peak = max(1, max(array_column($daily, 'count')));
-            $sourceLabels = ['hosted_page' => 'Your page', 'lead_page' => 'Sign-up pages', 'added_by_owner' => 'Added by you'];
+            $sourceLabels = ['hosted_page' => 'Your page', 'lead_page' => 'Sign-up pages', 'added_by_owner' => 'Added by you', 'paid' => 'Paid subscriptions'];
             $sourceMax = max(1, $sources->max());
         @endphp
         <div class="grid gap-6 lg:grid-cols-3">
@@ -74,7 +74,7 @@
 
         @foreach ($subscribers as $subscriber)
             <tr wire:key="subscriber-{{ $subscriber->id }}">
-                <td class="px-4 py-3 font-medium text-ink">{{ $subscriber->email }}</td>
+                <td class="px-4 py-3 font-medium text-ink">{{ $subscriber->email }}@if ($subscriber->hasPaidAccess()) <x-ui.badge tone="earn" class="ml-2">Paying</x-ui.badge>@endif</td>
                 <td class="px-4 py-3 text-muted">{{ str_replace('_', ' ', ucfirst($subscriber->source)) }}</td>
                 <td class="px-4 py-3 whitespace-nowrap text-muted">{{ $subscriber->created_at->toFormattedDateString() }}</td>
                 <td class="px-4 py-3 text-muted tabular-nums">{{ $subscriber->referrals_count }}</td>

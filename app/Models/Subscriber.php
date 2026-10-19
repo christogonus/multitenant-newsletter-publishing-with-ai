@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\PaidPlan;
+use App\Enums\PaymentProvider;
 use Database\Factories\SubscriberFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,7 +15,7 @@ use Illuminate\Support\Str;
 
 #[Fillable([
     'newsletter_id', 'email', 'name', 'source', 'consent_at', 'consent_ip', 'referral_code', 'referred_by_id',
-    'lead_page_id', 'synced_at', 'unsubscribed_at',
+    'lead_page_id', 'synced_at', 'unsubscribed_at', 'paid_until', 'paid_via', 'paid_plan', 'payment_reference',
 ])]
 class Subscriber extends Model
 {
@@ -36,6 +38,9 @@ class Subscriber extends Model
             'consent_at' => 'datetime',
             'synced_at' => 'datetime',
             'unsubscribed_at' => 'datetime',
+            'paid_until' => 'datetime',
+            'paid_via' => PaymentProvider::class,
+            'paid_plan' => PaidPlan::class,
         ];
     }
 
@@ -69,6 +74,21 @@ class Subscriber extends Model
     public function leadPage(): BelongsTo
     {
         return $this->belongsTo(LeadPage::class);
+    }
+
+    public function hasPaidAccess(): bool
+    {
+        return $this->paid_until !== null && $this->paid_until->isFuture();
+    }
+
+    /**
+     * Readers whose paid access has not run out.
+     *
+     * @param  Builder<Subscriber>  $query
+     */
+    public function scopePaying(Builder $query): void
+    {
+        $query->where('paid_until', '>', now());
     }
 
     /**

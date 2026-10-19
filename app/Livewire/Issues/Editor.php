@@ -31,6 +31,8 @@ class Editor extends Component
 
     public string $preheader = '';
 
+    public bool $paidOnly = false;
+
     /** @var list<array<string, mixed>> */
     public array $blocks = [];
 
@@ -78,7 +80,7 @@ class Editor extends Component
 
     public function updated(string $property): void
     {
-        if (in_array(strtok($property, '.'), ['title', 'subjectLine', 'preheader', 'blocks'], true)) {
+        if (in_array(strtok($property, '.'), ['title', 'subjectLine', 'preheader', 'blocks', 'paidOnly'], true)) {
             $this->save(quiet: true);
         }
     }
@@ -102,6 +104,7 @@ class Editor extends Component
             'subject_line' => $this->subjectLine ?: null,
             'preheader' => $this->preheader ?: null,
             'blocks' => $this->blocks,
+            'is_paid_only' => $this->user()->owns(Product::Oto4Sponsor) ? $this->paidOnly : (bool) $this->issue->is_paid_only,
         ]);
 
         if ($this->issue->isPublished()) {
@@ -268,6 +271,7 @@ class Editor extends Component
             'canSchedule' => $user->owns(Product::Oto7Autopilot),
             'canExport' => $user->owns(Product::Oto1Delivery),
             'canRepurpose' => $user->owns(Product::Oto6Social),
+            'canLock' => $user->owns(Product::Oto4Sponsor),
         ])->title($this->issue->title);
     }
 
@@ -276,6 +280,7 @@ class Editor extends Component
         $this->title = $this->issue->title;
         $this->subjectLine = (string) $this->issue->subject_line;
         $this->preheader = (string) $this->issue->preheader;
+        $this->paidOnly = (bool) $this->issue->is_paid_only;
         $this->blocks = Blocks::normalize($this->issue->blocks ?? []);
         $this->scheduleAt = $this->issue->scheduled_for?->format('Y-m-d\TH:i') ?? '';
         $this->previewVersion++;

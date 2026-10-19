@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Public\FeedController;
 use App\Http\Controllers\Public\LeadPageController;
+use App\Http\Controllers\Public\MembersController;
 use App\Http\Controllers\Public\PublicationController;
 use App\Http\Controllers\Public\ReferralController;
 use App\Http\Controllers\Public\ReportController;
@@ -35,6 +36,13 @@ $publicationRoutes = function (string $namePrefix) {
         Route::get('/join/{leadPageSlug}', [LeadPageController::class, 'show'])->name('lead.show');
         Route::post('/join/{leadPageSlug}', [LeadPageController::class, 'store'])->middleware('throttle:subscribe')->name('lead.store');
         Route::get('/join/{leadPageSlug}/gift/{subscriber}', [LeadPageController::class, 'gift'])->middleware('signed')->name('lead.gift');
+
+        Route::get('/members', [MembersController::class, 'show'])->name('members');
+        Route::post('/members/code', [MembersController::class, 'sendCode'])->middleware('throttle:subscribe')->name('members.code');
+        Route::post('/members/verify', [MembersController::class, 'verify'])->middleware('throttle:subscribe')->name('members.verify');
+        Route::post('/members/sign-out', [MembersController::class, 'signOut'])->name('members.sign-out');
+        Route::post('/members/checkout', [MembersController::class, 'checkout'])->middleware('throttle:subscribe')->name('members.checkout');
+        Route::get('/members/complete/{provider}', [MembersController::class, 'complete'])->name('members.complete');
     });
 };
 

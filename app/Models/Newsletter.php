@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\Frequency;
+use App\Enums\PaidPlan;
+use App\Enums\Product;
 use Database\Factories\NewsletterFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -17,6 +19,7 @@ use Illuminate\Support\Facades\Storage;
 #[Fillable([
     'user_id', 'name', 'tagline', 'niche', 'audience', 'frequency', 'subdomain', 'voice', 'template',
     'branding', 'reward_tiers', 'auto_publish', 'kit_key', 'topic_pipeline', 'moderated_at', 'moderation_reason',
+    'paid_enabled', 'paid_monthly_cents', 'paid_yearly_cents', 'paid_currency', 'paid_perks',
 ])]
 class Newsletter extends Model
 {
@@ -49,6 +52,9 @@ class Newsletter extends Model
             'topic_pipeline' => 'array',
             'auto_publish' => 'boolean',
             'moderated_at' => 'datetime',
+            'paid_enabled' => 'boolean',
+            'paid_monthly_cents' => 'integer',
+            'paid_yearly_cents' => 'integer',
         ];
     }
 
@@ -82,6 +88,14 @@ class Newsletter extends Model
     public function platformConnections(): HasMany
     {
         return $this->hasMany(PlatformConnection::class);
+    }
+
+    /**
+     * @return HasMany<PaymentAccount, $this>
+     */
+    public function paymentAccounts(): HasMany
+    {
+        return $this->hasMany(PaymentAccount::class);
     }
 
     /**
@@ -186,6 +200,35 @@ class Newsletter extends Model
             'accent_color' => '#4F46E5',
             'font' => 'system',
         ], $this->branding ?? []);
+    }
+
+    /**
+     * Whether issues marked for paying readers are locked: the owner has OTO 4 and has turned paid subscriptions on.
+     */
+    public function hasPaidSubscriptions(): bool
+    {
+        return $this->paid_enabled && $this->user->owns(Product::Oto4Sponsor);
+    }
+
+    /**
+     * The price of a plan in cents, or null when the owner does not offer it.
+     */
+    public function paidPriceCents(PaidPlan $plan): ?int
+    {
+        $cents = $plan === PaidPlan::Monthly ? $this->paid_monthly_cents : $this->paid_yearly_cents;
+
+        return $cents > 0 ? $cents : null;
+    }
+
+    /**
+     * A price for readers, such as "$5.00".
+     */
+    public function formatPaidPrice(int $cents): string
+    {
+        $symbols = ['USD' => '$', 'CAD' => 'CA$', 'AUD' => 'A$', 'EUR' => '€', 'GBP' => '£'];
+        $currency = strtoupper($this->paid_currency ?: 'USD');
+
+        return ($symbols[$currency] ?? $currency.' ').number_format($cents / 100, 2);
     }
 
     public function activeSubscriberCount(): int

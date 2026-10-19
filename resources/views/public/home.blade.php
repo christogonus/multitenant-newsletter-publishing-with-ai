@@ -14,7 +14,7 @@
                 <ul class="issue-list">
                     @foreach ($issues as $issue)
                         <li @if ($loop->first) style="border-top: 0;" @endif>
-                            <a class="title" href="{{ \App\Support\PublicLinks::route('issue', ['slug' => $issue->public_slug]) }}">{{ $issue->title }}</a>
+                            <a class="title" href="{{ \App\Support\PublicLinks::route('issue', ['slug' => $issue->public_slug]) }}">{{ $issue->title }}</a>@if ($issue->is_paid_only && $newsletter->hasPaidSubscriptions()) <span class="small muted">&#128274; Paying readers</span>@endif
                             <div class="small muted">{{ $issue->published_at->toFormattedDateString() }}@if ($issue->preheader) · {{ $issue->preheader }}@endif</div>
                         </li>
                     @endforeach

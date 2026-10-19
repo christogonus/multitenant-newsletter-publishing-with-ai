@@ -96,6 +96,14 @@
                         <x-ui.input wire:model.blur="title" label="Title" />
                         <x-ui.input wire:model.blur="subjectLine" label="Email subject line" hint="What readers see in their inbox. Keep it under 60 characters." />
                         <x-ui.input wire:model.blur="preheader" label="Preview text" hint="The short line shown after the subject." optional />
+                        @if ($canLock)
+                            <div>
+                                <x-ui.checkbox wire:model.live="paidOnly" label="Paying readers only" hint="Everyone sees the title and the opening up to the first paragraph. Paying readers sign in with their email to read the rest." />
+                                @if ($paidOnly && ! $this->newsletter->hasPaidSubscriptions())
+                                    <x-ui.alert tone="warning" class="mt-2">This issue stays free until you turn on paid subscriptions. <a href="{{ route('sponsors.index', ['tab' => 'paid']) }}" class="font-semibold underline">Set them up</a></x-ui.alert>
+                                @endif
+                            </div>
+                        @endif
                     </div>
                 </x-ui.card>
 

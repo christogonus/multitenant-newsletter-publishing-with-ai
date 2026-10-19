@@ -8,6 +8,7 @@ use App\Models\Issue;
 use App\Models\Newsletter;
 use App\Models\Subscriber;
 use App\Support\NetworkRecommendations;
+use App\Support\PaidReaders;
 use App\Support\PublicLinks;
 use App\Support\PublicPageCache;
 use App\Support\Theme;
@@ -44,7 +45,7 @@ class PublicationController extends Controller
         ])->render());
     }
 
-    public function issue(Request $request, string $slug): Response
+    public function issue(Request $request, PaidReaders $paidReaders, string $slug): Response
     {
         $newsletter = $this->newsletter($request);
 
@@ -58,12 +59,21 @@ class PublicationController extends Controller
 
         $this->countView($request, $issue);
 
-        return $this->cached($request, $newsletter, 'issue:'.$slug, fn () => view('public.issue', [
+        $locked = $issue->isLocked();
+        $render = fn (bool $locked) => view('public.issue', [
             'newsletter' => $newsletter,
             'theme' => Theme::for($newsletter),
             'issue' => $issue,
+            'locked' => $locked,
             'recommendations' => NetworkRecommendations::for($newsletter),
-        ])->render());
+        ])->render();
+
+        // Paying readers get the full issue, rendered for them alone. Everyone else shares the cached, locked page.
+        if ($locked && $paidReaders->hasAccess($newsletter, $paidReaders->signedInEmail($request, $newsletter))) {
+            return response($render(false))->header('Cache-Control', 'private, no-store');
+        }
+
+        return $this->cached($request, $newsletter, 'issue:'.$slug, fn () => $render($locked));
     }
 
     public function thanks(Request $request): Response

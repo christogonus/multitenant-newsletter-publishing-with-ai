@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'newsletter_id', 'title', 'topic', 'subject_line', 'preheader', 'blocks', 'status', 'is_ai_generated', 'generation_stage',
-    'generation_error', 'public_slug', 'scheduled_for', 'published_at',
+    'generation_error', 'public_slug', 'scheduled_for', 'published_at', 'is_paid_only',
 ])]
 class Issue extends Model
 {
@@ -29,6 +29,7 @@ class Issue extends Model
         return [
             'blocks' => 'array',
             'is_ai_generated' => 'boolean',
+            'is_paid_only' => 'boolean',
             'status' => IssueStatus::class,
             'generation_stage' => GenerationStage::class,
             'scheduled_for' => 'datetime',
@@ -94,6 +95,46 @@ class Issue extends Model
     public function blockList(): array
     {
         return array_values($this->blocks ?? []);
+    }
+
+    /**
+     * Whether readers must be paying to read past the opening: the issue is marked for paying readers
+     * and the newsletter has paid subscriptions turned on.
+     */
+    public function isLocked(): bool
+    {
+        return $this->is_paid_only && $this->newsletter->hasPaidSubscriptions();
+    }
+
+    /**
+     * The free opening of a locked issue: every block up to and including the first paragraph.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function teaserBlocks(): array
+    {
+        $teaser = [];
+
+        foreach ($this->blockList() as $block) {
+            $teaser[] = $block;
+
+            if (($block['type'] ?? null) === 'paragraph') {
+                return $teaser;
+            }
+        }
+
+        // No paragraph to stop at, so show nothing rather than the whole issue.
+        return [];
+    }
+
+    /**
+     * The blocks a reader without paid access may see.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function publicBlocks(): array
+    {
+        return $this->isLocked() ? $this->teaserBlocks() : $this->blockList();
     }
 
     /**
