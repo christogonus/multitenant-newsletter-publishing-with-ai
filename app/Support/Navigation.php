@@ -50,7 +50,7 @@ class Navigation
                 'label' => 'Publish',
                 'items' => [
                     $item('Readers', 'subscribers.index', 'users'),
-                    $item('Email services', 'integrations.index', 'envelope', Product::Oto1Lite),
+                    $item('Email services', 'integrations.index', 'envelope', Product::Oto1Delivery),
                     $item('Publication settings', 'newsletters.settings', 'adjustments'),
                 ],
             ],

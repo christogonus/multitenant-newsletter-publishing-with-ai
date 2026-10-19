@@ -46,7 +46,7 @@ class Purchase extends Model
     }
 
     /**
-     * "oto1_pro" for a product, "bump:12" for an order bump.
+     * "oto1_delivery" for a product, "bump:12" for an order bump.
      */
     public static function itemKey(?Product $product, ?int $bumpOfferId): string
     {

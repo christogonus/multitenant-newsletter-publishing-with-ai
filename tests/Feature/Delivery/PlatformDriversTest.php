@@ -25,7 +25,7 @@ use Livewire\Livewire;
 
 function connectionFor(Platform $platform, array $credentials, ?Newsletter $newsletter = null): PlatformConnection
 {
-    $newsletter ??= Newsletter::factory()->for(buyer(Product::Oto1Pro))->create();
+    $newsletter ??= Newsletter::factory()->for(buyer(Product::Oto1Delivery))->create();
 
     return PlatformConnection::create([
         'user_id' => $newsletter->user_id,
@@ -209,7 +209,7 @@ test('the push job records the delivery and does not push twice', function () {
 
 test('pro auto-publish pushes to connected platforms when an issue is published', function () {
     Queue::fake();
-    $newsletter = Newsletter::factory()->for(buyer(Product::Oto1Pro))->create(['auto_publish' => true]);
+    $newsletter = Newsletter::factory()->for(buyer(Product::Oto1Delivery))->create(['auto_publish' => true]);
     connectionFor(Platform::Kit, ['api_key' => 'k'], $newsletter);
 
     app(PublishIssue::class)->handle(Issue::factory()->for($newsletter)->create());
@@ -217,9 +217,13 @@ test('pro auto-publish pushes to connected platforms when an issue is published'
     Queue::assertPushed(PushIssueJob::class);
 });
 
-test('lite buyers can connect one service and are asked to upgrade for a second', function () {
-    Http::fake(['api.kit.com/v4/account' => Http::response(['account' => []], 200)]);
-    $newsletter = Newsletter::factory()->for(buyer(Product::Oto1Lite))->create();
+test('delivery buyers can connect every email service they use', function () {
+    Http::fake([
+        'api.kit.com/v4/account' => Http::response(['account' => []], 200),
+        'api.beehiiv.com/v2/publications/pub_1' => Http::response(['data' => ['id' => 'pub_1']], 200),
+        'api.beehiiv.com/*' => Http::response(['data' => []], 200),
+    ]);
+    $newsletter = Newsletter::factory()->for(buyer(Product::Oto1Delivery))->create();
     $this->actingAs($newsletter->user);
 
     Livewire::test(Index::class)
@@ -235,14 +239,14 @@ test('lite buyers can connect one service and are asked to upgrade for a second'
         ->set('credentials.api_key', 'bh')
         ->set('credentials.publication_id', 'pub_1')
         ->call('connect')
-        ->assertDispatched('toast', tone: 'warning');
+        ->assertHasNoErrors();
 
-    expect(PlatformConnection::count())->toBe(1);
+    expect(PlatformConnection::count())->toBe(2);
 });
 
 test('a failed test connection shows the fix and saves nothing', function () {
     Http::fake(['api.kit.com/*' => Http::response([], 401)]);
-    $newsletter = Newsletter::factory()->for(buyer(Product::Oto1Lite))->create();
+    $newsletter = Newsletter::factory()->for(buyer(Product::Oto1Delivery))->create();
     $this->actingAs($newsletter->user);
 
     Livewire::test(Index::class)
@@ -254,8 +258,8 @@ test('a failed test connection shows the fix and saves nothing', function () {
     expect(PlatformConnection::count())->toBe(0);
 });
 
-test('lite buyers can download an issue as an email file', function () {
-    $newsletter = Newsletter::factory()->for(buyer(Product::Oto1Lite))->create();
+test('delivery buyers can download an issue as an email file', function () {
+    $newsletter = Newsletter::factory()->for(buyer(Product::Oto1Delivery))->create();
     $issue = Issue::factory()->for($newsletter)->published()->create(['title' => 'Export me']);
 
     $response = $this->actingAs($newsletter->user)->get(route('issues.export', $issue));

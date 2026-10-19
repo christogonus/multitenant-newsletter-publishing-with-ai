@@ -41,8 +41,20 @@ class CreatePublication extends Component
     public function mount(): void
     {
         if (! $this->entitlements()->canCreatePublication($this->user())) {
-            $this->redirectRoute($this->user()->newsletters()->exists() ? 'publications.index' : 'dashboard', navigate: false);
+            $this->leaveAtLimit();
         }
+    }
+
+    /**
+     * Sends a buyer who already runs as many newsletters as their plan allows back home, saying how to get more.
+     */
+    private function leaveAtLimit(): void
+    {
+        if ($this->user()->newsletters()->exists()) {
+            session()->flash('toast', ['message' => 'You are running '.$this->user()->newsletters()->count().' newsletters, the most your plan allows. Unlimited Creation removes the cap.', 'tone' => 'warning']);
+        }
+
+        $this->redirectRoute('dashboard', navigate: false);
     }
 
     /**
@@ -124,7 +136,7 @@ class CreatePublication extends Component
         try {
             $newsletter = $createNewsletter->handle($this->user(), $validated);
         } catch (PublicationLimitReachedException) {
-            $this->redirectRoute('publications.index');
+            $this->leaveAtLimit();
 
             return;
         }

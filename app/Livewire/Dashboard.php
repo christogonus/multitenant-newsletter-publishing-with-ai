@@ -24,7 +24,7 @@ class Dashboard extends Component
         return view('livewire.dashboard', [
             'newsletter' => $newsletter,
             'checklist' => $newsletter ? $this->checklist($newsletter) : [],
-            'remaining' => $entitlements->remainingIssuesThisWeek($user),
+            'remaining' => $newsletter ? $entitlements->remainingIssuesThisWeek($user, $newsletter) : 0,
             'unlimited' => $entitlements->hasUnlimitedIssues($user),
             'weeklyLimit' => $entitlements->weeklyIssueLimit($user),
             'readers' => $newsletter?->activeSubscriberCount() ?? 0,
@@ -32,7 +32,7 @@ class Dashboard extends Component
             'views' => (int) ($newsletter?->issues()->sum('views') ?? 0),
             'recentIssues' => $newsletter?->issues()->latest()->limit(5)->get() ?? collect(),
             'offer' => collect(Product::cases())
-                ->reject(fn (Product $product) => in_array($product, [Product::FrontEnd, Product::Oto1Lite], true) || $user->owns($product))
+                ->reject(fn (Product $product) => in_array($product, [Product::FrontEnd, Product::BumpVault], true) || $user->owns($product))
                 ->first(),
         ]);
     }

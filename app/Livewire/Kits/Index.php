@@ -25,7 +25,7 @@ class Index extends Component
         try {
             $newsletter = $installKit->handle($this->user(), $kit);
         } catch (PublicationLimitReachedException) {
-            $this->toast('You have reached your publication limit. Upgrade to the Multi-Newsletter Manager for unlimited publications.', 'warning');
+            $this->toast('You have reached your newsletter limit. Upgrade to Unlimited Creation to run as many as you like.', 'warning');
 
             return;
         }

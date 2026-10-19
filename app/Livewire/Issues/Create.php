@@ -56,7 +56,7 @@ class Create extends Component
         }
 
         return view('livewire.issues.create', [
-            'remaining' => $this->entitlements()->remainingIssuesThisWeek($user),
+            'remaining' => $this->entitlements()->remainingIssuesThisWeek($user, $newsletter),
             'unlimited' => $this->entitlements()->hasUnlimitedIssues($user),
             'weeklyLimit' => $this->entitlements()->weeklyIssueLimit($user),
             'ideas' => $ideas,

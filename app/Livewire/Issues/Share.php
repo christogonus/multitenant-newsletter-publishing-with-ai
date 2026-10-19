@@ -30,7 +30,7 @@ class Share extends Component
         return view('livewire.issues.share', [
             'url' => $this->issue->publicUrl(),
             'homeUrl' => $this->issue->newsletter->publicUrl(),
-            'hasDelivery' => $user->owns(Product::Oto1Lite),
+            'hasDelivery' => $user->owns(Product::Oto1Delivery),
             'hasSocial' => $user->owns(Product::Oto6Social),
         ]);
     }

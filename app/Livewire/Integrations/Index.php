@@ -5,7 +5,6 @@ namespace App\Livewire\Integrations;
 use App\Enums\ConnectionStatus;
 use App\Enums\IssueStatus;
 use App\Enums\Platform;
-use App\Enums\Product;
 use App\Integrations\PlatformException;
 use App\Integrations\PlatformManager;
 use App\Jobs\PushIssueJob;
@@ -55,7 +54,7 @@ class Index extends Component
         $existing = $this->connectionFor($platform);
 
         if (! $existing && ! $this->canAddConnection()) {
-            $this->toast('Your plan includes one email service. Upgrade to Pro to connect more.', 'warning');
+            $this->toast('Connecting email services is part of Delivery and Platform Integrations.', 'warning');
 
             return;
         }
@@ -111,7 +110,7 @@ class Index extends Component
         });
 
         if (! $saved) {
-            $this->toast('Your plan includes one email service. Upgrade to Pro to connect more.', 'warning');
+            $this->toast('Connecting email services is part of Delivery and Platform Integrations.', 'warning');
 
             return;
         }
@@ -179,8 +178,6 @@ class Index extends Component
             'limit' => $limit,
             'used' => $connections->count(),
             'canAdd' => $this->canAddConnection(),
-            'isLite' => ! $this->user()->owns(Product::Oto1Pro),
-            'proProduct' => Product::Oto1Pro,
             'recentDeliveries' => IssueDelivery::query()
                 ->whereIn('platform_connection_id', $connections->pluck('id'))
                 ->with('issue:id,title', 'platformConnection:id,platform')

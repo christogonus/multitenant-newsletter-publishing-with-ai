@@ -7,6 +7,7 @@ namespace App\Ai\Agents\Concerns;
  *
  * NEWSPUB_AI_PROVIDER may list several providers ("anthropic,openai"): the SDK tries them in order
  * and fails over when one is down. NEWSPUB_AI_MODEL applies to the first provider only.
+ * An agent may override model(); IssueWriter does, so Gold buyers get the premium model.
  */
 trait UsesNewsPubModel
 {
@@ -21,7 +22,7 @@ trait UsesNewsPubModel
             return $providers[0];
         }
 
-        $model = config('newspub.ai.model') ?: null;
+        $model = $this->model();
 
         return collect($providers)
             ->mapWithKeys(fn (string $provider, int $index) => [$provider => $index === 0 ? $model : null])

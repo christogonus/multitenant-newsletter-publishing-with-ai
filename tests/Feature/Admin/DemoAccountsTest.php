@@ -17,7 +17,7 @@ test('an admin creates a demo account that owns the chosen products and can sign
         ->call('openDemoForm')
         ->set('demoName', 'Demo Reviewer')
         ->set('demoEmail', 'Reviewer@Example.com')
-        ->set('demoProducts', ['oto2_unlimited', 'oto8_premium'])
+        ->set('demoProducts', ['oto2_gold', 'oto8_premium'])
         ->call('createDemo')
         ->assertHasNoErrors();
 
@@ -28,7 +28,7 @@ test('an admin creates a demo account that owns the chosen products and can sign
         ->and($demo->is_admin)->toBeFalse()
         ->and($demo->email_verified_at)->not->toBeNull()
         ->and($demo->owns(Product::FrontEnd))->toBeTrue()
-        ->and($demo->owns(Product::Oto2Unlimited))->toBeTrue()
+        ->and($demo->owns(Product::Oto2Gold))->toBeTrue()
         ->and($demo->owns(Product::Oto8Premium))->toBeTrue()
         ->and($demo->owns(Product::Oto12Reseller))->toBeFalse()
         ->and($demo->purchases->every(fn ($purchase) => $purchase->source === PurchaseSource::AdminGrant && (float) $purchase->amount === 0.0))->toBeTrue()

@@ -102,7 +102,7 @@ class Settings extends Component
             'frequencies' => collect(Frequency::cases())->mapWithKeys(fn (Frequency $frequency) => [$frequency->value => $frequency->label()])->all(),
             'canAutoPublish' => $this->entitlements()->canAutoPublish($this->user()),
             'publicRoot' => config('newspub.public_root'),
-            'proProduct' => Product::Oto1Pro,
+            'deliveryProduct' => Product::Oto1Delivery,
         ]);
     }
 }

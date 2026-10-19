@@ -40,22 +40,24 @@ test('kit seed issues and failed attempts do not use the quota', function () {
     Issue::factory()->count(10)->for($newsletter)->create(['is_ai_generated' => false]);
     Issue::factory()->count(10)->for($newsletter)->create(['status' => IssueStatus::Failed]);
 
-    expect(app(Entitlements::class)->remainingIssuesThisWeek($newsletter->user))->toBe(15);
+    expect(app(Entitlements::class)->remainingIssuesThisWeek($newsletter->user, $newsletter))->toBe(15);
 });
 
-test('the quota is counted across all of a buyer\'s publications', function () {
-    $user = buyer(Product::Oto9Multi);
+test('each newsletter has its own 15 issues a week', function () {
+    $user = buyer();
     $first = Newsletter::factory()->for($user)->create();
     $second = Newsletter::factory()->for($user)->create();
-    Issue::factory()->count(8)->for($first)->create();
-    Issue::factory()->count(7)->for($second)->create();
+    Issue::factory()->count(15)->for($first)->create();
 
-    expect(fn () => app(StartIssueGeneration::class)->handle($second))->toThrow(QuotaExceededException::class);
+    expect(fn () => app(StartIssueGeneration::class)->handle($first))->toThrow(QuotaExceededException::class);
+
+    app(StartIssueGeneration::class)->handle($second);
+    expect($second->issues()->count())->toBe(1);
 });
 
 test('unlimited creation lifts the weekly cap up to the hidden fair-use ceiling', function () {
     config(['newspub.limits.fair_use_weekly_issues' => 20]);
-    $user = buyer(Product::Oto2Unlimited);
+    $user = buyer(Product::Oto2Silver);
     $newsletter = Newsletter::factory()->for($user)->create();
     Issue::factory()->count(19)->for($newsletter)->create();
 
@@ -65,16 +67,26 @@ test('unlimited creation lifts the weekly cap up to the hidden fair-use ceiling'
     expect(fn () => app(StartIssueGeneration::class)->handle($newsletter))->toThrow(QuotaExceededException::class, 'fair-use');
 });
 
-test('unlimited buyers use the priority queue lane', function () {
+test('gold buyers use the priority queue lane and silver buyers do not', function () {
     Queue::fake();
-    $unlimited = Newsletter::factory()->for(buyer(Product::Oto2Unlimited))->create();
-    $standard = Newsletter::factory()->create();
+    $gold = Newsletter::factory()->for(buyer(Product::Oto2Gold))->create();
+    $silver = Newsletter::factory()->for(buyer(Product::Oto2Silver))->create();
 
-    app(StartIssueGeneration::class)->handle($unlimited);
-    app(StartIssueGeneration::class)->handle($standard);
+    app(StartIssueGeneration::class)->handle($gold);
+    app(StartIssueGeneration::class)->handle($silver);
 
-    Queue::assertPushedOn('generation-priority', GenerateIssueJob::class);
-    Queue::assertPushedOn('generation', GenerateIssueJob::class);
+    Queue::assertPushedOn('generation-priority', GenerateIssueJob::class, fn (GenerateIssueJob $job) => $job->issue->newsletter_id === $gold->id);
+    Queue::assertPushedOn('generation', GenerateIssueJob::class, fn (GenerateIssueJob $job) => $job->issue->newsletter_id === $silver->id);
+});
+
+test('gold buyers\' issues are written with the premium model when one is set', function () {
+    config(['newspub.ai.model' => 'standard-model', 'newspub.ai.premium_model' => 'premium-model']);
+
+    expect((new IssueWriter(Newsletter::factory()->for(buyer(Product::Oto2Gold))->create()))->model())->toBe('premium-model')
+        ->and((new IssueWriter(Newsletter::factory()->for(buyer(Product::Oto2Silver))->create()))->model())->toBe('standard-model');
+
+    config(['newspub.ai.premium_model' => null]);
+    expect((new IssueWriter(Newsletter::factory()->for(buyer(Product::Oto2Gold))->create()))->model())->toBe('standard-model');
 });
 
 test('the write screen shows a plain message when the week is used up', function () {

@@ -61,7 +61,7 @@ test('locked areas show the upgrade card with the checkout link', function (stri
         ->assertSee($product->label())
         ->assertSee('https://checkout.test/'.$product->value);
 })->with([
-    ['integrations.index', Product::Oto1Lite],
+    ['integrations.index', Product::Oto1Delivery],
     ['growth.index', Product::Oto3Growth],
     ['sponsors.index', Product::Oto4Sponsor],
     ['kits.index', Product::Oto5Dfy],

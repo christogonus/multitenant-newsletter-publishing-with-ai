@@ -50,24 +50,37 @@ function makeKit(array $overrides = []): Kit
     ], $overrides));
 }
 
-test('the front end allows one publication, done-for-you five, multi unlimited', function () {
+test('the front end allows three newsletters, done-for-you five, unlimited creation no cap, and the manager adds none', function () {
     $entitlements = app(Entitlements::class);
 
-    expect($entitlements->publicationLimit(buyer()))->toBe(1)
+    expect($entitlements->publicationLimit(buyer()))->toBe(3)
         ->and($entitlements->publicationLimit(buyer(Product::Oto5Dfy)))->toBe(5)
-        ->and($entitlements->publicationLimit(buyer(Product::Oto9Multi)))->toBeNull();
+        ->and($entitlements->publicationLimit(buyer(Product::Oto2Silver)))->toBeNull()
+        ->and($entitlements->publicationLimit(buyer(Product::Oto2Gold)))->toBeNull()
+        ->and($entitlements->publicationLimit(buyer(Product::Oto9Multi)))->toBe(3);
 
     $user = buyer();
+    Newsletter::factory()->for($user)->count(2)->create();
+    expect($entitlements->canCreatePublication($user))->toBeTrue();
+
     Newsletter::factory()->for($user)->create();
     expect($entitlements->canCreatePublication($user))->toBeFalse();
 });
 
-test('the start wizard sends a buyer at the limit away', function () {
+test('the start wizard sends a buyer at the limit home and says how to get more', function () {
     $user = buyer();
-    Newsletter::factory()->for($user)->create();
+    Newsletter::factory()->for($user)->count(3)->create();
     $this->actingAs($user);
 
-    Livewire::test(CreatePublication::class)->assertRedirect(route('publications.index'));
+    Livewire::test(CreatePublication::class)->assertRedirect(route('dashboard'));
+    expect(session('toast.message'))->toContain('Unlimited Creation');
+});
+
+test('front end buyers can start a second newsletter from the header menu', function () {
+    $user = buyer();
+    Newsletter::factory()->for($user)->create();
+
+    $this->actingAs($user)->get(route('dashboard'))->assertSee(route('newsletters.create'))->assertSee('New newsletter');
 });
 
 test('installing a kit creates a publication with its topics and draft seed issues', function () {
@@ -82,7 +95,7 @@ test('installing a kit creates a publication with its topics and draft seed issu
         ->and($newsletter->topic_pipeline)->toBe(['Budgeting 101', 'Emergency funds'])
         ->and($newsletter->issues()->where('status', IssueStatus::Draft)->count())->toBe(2)
         ->and($user->fresh()->current_newsletter_id)->toBe($newsletter->id)
-        ->and(app(Entitlements::class)->issuesUsedThisWeek($user))->toBe(0);
+        ->and(app(Entitlements::class)->issuesUsedThisWeek($user, $newsletter))->toBe(0);
 });
 
 test('kits respect the publication limit', function () {

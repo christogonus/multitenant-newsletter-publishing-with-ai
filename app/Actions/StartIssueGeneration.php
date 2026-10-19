@@ -28,7 +28,7 @@ class StartIssueGeneration
         $user = $newsletter->user;
 
         $issue = Cache::lock('generate-issue:'.$user->id, 10)->block(5, function () use ($newsletter, $user, $topic, $retry, $scheduledFor) {
-            if (! $retry && ! $this->entitlements->canGenerateIssues($user)) {
+            if (! $retry && ! $this->entitlements->canGenerateIssues($user, $newsletter)) {
                 throw QuotaExceededException::forUser($user, $this->entitlements);
             }
 

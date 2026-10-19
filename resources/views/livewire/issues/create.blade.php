@@ -25,7 +25,7 @@
                         @if ($unlimited)
                             Unlimited issues are on.
                         @else
-                            {{ $remaining }} of {{ $weeklyLimit }} issues left this week.
+                            {{ $remaining }} of {{ $weeklyLimit }} issues left this week for this newsletter.
                         @endif
                     </p>
                     <x-ui.button type="submit" size="lg" area="create" icon="sparkles" loading="generate" :disabled="! $unlimited && $remaining < 1">Write my issue</x-ui.button>
@@ -41,7 +41,7 @@
             </ol>
             @if (! $unlimited && $remaining < 1)
                 <div class="mt-5">
-                    <x-ui.locked-feature :product="\App\Enums\Product::Oto2Unlimited" compact />
+                    <x-ui.locked-feature :product="\App\Enums\Product::Oto2Silver" compact />
                 </div>
             @endif
         </x-ui.card>

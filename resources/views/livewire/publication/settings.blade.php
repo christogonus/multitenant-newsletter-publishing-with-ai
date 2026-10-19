@@ -31,7 +31,7 @@
             @if ($canAutoPublish)
                 <x-ui.checkbox wire:model="autoPublish" label="When I publish, also send it through my connected email services" />
             @else
-                <x-ui.locked-feature :product="$proProduct" compact />
+                <x-ui.locked-feature :product="$deliveryProduct" compact />
             @endif
         </x-ui.card>
 

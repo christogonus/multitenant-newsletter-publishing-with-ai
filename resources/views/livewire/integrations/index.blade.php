@@ -75,21 +75,13 @@
                         <x-ui.button variant="secondary" size="sm" wire:click="test({{ $connection->id }})" loading="test">Test connection</x-ui.button>
                         <x-ui.button variant="secondary" size="sm" wire:click="syncNow({{ $connection->id }})">Copy readers now</x-ui.button>
                         <x-ui.button area="publish" size="sm" wire:click="sendLatest({{ $connection->id }})" icon="envelope">Send latest issue</x-ui.button>
-                    @elseif (! $isEditing)
-                        @if ($canAdd)
-                            <x-ui.button area="publish" wire:click="edit('{{ $platform->value }}')" icon="link">Connect</x-ui.button>
-                        @else
-                            <span class="text-sm text-muted">Upgrade to Pro to connect more than one service.</span>
-                        @endif
+                    @elseif (! $isEditing && $canAdd)
+                        <x-ui.button area="publish" wire:click="edit('{{ $platform->value }}')" icon="link">Connect</x-ui.button>
                     @endif
                 </x-slot:footer>
             </x-ui.card>
         @endforeach
     </div>
-
-    @if ($isLite)
-        <x-ui.locked-feature :product="$proProduct" compact />
-    @endif
 
     @if ($recentDeliveries->isNotEmpty())
         <x-ui.card title="Recent sends">

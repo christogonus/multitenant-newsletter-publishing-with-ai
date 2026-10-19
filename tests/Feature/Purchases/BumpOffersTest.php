@@ -53,11 +53,11 @@ test('an upsell with a bump delivers that product\'s bump, not the front end\'s'
 
 test('a bump taken on a product with no live bump still records the sale and alerts the admins', function () {
     $admin = User::factory()->admin()->create();
-    BumpOffer::factory()->forProduct(Product::Oto1Pro)->inactive()->create();
+    BumpOffer::factory()->forProduct(Product::Oto1Delivery)->inactive()->create();
 
-    postIpn(ipnPayload(['product_id' => launchpadId(Product::Oto1Pro), 'transaction_id' => 'pi_pro', 'bump' => 'true']))->assertOk();
+    postIpn(ipnPayload(['product_id' => launchpadId(Product::Oto1Delivery), 'transaction_id' => 'pi_pro', 'bump' => 'true']))->assertOk();
 
-    expect(User::where('email', 'buyer@example.com')->sole()->owns(Product::Oto1Pro))->toBeTrue()
+    expect(User::where('email', 'buyer@example.com')->sole()->owns(Product::Oto1Delivery))->toBeTrue()
         ->and(Purchase::whereNotNull('bump_offer_id')->exists())->toBeFalse();
     Notification::assertSentTo($admin, IpnNeedsAttention::class);
 });

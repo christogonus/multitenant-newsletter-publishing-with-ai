@@ -64,7 +64,7 @@ function postIpn(array $payload, string $key = 'test-webhook-key'): TestResponse
 }
 
 /**
- * Point every product at a predictable LaunchpadJV product ID: front_end => 3001, bump_vault => 3002, oto1_lite => 3003, ...
+ * Point every product at a predictable LaunchpadJV product ID: front_end => 3001, bump_vault => 3002, oto1_delivery => 3003, ...
  */
 function configureLaunchpad(): void
 {

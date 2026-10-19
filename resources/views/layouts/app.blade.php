@@ -2,7 +2,9 @@
     $user = auth()->user();
     $sections = app(\App\Support\Navigation::class)->sections($user);
     $currentNewsletter = $user->activeNewsletter();
-    $showSwitcher = $user->owns(\App\Enums\Product::Oto9Multi) || $user->newsletters()->count() > 1;
+    $entitlements = app(\App\Support\Entitlements::class);
+    $canCreatePublication = $entitlements->canCreatePublication($user);
+    $hasPortfolio = $user->owns(\App\Enums\Product::Oto9Multi);
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
@@ -83,7 +85,7 @@
                 <x-ui.icon name="bars-3" size="6" />
             </button>
 
-            @if ($showSwitcher && $currentNewsletter)
+            @if ($currentNewsletter)
                 <x-ui.dropdown align="left" width="w-72">
                     <x-slot:trigger>
                         <button type="button" class="inline-flex min-h-11 items-center gap-2 rounded-control border border-line bg-card px-3 text-sm font-semibold text-ink hover:bg-subtle">
@@ -98,13 +100,16 @@
                             <x-ui.dropdown-item type="submit" :icon="$publication->is($currentNewsletter) ? 'check' : 'newspaper'">{{ $publication->name }}</x-ui.dropdown-item>
                         </form>
                     @endforeach
-                    @if (\Illuminate\Support\Facades\Route::has('publications.index'))
-                        <div class="my-1 border-t border-line"></div>
-                        <x-ui.dropdown-item :href="route('publications.index')" icon="squares">Manage publications</x-ui.dropdown-item>
+                    <div class="my-1 border-t border-line"></div>
+                    @if ($canCreatePublication)
+                        <x-ui.dropdown-item :href="route('newsletters.create')" icon="plus">New newsletter</x-ui.dropdown-item>
+                    @elseif (! $entitlements->hasUnlimitedIssues($user))
+                        <x-ui.dropdown-item :href="route('upgrades')" icon="sparkles">Run more newsletters</x-ui.dropdown-item>
+                    @endif
+                    @if ($hasPortfolio)
+                        <x-ui.dropdown-item :href="route('publications.index')" icon="squares">All newsletters dashboard</x-ui.dropdown-item>
                     @endif
                 </x-ui.dropdown>
-            @elseif ($currentNewsletter)
-                <span class="hidden truncate text-sm font-semibold text-ink sm:inline">{{ $currentNewsletter->name }}</span>
             @endif
 
             <div class="ml-auto flex items-center gap-1">

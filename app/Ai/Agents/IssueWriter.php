@@ -4,6 +4,7 @@ namespace App\Ai\Agents;
 
 use App\Ai\Agents\Concerns\UsesNewsPubModel;
 use App\Models\Newsletter;
+use App\Support\Entitlements;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Attributes\MaxTokens;
 use Laravel\Ai\Attributes\Temperature;
@@ -19,6 +20,14 @@ class IssueWriter implements Agent, HasStructuredOutput
     use Promptable, UsesNewsPubModel;
 
     public function __construct(public Newsletter $newsletter) {}
+
+    /**
+     * OTO 2 Gold buyers' issues use the premium writing model when one is configured.
+     */
+    public function model(): ?string
+    {
+        return app(Entitlements::class)->writingModel($this->newsletter->user);
+    }
 
     /**
      * Get the instructions that the agent should follow.

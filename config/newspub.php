@@ -33,22 +33,22 @@ return [
     */
 
     'limits' => [
+        /*
+         * AI-written issues per newsletter per rolling week, before OTO 2.
+         */
         'weekly_issues' => (int) env('NEWSPUB_WEEKLY_ISSUES', 15),
 
         /*
-         * Hidden fair-use ceiling for OTO 2 "unlimited". Written into the terms.
+         * Hidden fair-use ceiling for OTO 2 "unlimited", across all of a buyer's newsletters. Written into the terms.
          */
         'fair_use_weekly_issues' => (int) env('NEWSPUB_FAIR_USE_WEEKLY_ISSUES', 150),
 
+        /*
+         * Newsletter brands a buyer may run. OTO 2 (Silver or Gold) and the agency license remove the cap.
+         */
         'publications' => [
-            'base' => 1,
+            'base' => 3,
             'oto5_dfy' => 5,
-            'oto9_multi' => null,
-        ],
-
-        'connections' => [
-            'oto1_lite' => 1,
-            'oto1_pro' => null,
         ],
 
         'reseller_codes_per_license' => (int) env('NEWSPUB_RESELLER_CODES', 100),
@@ -76,6 +76,11 @@ return [
          */
         'fake' => (bool) env('NEWSPUB_AI_FAKE', false) && env('APP_ENV') !== 'production',
         'model' => env('NEWSPUB_AI_MODEL'),
+
+        /*
+         * Used for issues written for OTO 2 Gold buyers. Empty means the normal model.
+         */
+        'premium_model' => env('NEWSPUB_AI_PREMIUM_MODEL'),
         'research_enabled' => (bool) env('NEWSPUB_AI_RESEARCH', true),
         'research_cache_hours' => (int) env('NEWSPUB_RESEARCH_CACHE_HOURS', 6),
         'price_per_million_input' => (float) env('NEWSPUB_AI_PRICE_INPUT', 3.00),

@@ -60,7 +60,7 @@ Route::domain(config('newspub.app_host'))->group(function () {
                 Route::get('/settings/publication', Livewire\Publication\Settings::class)->name('newsletters.settings');
                 Route::get('/design', Livewire\Design\Index::class)->name('design.index');
 
-                Route::middleware('product:oto1_lite')->group(function () {
+                Route::middleware('product:oto1_delivery')->group(function () {
                     Route::get('/email-services', Livewire\Integrations\Index::class)->name('integrations.index');
                     Route::get('/issues/{issue}/export', IssueExportController::class)->name('issues.export');
                 });

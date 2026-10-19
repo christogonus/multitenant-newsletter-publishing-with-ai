@@ -102,8 +102,8 @@ test('publications have an rss feed and a sitemap of published issues only', fun
 
 test('the publication limit is enforced inside the create action itself', function () {
     $user = buyer();
-    Newsletter::factory()->for($user)->create();
+    Newsletter::factory()->for($user)->count(3)->create();
 
-    expect(fn () => app(CreateNewsletter::class)->handle($user, ['name' => 'Second', 'niche' => 'x', 'frequency' => 'weekly']))
+    expect(fn () => app(CreateNewsletter::class)->handle($user, ['name' => 'Fourth', 'niche' => 'x', 'frequency' => 'weekly']))
         ->toThrow(PublicationLimitReachedException::class);
 });

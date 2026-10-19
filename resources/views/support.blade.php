@@ -4,7 +4,7 @@
             'How do I get my first issue out?' => 'Press "Write a new issue" on Home. The AI writes it in about a minute. Read it, change anything you like, then press Publish. You get a link to share straight away.',
             'Where do my readers sign up?' => 'Every newsletter has its own page with a sign-up box. Find the link under "View my page" at the top of the screen. Share it in your bio, in posts and with friends.',
             'Do my readers get emails?' => 'Your page shows every issue. To send issues to inboxes, connect an email service such as beehiiv, Kit or Mailchimp from "Email services". That service sends the emails and asks new readers to confirm they want them.',
-            'How many issues can I write?' => 'You can write 15 issues every 7 days. Issues free up again as the week rolls on. Unlimited Creation removes the weekly limit.',
+            'How many newsletters and issues can I have?' => 'You can run up to 3 newsletters, and write 15 issues for each one every 7 days. Issues free up again as the week rolls on. Unlimited Creation removes both limits.',
             'Can I change what the AI wrote?' => 'Yes. Every heading, paragraph and list is editable. Drag the handle to reorder. Changes save on their own.',
             'Something says "Needs a retry"' => 'Sometimes the writer cannot finish. Open the issue and press "Try again". Failed attempts never count toward your weekly issues.',
             'I bought an upgrade but it is still locked' => 'Upgrades unlock within a minute of payment. Refresh the page. If it is still locked after 10 minutes, email us with your receipt.',

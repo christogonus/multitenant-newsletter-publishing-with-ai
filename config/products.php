@@ -42,9 +42,9 @@ return [
     'products' => [
         'front_end' => $product('FRONT_END'),
         'bump_vault' => $product('BUMP_VAULT'),
-        'oto1_lite' => $product('OTO1_LITE'),
-        'oto1_pro' => $product('OTO1_PRO'),
-        'oto2_unlimited' => $product('OTO2_UNLIMITED'),
+        'oto1_delivery' => $product('OTO1_DELIVERY'),
+        'oto2_silver' => $product('OTO2_SILVER'),
+        'oto2_gold' => $product('OTO2_GOLD'),
         'oto3_growth' => $product('OTO3_GROWTH'),
         'oto4_sponsor' => $product('OTO4_SPONSOR'),
         'oto5_dfy' => $product('OTO5_DFY'),

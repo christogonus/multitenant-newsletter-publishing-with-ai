@@ -119,7 +119,7 @@ test('a failed generation can be retried and does not count toward the weekly qu
 
     $issue = Issue::sole();
     expect($issue->status)->toBe(IssueStatus::Failed)
-        ->and(app(Entitlements::class)->issuesUsedThisWeek($newsletter->user))->toBe(0);
+        ->and(app(Entitlements::class)->issuesUsedThisWeek($newsletter->user, $newsletter))->toBe(0);
 
     IssueWriter::fake([fakeIssueOutput()]);
 

@@ -56,7 +56,7 @@ test('duplicating an issue makes a manual draft that does not use the quota', fu
         ->and($copy->is_ai_generated)->toBeFalse()
         ->and($copy->public_slug)->toBeNull()
         ->and(collect($copy->blocks)->pluck('id')->intersect(collect($issue->blocks)->pluck('id')))->toBeEmpty()
-        ->and(app(Entitlements::class)->issuesUsedThisWeek($issue->newsletter->user))->toBe(1);
+        ->and(app(Entitlements::class)->issuesUsedThisWeek($issue->newsletter->user, $issue->newsletter))->toBe(1);
 });
 
 test('the readers page shows daily sign-ups and where readers came from', function () {

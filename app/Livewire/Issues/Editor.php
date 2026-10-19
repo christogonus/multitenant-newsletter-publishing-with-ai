@@ -266,7 +266,7 @@ class Editor extends Component
         return view('livewire.issues.editor', [
             'blockTypes' => BlockType::cases(),
             'canSchedule' => $user->owns(Product::Oto7Autopilot),
-            'canExport' => $user->owns(Product::Oto1Lite),
+            'canExport' => $user->owns(Product::Oto1Delivery),
             'canRepurpose' => $user->owns(Product::Oto6Social),
         ])->title($this->issue->title);
     }

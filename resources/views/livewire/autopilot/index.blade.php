@@ -7,7 +7,7 @@
     </x-ui.page-header>
 
     @if (! $unlimited)
-        <x-ui.alert>You have {{ $remaining }} issues left this week. Planned issues beyond that are written as the week rolls on, or you can upgrade to Unlimited Creation.</x-ui.alert>
+        <x-ui.alert>This newsletter has {{ $remaining }} issues left this week. Planned issues beyond that are written as the week rolls on, or you can upgrade to Unlimited Creation.</x-ui.alert>
     @endif
 
     <x-ui.card title="Add a topic">

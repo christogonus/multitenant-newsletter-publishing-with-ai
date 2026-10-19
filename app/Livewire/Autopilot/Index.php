@@ -131,7 +131,7 @@ class Index extends Component
                 ->orderBy('scheduled_for')
                 ->get()
                 ->groupBy(fn (CalendarItem $item) => $item->scheduled_for->format('Y-m-d')),
-            'remaining' => $this->entitlements()->remainingIssuesThisWeek($this->user()),
+            'remaining' => $this->entitlements()->remainingIssuesThisWeek($this->user(), $this->newsletter),
             'unlimited' => $this->entitlements()->hasUnlimitedIssues($this->user()),
         ]);
     }
