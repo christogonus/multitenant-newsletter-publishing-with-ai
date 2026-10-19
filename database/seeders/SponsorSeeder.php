@@ -27,8 +27,16 @@ class SponsorSeeder extends Seeder
             ['name' => 'CJ Affiliate', 'kind' => 'Affiliate network', 'website' => 'https://www.cj.com', 'description' => 'A large affiliate network with programmes from retail, travel and finance brands.', 'niches' => ['Retail', 'Travel', 'Finance'], 'minimum_audience' => 'Approval per brand'],
         ];
 
+        // Re-running refreshes the wording but keeps what admins decided: which entries are verified and which are switched off.
         foreach ($entries as $entry) {
-            Sponsor::updateOrCreate(['name' => $entry['name']], [...$entry, 'verified_at' => null, 'is_active' => true]);
+            $sponsor = Sponsor::firstOrNew(['name' => $entry['name']]);
+            $sponsor->fill($entry);
+
+            if (! $sponsor->exists) {
+                $sponsor->fill(['verified_at' => null, 'is_active' => true]);
+            }
+
+            $sponsor->save();
         }
     }
 }

@@ -84,6 +84,20 @@ test('the media kit is given the average views per issue', function () {
     MediaKitWriter::assertPrompted(fn ($prompt) => $prompt->contains('Average web views per issue: 75'));
 });
 
+test('loading the starter sponsors again keeps which entries admins checked or hid', function () {
+    $this->seed(SponsorSeeder::class);
+    $checked = Sponsor::where('name', 'Paved')->sole();
+    $hidden = Sponsor::where('name', 'Sponsy')->sole();
+    $checked->update(['verified_at' => now()]);
+    $hidden->update(['is_active' => false]);
+
+    $this->seed(SponsorSeeder::class);
+
+    expect($checked->fresh()->verified_at)->not->toBeNull()
+        ->and($hidden->fresh()->is_active)->toBeFalse()
+        ->and(Sponsor::where('name', 'Paved')->count())->toBe(1);
+});
+
 test('admins check, edit, add and hide sponsor entries', function () {
     $this->seed(SponsorSeeder::class);
     $admin = User::factory()->admin()->create();
