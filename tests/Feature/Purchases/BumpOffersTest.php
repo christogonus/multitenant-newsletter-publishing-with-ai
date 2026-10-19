@@ -135,6 +135,34 @@ test('an admin sets up a bump and uploads its files', function () {
         ->assertSessionHasErrors('files.0');
 });
 
+test('an admin can sell a bump on every upsell checkout, and buyers of that upsell receive it', function (Product $product) {
+    $this->actingAs(User::factory()->admin()->create());
+
+    Livewire::test(Bumps::class)
+        ->call('edit')
+        ->set('form.product_key', $product->value)
+        ->set('form.name', 'Bonus for '.$product->label())
+        ->set('form.price', '17')
+        ->call('save')
+        ->assertHasNoErrors();
+
+    $bump = BumpOffer::sole();
+    postIpn(ipnPayload(['product_id' => launchpadId($product), 'transaction_id' => 'pi_'.$product->value, 'bump' => 'true', 'total_amount' => '114.00']))->assertOk();
+
+    expect($bump->product_key)->toBe($product)
+        ->and($bump->isOwnedBy(User::where('email', 'buyer@example.com')->sole()))->toBeTrue();
+})->with([
+    'OTO 1' => Product::Oto1Delivery,
+    'OTO 2 Silver' => Product::Oto2Silver,
+    'OTO 2 Gold' => Product::Oto2Gold,
+    'OTO 3' => Product::Oto3Growth,
+    'OTO 4' => Product::Oto4Sponsor,
+    'OTO 5' => Product::Oto5Dfy,
+    'OTO 6' => Product::Oto6Social,
+    'OTO 7' => Product::Oto7Autopilot,
+    'OTO 8' => Product::Oto8Premium,
+]);
+
 test('only one bump per product is live, and a bought bump is switched off instead of deleted', function () {
     $this->actingAs(User::factory()->admin()->create());
     $first = bumpWithFiles();
