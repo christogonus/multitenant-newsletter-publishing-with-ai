@@ -10,6 +10,7 @@ use App\Models\BumpOffer;
 use App\Models\Purchase;
 use App\Models\User;
 use App\Notifications\IpnNeedsAttention;
+use App\Notifications\UpgradeUnlocked;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
@@ -104,6 +105,13 @@ class LaunchpadIpnController extends Controller
                 User::query()->where('is_admin', true)->get(),
                 new IpnNeedsAttention("{$email} took the order bump on {$product->label()} (transaction {$transactionId}), but no active order bump is set up for that product. Set one up under Admin, Order bumps, then give it to this buyer from Admin, Buyers."),
             );
+        }
+
+        // New or unconfirmed buyers got the welcome email; confirmed customers get one email for everything on the transaction.
+        $buyer = $result['purchase']?->user;
+
+        if (! $result['duplicate'] && ! $result['created_user'] && $buyer?->email_verified_at !== null) {
+            $buyer->notify(new UpgradeUnlocked($transactionId));
         }
 
         return response($result['duplicate'] ? 'Duplicate' : 'OK', 200);

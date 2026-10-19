@@ -68,6 +68,28 @@ enum Product: string
         };
     }
 
+    /**
+     * The dashboard page where the product is used, for "open it" links in emails.
+     */
+    public function homeRoute(): string
+    {
+        return match ($this) {
+            self::FrontEnd, self::Oto2Silver, self::Oto2Gold => 'dashboard',
+            self::BumpVault => 'vault.index',
+            self::Oto1Delivery => 'integrations.index',
+            self::Oto3Growth => 'growth.index',
+            self::Oto4Sponsor => 'sponsors.index',
+            self::Oto5Dfy => 'kits.index',
+            self::Oto6Social => 'social.index',
+            self::Oto7Autopilot => 'autopilot.index',
+            self::Oto8Premium => 'design.index',
+            self::Oto9Multi => 'publications.index',
+            self::Oto10Network => 'network.index',
+            self::Oto11Agency => 'agency.index',
+            self::Oto12Reseller => 'reseller.index',
+        };
+    }
+
     public function price(): string
     {
         return match ($this) {

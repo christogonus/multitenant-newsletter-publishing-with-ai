@@ -10,6 +10,8 @@ use App\Enums\PurchaseSource;
 use App\Models\BumpOffer;
 use App\Models\Purchase;
 use App\Models\User;
+use App\Notifications\UpgradeUnlocked;
+use App\Notifications\WelcomeBuyer;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -132,6 +134,32 @@ class Users extends Component
         );
 
         $this->dispatch('toast', message: 'Revoked.', tone: 'success');
+    }
+
+    /**
+     * Sends a fresh welcome email with a set-password link. For an account that already has a password it works like a reset.
+     */
+    public function resendWelcome(): void
+    {
+        $this->authorizeAdmin();
+
+        $user = User::query()->findOrFail($this->selectedId);
+        $user->notify(new WelcomeBuyer);
+
+        $this->dispatch('toast', message: 'Welcome email sent to '.$user->email.'.', tone: 'success');
+    }
+
+    /**
+     * Re-sends the "your upgrade is unlocked" email for everything still standing on the purchase's transaction.
+     */
+    public function resendUpgrade(int $purchaseId): void
+    {
+        $this->authorizeAdmin();
+
+        $purchase = Purchase::query()->with('user')->standing()->findOrFail($purchaseId);
+        $purchase->user->notify(new UpgradeUnlocked($purchase->transaction_id));
+
+        $this->dispatch('toast', message: 'Upgrade email sent to '.$purchase->user->email.'.', tone: 'success');
     }
 
     public function updatedDemoOnly(): void
