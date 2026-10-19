@@ -61,7 +61,7 @@ enum Product: string
             self::Oto6Social => 'Turn each issue into posts and video scripts in one click.',
             self::Oto7Autopilot => 'Plan a month of issues and let them go out on their own.',
             self::Oto8Premium => 'Premium designs, your logo and colours, and your own web address.',
-            self::Oto9Multi => 'See and run all your newsletters from one dashboard.',
+            self::Oto9Multi => 'See all your newsletters, their readers and what each one earns, on one dashboard.',
             self::Oto10Network => 'Swap recommendations with other newsletters to grow together.',
             self::Oto11Agency => 'Run newsletters for paying clients with ready packages and contracts.',
             self::Oto12Reseller => 'Sell NewsPub AI accounts and keep the profit.',

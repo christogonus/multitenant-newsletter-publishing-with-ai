@@ -101,6 +101,14 @@ class Newsletter extends Model
     }
 
     /**
+     * @return HasMany<Earning, $this>
+     */
+    public function earnings(): HasMany
+    {
+        return $this->hasMany(Earning::class);
+    }
+
+    /**
      * @return HasMany<Report, $this>
      */
     public function reports(): HasMany
