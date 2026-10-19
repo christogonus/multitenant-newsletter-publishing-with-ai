@@ -17,6 +17,7 @@ use App\Support\IssueRenderer;
 use App\Support\PaidReaders;
 use Carbon\CarbonInterface;
 use Illuminate\Http\Client\Request;
+use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
@@ -467,4 +468,17 @@ test('owners cannot act on another newsletter\'s claims', function () {
     Livewire::test(PaidSubscriptions::class)->call('activateClaim', $otherClaim->id)->assertNotFound();
 
     expect($otherClaim->fresh()->status)->toBe(PaymentClaimStatus::Pending);
+});
+
+test('the sign-in code email comes from the newsletter, with no sign of the platform', function () {
+    config(['app.name' => 'NewsPub AI', 'mail.from.address' => 'mail@newspub.test']);
+    $newsletter = manualNewsletter();
+    $newsletter->update(['name' => 'Acme Money Notes']);
+
+    $mail = (new ReaderSignInCode($newsletter, '482913'))->toMail(new AnonymousNotifiable);
+    $html = (string) $mail->render();
+
+    expect($mail->from)->toBe(['mail@newspub.test', 'Acme Money Notes'])
+        ->and($mail->replyTo)->toBe([['owner@example.com', 'Acme Money Notes']])
+        ->and($html)->toContain('482913')->toContain('Acme Money Notes')->not->toContain('NewsPub');
 });
