@@ -42,6 +42,7 @@ $publicationRoutes = function (string $namePrefix) {
         Route::post('/members/verify', [MembersController::class, 'verify'])->middleware('throttle:subscribe')->name('members.verify');
         Route::post('/members/sign-out', [MembersController::class, 'signOut'])->name('members.sign-out');
         Route::post('/members/checkout', [MembersController::class, 'checkout'])->middleware('throttle:subscribe')->name('members.checkout');
+        Route::post('/members/paid', [MembersController::class, 'claimManualPayment'])->middleware('throttle:subscribe')->name('members.paid');
         Route::get('/members/complete/{provider}', [MembersController::class, 'complete'])->name('members.complete');
     });
 };

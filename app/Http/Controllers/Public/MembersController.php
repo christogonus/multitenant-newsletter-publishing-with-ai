@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Public;
 
 use App\Enums\PaidPlan;
+use App\Enums\PaymentClaimStatus;
 use App\Enums\PaymentProvider;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SubscribeRequest;
@@ -10,12 +11,14 @@ use App\Integrations\Payments\PaymentException;
 use App\Integrations\Payments\PaymentGateways;
 use App\Models\Issue;
 use App\Models\Newsletter;
+use App\Notifications\ReaderPaymentClaimed;
 use App\Support\PaidReaders;
 use App\Support\PublicLinks;
 use App\Support\Theme;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rule;
 
 /**
@@ -46,6 +49,7 @@ class MembersController extends Controller
             'hasAccess' => $email && $this->paidReaders->hasAccess($newsletter, $email),
             'plans' => $this->paidReaders->plans($newsletter),
             'accounts' => $this->paidReaders->accounts($newsletter),
+            'pendingClaim' => $email ? $newsletter->paymentClaims()->pending()->where('email', $email)->latest()->first() : null,
             'nextUrl' => $this->nextUrl($request, $newsletter),
         ])->header('Cache-Control', 'private, no-store');
     }
@@ -126,6 +130,39 @@ class MembersController extends Controller
         }
 
         return redirect()->away($checkoutUrl);
+    }
+
+    /**
+     * The reader says they paid by the owner's manual method. The owner is told and activates them after checking.
+     */
+    public function claimManualPayment(Request $request): RedirectResponse
+    {
+        $newsletter = $this->newsletter($request);
+        $email = $this->paidReaders->signedInEmail($request, $newsletter);
+
+        $validated = $request->validate([
+            'plan' => ['required', Rule::enum(PaidPlan::class)],
+            'reference' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $plan = PaidPlan::from($validated['plan']);
+
+        if (! $email || ! $newsletter->acceptsManualPayments() || $newsletter->paidPriceCents($plan) === null) {
+            return redirect(PublicLinks::route('members'));
+        }
+
+        // One open claim per reader: sending again updates it instead of piling up emails to the owner.
+        $claim = $newsletter->paymentClaims()->pending()->where('email', $email)->first();
+        $isNew = ! $claim;
+
+        $claim ??= $newsletter->paymentClaims()->make(['email' => $email, 'status' => PaymentClaimStatus::Pending]);
+        $claim->fill(['plan' => $plan, 'reference' => trim((string) ($validated['reference'] ?? '')) ?: null])->save();
+
+        if ($isNew) {
+            Notification::route('mail', $newsletter->paid_manual_contact)->notify(new ReaderPaymentClaimed($claim));
+        }
+
+        return redirect(PublicLinks::route('members'))->with('status', 'Thank you. '.$newsletter->name.' will check your payment and turn on your access.');
     }
 
     public function complete(Request $request, PaymentGateways $gateways, string $provider): RedirectResponse

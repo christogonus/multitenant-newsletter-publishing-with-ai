@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Storage;
     'user_id', 'name', 'tagline', 'niche', 'audience', 'frequency', 'subdomain', 'voice', 'template',
     'branding', 'reward_tiers', 'auto_publish', 'kit_key', 'topic_pipeline', 'moderated_at', 'moderation_reason',
     'paid_enabled', 'paid_monthly_cents', 'paid_yearly_cents', 'paid_currency', 'paid_perks',
+    'paid_manual_enabled', 'paid_manual_instructions', 'paid_manual_contact',
 ])]
 class Newsletter extends Model
 {
@@ -53,6 +54,7 @@ class Newsletter extends Model
             'auto_publish' => 'boolean',
             'moderated_at' => 'datetime',
             'paid_enabled' => 'boolean',
+            'paid_manual_enabled' => 'boolean',
             'paid_monthly_cents' => 'integer',
             'paid_yearly_cents' => 'integer',
         ];
@@ -96,6 +98,14 @@ class Newsletter extends Model
     public function paymentAccounts(): HasMany
     {
         return $this->hasMany(PaymentAccount::class);
+    }
+
+    /**
+     * @return HasMany<PaymentClaim, $this>
+     */
+    public function paymentClaims(): HasMany
+    {
+        return $this->hasMany(PaymentClaim::class);
     }
 
     /**
@@ -208,6 +218,14 @@ class Newsletter extends Model
     public function hasPaidSubscriptions(): bool
     {
         return $this->paid_enabled && $this->user->owns(Product::Oto4Sponsor);
+    }
+
+    /**
+     * Whether readers can pay the owner directly (bank transfer, crypto and so on) and email them to be let in.
+     */
+    public function acceptsManualPayments(): bool
+    {
+        return $this->paid_manual_enabled && filled($this->paid_manual_instructions) && filled($this->paid_manual_contact);
     }
 
     /**

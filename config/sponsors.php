@@ -38,7 +38,7 @@ return [
     'paid_guide' => [
         ['title' => 'Decide what paying readers get', 'body' => 'Keep your main issue free so it keeps growing. Offer something extra for paying readers: a bonus issue each week, deeper guides, templates, or a private community.'],
         ['title' => 'Pick a fair price', 'body' => 'Most small newsletters charge between $5 and $10 a month, or $50 to $100 a year. Offer the yearly price at about two months free.'],
-        ['title' => 'Connect where payments go', 'body' => 'Connect your Stripe or PayPal above (or both). Readers pay you directly, and access starts and renews on its own. Then mark issues "Paying readers only" in the editor.'],
+        ['title' => 'Connect where payments go', 'body' => 'Connect your Stripe or PayPal above (or both), and access starts and renews on its own. No business account? Use "Pay another way" for bank transfer or crypto and let readers in by hand. Then mark issues "Paying readers only" in the editor.'],
         ['title' => 'Launch to your best readers first', 'body' => 'Tell your most engaged readers first and offer a "founding member" discount for the first 30 days. Their feedback shapes the paid offer.'],
         ['title' => 'Keep paying readers happy', 'body' => 'Deliver the extra content on the same day every week. Ask paying readers once a quarter what they want next.'],
     ],

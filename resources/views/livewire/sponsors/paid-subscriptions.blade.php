@@ -5,7 +5,7 @@
         </x-slot:actions>
 
         <form wire:submit="saveSettings" class="space-y-4">
-            <x-ui.checkbox wire:model="paidEnabled" label="Turn on paid subscriptions" hint="Issues you mark &quot;Paying readers only&quot; in the editor show their opening, then ask readers to sign in or subscribe." />
+            <x-ui.checkbox wire:model="paidEnabled" label="Turn on paid subscriptions" hint="Issues you mark “Paying readers only” in the editor show their opening, then ask readers to sign in or subscribe." />
 
             <div class="grid gap-4 sm:grid-cols-3">
                 <x-ui.input wire:model="monthlyPrice" type="number" step="0.01" min="1" label="Monthly price" placeholder="5.00" optional />
@@ -84,6 +84,45 @@
             </x-ui.card>
         @endforeach
     </div>
+
+    <x-ui.card title="Pay another way" description="No Stripe or PayPal? Readers pay you by bank transfer, crypto or any other way, press “I’ve paid”, and you let them in.">
+        <x-slot:actions>
+            <x-ui.pill :tone="$this->newsletter->acceptsManualPayments() ? 'success' : 'neutral'">{{ $this->newsletter->acceptsManualPayments() ? 'On' : 'Off' }}</x-ui.pill>
+        </x-slot:actions>
+
+        <form wire:submit="saveManualPayments" class="space-y-4">
+            <x-ui.checkbox wire:model="manualEnabled" label="Show my payment instructions to readers" hint="Readers see your prices, these instructions and your email after they confirm their own email." />
+            <x-ui.textarea wire:model="manualInstructions" rows="5" label="How to pay you" hint="Bank details, a crypto wallet address and network, or a payment link. Readers see exactly what you write." placeholder="Bank: First Bank, account 0123456789, Jane Doe. Or USDT (TRC20) to T..." />
+            <x-ui.input wire:model="manualContact" type="email" label="Email readers write to after paying" hint="Readers who press “I’ve paid” are emailed here and listed below for you to check. Readers with questions write here too." />
+            <div class="flex justify-end">
+                <x-ui.button type="submit" area="earn" loading="saveManualPayments">Save</x-ui.button>
+            </div>
+        </form>
+    </x-ui.card>
+
+    @if ($pendingClaims->isNotEmpty())
+        <x-ui.card title="Waiting for activation" description="These readers say they paid. Check the money arrived, then activate them.">
+            <ul class="divide-y divide-line rounded-card border border-line">
+                @foreach ($pendingClaims as $claim)
+                    <li wire:key="claim-{{ $claim->id }}" class="flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm">
+                        <div>
+                            <p class="font-medium text-ink">{{ $claim->email }}</p>
+                            <p class="text-muted">
+                                @php $claimCents = $this->newsletter->paidPriceCents($claim->plan); @endphp
+                                {{ $claim->plan->label() }}{{ $claimCents ? ' ('.$this->newsletter->formatPaidPrice($claimCents).')' : '' }}
+                                · {{ $claim->created_at->diffForHumans() }}
+                                · Reference: <span class="break-all text-ink">{{ $claim->reference ?: 'none given' }}</span>
+                            </p>
+                        </div>
+                        <div class="flex gap-2">
+                            <x-ui.button variant="ghost" size="sm" wire:click="declineClaim({{ $claim->id }})" wire:confirm="Decline {{ $claim->email }}? They will not get access.">Decline</x-ui.button>
+                            <x-ui.button area="earn" size="sm" wire:click="activateClaim({{ $claim->id }})" icon="check">Activate</x-ui.button>
+                        </div>
+                    </li>
+                @endforeach
+            </ul>
+        </x-ui.card>
+    @endif
 
     <x-ui.card title="Paying readers" :description="$payingCount.' '.\Illuminate\Support\Str::plural('reader', $payingCount).' can read locked issues right now.'">
         <x-ui.copy-field :value="$membersUrl" label="Link to your subscribe page" />

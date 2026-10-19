@@ -3,6 +3,7 @@
 namespace App\Livewire\Sponsors;
 
 use App\Enums\ConnectionStatus;
+use App\Enums\PaymentClaimStatus;
 use App\Enums\PaymentProvider;
 use App\Enums\Product;
 use App\Integrations\Payments\PaymentException;
@@ -42,6 +43,12 @@ class PaidSubscriptions extends Component
 
     public bool $sandbox = false;
 
+    public bool $manualEnabled = false;
+
+    public string $manualInstructions = '';
+
+    public string $manualContact = '';
+
     public string $grantEmail = '';
 
     public string $grantUntil = '';
@@ -56,6 +63,9 @@ class PaidSubscriptions extends Component
         $this->yearlyPrice = $newsletter->paid_yearly_cents ? number_format($newsletter->paid_yearly_cents / 100, 2, '.', '') : '';
         $this->currency = $newsletter->paid_currency ?: 'USD';
         $this->perks = (string) $newsletter->paid_perks;
+        $this->manualEnabled = $newsletter->paid_manual_enabled;
+        $this->manualInstructions = (string) $newsletter->paid_manual_instructions;
+        $this->manualContact = $newsletter->paid_manual_contact ?: $this->user()->email;
         $this->grantUntil = now()->addYear()->toDateString();
     }
 
@@ -86,6 +96,33 @@ class PaidSubscriptions extends Component
 
         PublicPageCache::bust($newsletter);
         $this->toast($this->paidEnabled ? 'Saved. Issues you mark "Paying readers only" are now locked.' : 'Saved. Paid subscriptions are off, so every issue is free to read.');
+    }
+
+    /**
+     * Payment by bank transfer, crypto and so on: readers follow the owner's instructions, then email the owner,
+     * who turns their access on with "Give a reader access".
+     */
+    public function saveManualPayments(): void
+    {
+        $this->ensureOwnsUpsell();
+        $newsletter = $this->newsletter;
+        $this->authorize('update', $newsletter);
+
+        $this->validate([
+            'manualInstructions' => [Rule::requiredIf($this->manualEnabled), 'nullable', 'string', 'max:2000'],
+            'manualContact' => [Rule::requiredIf($this->manualEnabled), 'nullable', 'string', 'email:rfc', 'max:255'],
+        ], [
+            'manualInstructions.required' => 'Tell readers how to pay you, such as your bank details or wallet address.',
+            'manualContact.required' => 'Add the email readers should write to after they pay.',
+        ]);
+
+        $newsletter->update([
+            'paid_manual_enabled' => $this->manualEnabled,
+            'paid_manual_instructions' => trim($this->manualInstructions) ?: null,
+            'paid_manual_contact' => trim($this->manualContact) ?: null,
+        ]);
+
+        $this->toast($this->manualEnabled ? 'Saved. Readers now see your payment instructions.' : 'Saved. Manual payments are off.');
     }
 
     public function edit(string $provider): void
@@ -194,6 +231,45 @@ class PaidSubscriptions extends Component
         $this->toast('Done. They can now sign in with their email and read paid issues.');
     }
 
+    /**
+     * Turns on access for a reader who said they paid by a manual method, for one period of their plan.
+     * A reader who still has access by hand gets the new period added on after it.
+     */
+    public function activateClaim(int $claimId, PaidReaders $paidReaders): void
+    {
+        $this->ensureOwnsUpsell();
+        $newsletter = $this->newsletter;
+        $this->authorize('update', $newsletter);
+
+        $claim = $newsletter->paymentClaims()->pending()->findOrFail($claimId);
+        $subscriber = $paidReaders->subscriber($newsletter, $claim->email);
+
+        if ($subscriber?->hasPaidAccess() && $subscriber->paid_via !== PaymentProvider::Manual) {
+            $this->toast($claim->email.' already pays through '.$subscriber->paid_via->label().'. Decline this one if it is a mistake.', 'warning');
+
+            return;
+        }
+
+        $startsFrom = $subscriber?->hasPaidAccess() ? $subscriber->paid_until : now();
+        $paidUntil = $claim->plan->after($startsFrom);
+
+        $paidReaders->grant($newsletter, $claim->email, $paidUntil, PaymentProvider::Manual, $claim->plan, $claim->reference);
+        $claim->update(['status' => PaymentClaimStatus::Approved, 'resolved_at' => now()]);
+
+        $this->toast($claim->email.' can now read paid issues until '.$paidUntil->toFormattedDateString().'.');
+    }
+
+    public function declineClaim(int $claimId): void
+    {
+        $this->ensureOwnsUpsell();
+        $this->authorize('update', $this->newsletter);
+
+        $claim = $this->newsletter->paymentClaims()->pending()->findOrFail($claimId);
+        $claim->update(['status' => PaymentClaimStatus::Declined, 'resolved_at' => now()]);
+
+        $this->toast('Declined. Let '.$claim->email.' know why, so they can sort it out.');
+    }
+
     public function revokeAccess(int $subscriberId): void
     {
         $this->ensureOwnsUpsell();
@@ -216,6 +292,7 @@ class PaidSubscriptions extends Component
                 'gateway' => $gateways->for($provider),
                 'account' => $accounts->get($provider->value),
             ]),
+            'pendingClaims' => $newsletter->paymentClaims()->pending()->oldest()->limit(50)->get(),
             'payingCount' => $newsletter->subscribers()->paying()->count(),
             'payingReaders' => $newsletter->subscribers()->paying()->latest('updated_at')->limit(50)->get(),
             'membersUrl' => $newsletter->publicUrl('members'),

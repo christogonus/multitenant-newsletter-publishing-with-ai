@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\PaidPlan;
+use App\Enums\PaymentClaimStatus;
 use App\Enums\PaymentProvider;
 use App\Enums\Product;
 use App\Livewire\Issues\Editor;
@@ -8,7 +9,9 @@ use App\Livewire\Sponsors\PaidSubscriptions;
 use App\Models\Issue;
 use App\Models\Newsletter;
 use App\Models\PaymentAccount;
+use App\Models\PaymentClaim;
 use App\Models\Subscriber;
+use App\Notifications\ReaderPaymentClaimed;
 use App\Notifications\ReaderSignInCode;
 use App\Support\IssueRenderer;
 use App\Support\PaidReaders;
@@ -340,3 +343,128 @@ test('only OTO 4 owners can mark an issue for paying readers', function (array $
     'with OTO 4' => [[Product::Oto4Sponsor], true],
     'without OTO 4' => [[], false],
 ]);
+
+test('a signed-in reader sees the owner\'s manual payment instructions and who to email after paying', function () {
+    $newsletter = paidNewsletter();
+    $newsletter->update([
+        'paid_manual_enabled' => true,
+        'paid_manual_instructions' => "USDT (TRC20): TXyz123\n<b>Bank</b>: 0123456789",
+        'paid_manual_contact' => 'owner@example.com',
+    ]);
+
+    $this->withSession(['paid_reader.'.$newsletter->id => 'reader@example.com'])
+        ->get(publicationUrl($newsletter, 'members'))
+        ->assertOk()
+        ->assertSee('How to pay')
+        ->assertSee('$5.00 a month or $50.00 a year')
+        ->assertSee('USDT (TRC20): TXyz123<br />', false)
+        ->assertSee('&lt;b&gt;Bank&lt;/b&gt;', false)
+        ->assertSee('href="mailto:owner@example.com?subject=', false)
+        ->assertSee(rawurlencode('My email: reader@example.com'), false)
+        ->assertDontSee('Pay with card')
+        ->assertDontSee('not open yet');
+});
+
+test('subscriptions are not open when there is neither a payment account nor manual payment', function () {
+    $newsletter = paidNewsletter();
+    $newsletter->update(['paid_manual_enabled' => true, 'paid_manual_instructions' => null, 'paid_manual_contact' => 'owner@example.com']);
+
+    $this->withSession(['paid_reader.'.$newsletter->id => 'reader@example.com'])
+        ->get(publicationUrl($newsletter, 'members'))
+        ->assertSee('Paid subscriptions are not open yet.')
+        ->assertDontSee('owner@example.com');
+});
+
+test('owners need instructions and a contact email to turn on manual payments', function () {
+    $newsletter = paidNewsletter();
+    $this->actingAs($newsletter->user);
+
+    Livewire::test(PaidSubscriptions::class)
+        ->assertSet('manualContact', $newsletter->user->email)
+        ->set('manualEnabled', true)
+        ->set('manualContact', '')
+        ->call('saveManualPayments')
+        ->assertHasErrors(['manualInstructions', 'manualContact'])
+        ->set('manualInstructions', 'Send bank transfer to 0123456789.')
+        ->set('manualContact', 'owner@example.com')
+        ->call('saveManualPayments')
+        ->assertHasNoErrors();
+
+    expect($newsletter->fresh()->acceptsManualPayments())->toBeTrue();
+});
+
+function manualNewsletter(): Newsletter
+{
+    $newsletter = paidNewsletter();
+    $newsletter->update([
+        'paid_manual_enabled' => true,
+        'paid_manual_instructions' => 'USDT (TRC20): TXyz123',
+        'paid_manual_contact' => 'owner@example.com',
+    ]);
+
+    return $newsletter;
+}
+
+test('a reader who says they paid is listed for the owner, who is emailed once', function () {
+    Notification::fake();
+    $newsletter = manualNewsletter();
+    $session = ['paid_reader.'.$newsletter->id => 'reader@example.com'];
+
+    $this->withSession($session)->post(publicationUrl($newsletter, 'members/paid'), ['plan' => 'yearly', 'reference' => 'tx-1'])
+        ->assertRedirect(publicationUrl($newsletter, 'members'));
+    $this->withSession($session)->post(publicationUrl($newsletter, 'members/paid'), ['plan' => 'yearly', 'reference' => 'tx-2']);
+
+    $claim = PaymentClaim::query()->sole();
+    expect($claim)->email->toBe('reader@example.com')->plan->toBe(PaidPlan::Yearly)->reference->toBe('tx-2')->status->toBe(PaymentClaimStatus::Pending);
+    Notification::assertSentOnDemandTimes(ReaderPaymentClaimed::class, 1);
+    Notification::assertSentOnDemand(ReaderPaymentClaimed::class, fn ($notification, $channels, $notifiable) => $notifiable->routes['mail'] === 'owner@example.com');
+
+    $this->withSession($session)->get(publicationUrl($newsletter, 'members'))->assertSee('Waiting for '.$newsletter->name.' to confirm your payment');
+});
+
+test('readers cannot say they paid when manual payments are off', function () {
+    $newsletter = paidNewsletter();
+
+    $this->withSession(['paid_reader.'.$newsletter->id => 'reader@example.com'])
+        ->post(publicationUrl($newsletter, 'members/paid'), ['plan' => 'monthly']);
+
+    expect(PaymentClaim::query()->exists())->toBeFalse();
+});
+
+test('activating a claim gives one period of the plan, added after any access given by hand', function () {
+    $this->freezeTime();
+    $newsletter = manualNewsletter();
+    $this->actingAs($newsletter->user);
+    $newClaim = PaymentClaim::factory()->for($newsletter)->create(['email' => 'new@example.com', 'plan' => PaidPlan::Monthly]);
+    payingReader($newsletter, 'renewing@example.com', now()->addDays(10));
+    $renewalClaim = PaymentClaim::factory()->for($newsletter)->create(['email' => 'renewing@example.com', 'plan' => PaidPlan::Yearly]);
+
+    Livewire::test(PaidSubscriptions::class)
+        ->call('activateClaim', $newClaim->id)
+        ->call('activateClaim', $renewalClaim->id);
+
+    expect(Subscriber::query()->where('email', 'new@example.com')->sole()->paid_until->toDateTimeString())->toBe(now()->addMonth()->toDateTimeString())
+        ->and(Subscriber::query()->where('email', 'renewing@example.com')->sole()->paid_until->toDateTimeString())->toBe(now()->addDays(10)->addYear()->toDateTimeString())
+        ->and($newClaim->fresh()->status)->toBe(PaymentClaimStatus::Approved);
+});
+
+test('declining a claim gives no access', function () {
+    $newsletter = manualNewsletter();
+    $this->actingAs($newsletter->user);
+    $claim = PaymentClaim::factory()->for($newsletter)->create(['email' => 'reader@example.com']);
+
+    Livewire::test(PaidSubscriptions::class)->call('declineClaim', $claim->id);
+
+    expect($claim->fresh()->status)->toBe(PaymentClaimStatus::Declined)
+        ->and(Subscriber::query()->where('email', 'reader@example.com')->exists())->toBeFalse();
+});
+
+test('owners cannot act on another newsletter\'s claims', function () {
+    $newsletter = manualNewsletter();
+    $otherClaim = PaymentClaim::factory()->create();
+    $this->actingAs($newsletter->user);
+
+    Livewire::test(PaidSubscriptions::class)->call('activateClaim', $otherClaim->id)->assertNotFound();
+
+    expect($otherClaim->fresh()->status)->toBe(PaymentClaimStatus::Pending);
+});

@@ -55,29 +55,79 @@
                     <p>{!! nl2br(e($newsletter->paid_perks)) !!}</p>
                 @endif
 
-                @if ($accounts->isEmpty() || $plans === [])
+                @php $manual = $newsletter->acceptsManualPayments(); @endphp
+                @if ($plans === [] || ($accounts->isEmpty() && ! $manual))
                     <p>Paid subscriptions are not open yet. Please check back soon.</p>
                 @else
-                    <div class="section">
-                        @foreach ($plans as $option)
-                            <div style="margin-bottom: 20px;">
-                                <h2 style="font-size: 20px; margin-bottom: 8px;">{{ $option['price'] }} a {{ $option['plan']->period() }}</h2>
-                                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                                    @foreach ($accounts as $account)
-                                        <form method="POST" action="{{ \App\Support\PublicLinks::route('members.checkout') }}">
-                                            @csrf
-                                            <input type="hidden" name="provider" value="{{ $account->provider->value }}">
-                                            <input type="hidden" name="plan" value="{{ $option['plan']->value }}">
-                                            <button type="submit" @class(['btn', 'secondary' => ! $loop->first])>
-                                                {{ $account->provider === \App\Enums\PaymentProvider::PayPal ? 'Pay with PayPal' : 'Pay with card' }}
-                                            </button>
-                                        </form>
-                                    @endforeach
+                    @if ($accounts->isNotEmpty())
+                        <div class="section">
+                            @foreach ($plans as $option)
+                                <div style="margin-bottom: 20px;">
+                                    <h2 style="font-size: 20px; margin-bottom: 8px;">{{ $option['price'] }} a {{ $option['plan']->period() }}</h2>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                        @foreach ($accounts as $account)
+                                            <form method="POST" action="{{ \App\Support\PublicLinks::route('members.checkout') }}">
+                                                @csrf
+                                                <input type="hidden" name="provider" value="{{ $account->provider->value }}">
+                                                <input type="hidden" name="plan" value="{{ $option['plan']->value }}">
+                                                <button type="submit" @class(['btn', 'secondary' => ! $loop->first])>
+                                                    {{ $account->provider === \App\Enums\PaymentProvider::PayPal ? 'Pay with PayPal' : 'Pay with card' }}
+                                                </button>
+                                            </form>
+                                        @endforeach
+                                    </div>
                                 </div>
-                            </div>
-                        @endforeach
-                        <p class="small muted">Cancel any time. Payments are handled securely by {{ $accounts->map(fn ($account) => $account->provider->label())->join(' and ') }}.</p>
-                    </div>
+                            @endforeach
+                            <p class="small muted">Cancel any time. Payments are handled securely by {{ $accounts->map(fn ($account) => $account->provider->label())->join(' and ') }}.</p>
+                        </div>
+                    @endif
+
+                    @if ($manual)
+                        @php
+                            $priceList = collect($plans)->map(fn ($option) => $option['price'].' a '.$option['plan']->period())->join(' or ');
+                            $mailto = 'mailto:'.$newsletter->paid_manual_contact
+                                .'?subject='.rawurlencode('Payment for '.$newsletter->name)
+                                .'&body='.rawurlencode("Hi,\n\nI have paid for a subscription to {$newsletter->name}.\n\nMy email: {$email}\nPlan ({$priceList}): \nPayment reference or proof: \n\nThank you");
+                        @endphp
+                        <div class="section">
+                            <h2 style="font-size: 20px; margin-bottom: 8px;">{{ $accounts->isEmpty() ? 'How to pay' : 'Or pay another way' }}</h2>
+                            <p><strong>{{ $priceList }}</strong></p>
+                            <div style="padding: 16px 20px; border: 1px solid rgba(0,0,0,.15); border-radius: var(--radius); overflow-wrap: anywhere;">{!! nl2br(e($newsletter->paid_manual_instructions)) !!}</div>
+                            @if ($pendingClaim)
+                                <div role="status" style="margin-top: 16px; padding: 16px 20px; border: 2px solid var(--accent); border-radius: var(--radius);">
+                                    <p style="margin: 0 0 6px;"><strong>Waiting for {{ $newsletter->name }} to confirm your payment</strong></p>
+                                    <p class="small muted" style="margin: 0;">
+                                        {{ $pendingClaim->plan->label() }} plan, sent {{ $pendingClaim->created_at->toFormattedDateString() }}@if ($pendingClaim->reference), reference {{ $pendingClaim->reference }}@endif.
+                                        Your access starts once it is confirmed. Come back here and sign in with {{ $email }} to read.
+                                    </p>
+                                </div>
+                            @endif
+
+                            <form method="POST" action="{{ \App\Support\PublicLinks::route('members.paid') }}" style="margin-top: 16px;">
+                                @csrf
+                                <h3 style="font-size: 17px; margin-bottom: 8px;">{{ $pendingClaim ? 'Update your payment details' : 'Already paid? Let us know' }}</h3>
+                                @if (count($plans) > 1)
+                                    <fieldset style="border: 0; padding: 0; margin: 0 0 12px;">
+                                        <legend class="small muted">Plan you paid for</legend>
+                                        @foreach ($plans as $option)
+                                            <label style="display: block; padding: 6px 0;">
+                                                <input type="radio" name="plan" value="{{ $option['plan']->value }}" @checked(($pendingClaim?->plan ?? $plans[0]['plan']) === $option['plan']) required>
+                                                {{ $option['price'] }} a {{ $option['plan']->period() }}
+                                            </label>
+                                        @endforeach
+                                    </fieldset>
+                                @else
+                                    <input type="hidden" name="plan" value="{{ $plans[0]['plan']->value }}">
+                                @endif
+                                <label for="members-reference" class="small muted">Payment reference or transaction ID (optional)</label>
+                                <input id="members-reference" class="field" type="text" name="reference" maxlength="500" value="{{ old('reference', $pendingClaim?->reference) }}" placeholder="e.g. bank transfer reference or crypto transaction hash">
+                                @error('reference')<p class="error" role="alert">{{ $message }}</p>@enderror
+                                <p><button type="submit" class="btn">{{ $pendingClaim ? 'Update' : 'I\'ve paid' }}</button></p>
+                            </form>
+
+                            <p class="small muted">Questions about your payment? Email <a href="{{ $mailto }}">{{ $newsletter->paid_manual_contact }}</a>.</p>
+                        </div>
+                    @endif
                 @endif
             @endif
 
