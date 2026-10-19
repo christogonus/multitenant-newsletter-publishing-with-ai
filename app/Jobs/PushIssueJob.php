@@ -33,6 +33,11 @@ class PushIssueJob implements ShouldQueue
 
     public function handle(PlatformManager $platforms): void
     {
+        // Queued before the owner was suspended: hold it rather than send.
+        if ($this->issue->newsletter->isOnHold()) {
+            return;
+        }
+
         $delivery = IssueDelivery::firstOrCreate(
             ['issue_id' => $this->issue->id, 'platform_connection_id' => $this->platformConnection->id],
             ['status' => 'pending'],

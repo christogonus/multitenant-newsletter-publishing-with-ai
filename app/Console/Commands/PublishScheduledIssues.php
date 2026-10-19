@@ -24,6 +24,8 @@ class PublishScheduledIssues extends Command
         Issue::query()
             ->where('status', IssueStatus::Scheduled)
             ->where('scheduled_for', '<=', now())
+            // Suspended owners' issues wait, still scheduled, until the suspension is lifted.
+            ->whereHas('newsletter.user', fn ($users) => $users->whereNull('suspended_at'))
             ->with('newsletter.user')
             ->chunkById(100, function ($issues) use ($publishIssue, &$published) {
                 foreach ($issues as $issue) {

@@ -14,7 +14,7 @@ class DeleteAccount
     {
         DB::transaction(function () use ($user) {
             // Delete publications one by one so their model events remove uploaded files.
-            $user->newsletters()->each(fn ($newsletter) => $newsletter->delete());
+            $user->newsletters()->with('domain')->each(fn ($newsletter) => $newsletter->delete());
             $user->delete();
         });
     }

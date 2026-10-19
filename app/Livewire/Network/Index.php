@@ -150,7 +150,7 @@ class Index extends Component
         $directory = NetworkListing::query()
             ->with('newsletter:id,name,niche,subdomain,moderated_at')
             ->where('is_listed', true)
-            ->whereHas('newsletter', fn ($query) => $query->visible())
+            ->whereHas('newsletter', fn ($query) => $query->live())
             ->when($mine, fn ($query) => $query->whereKeyNot($mine->id))
             ->when($this->filter !== '', fn ($query) => $query->where('category', $this->filter))
             ->orderByDesc('audience_size')

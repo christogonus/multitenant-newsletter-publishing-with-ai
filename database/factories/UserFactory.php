@@ -54,6 +54,13 @@ class UserFactory extends Factory
         ]);
     }
 
+    public function suspended(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'suspended_at' => now(),
+        ]);
+    }
+
     /**
      * Give the user standing sales in the ledger for the given products (Front End is always included).
      */

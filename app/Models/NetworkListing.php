@@ -54,8 +54,8 @@ class NetworkListing extends Model
      */
     public function partners(): Collection
     {
-        $sent = $this->sentSwaps()->where('status', SwapStatus::Accepted)->with('recipient.newsletter.domain')->get()->pluck('recipient');
-        $received = $this->receivedSwaps()->where('status', SwapStatus::Accepted)->with('requester.newsletter.domain')->get()->pluck('requester');
+        $sent = $this->sentSwaps()->where('status', SwapStatus::Accepted)->with('recipient.newsletter.domain', 'recipient.newsletter.user')->get()->pluck('recipient');
+        $received = $this->receivedSwaps()->where('status', SwapStatus::Accepted)->with('requester.newsletter.domain', 'requester.newsletter.user')->get()->pluck('requester');
 
         return $sent->merge($received)->unique('id')->values();
     }

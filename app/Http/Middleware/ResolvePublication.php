@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\Domain;
 use App\Models\Newsletter;
+use App\Support\Theme;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
@@ -51,6 +52,13 @@ class ResolvePublication
 
         if ($newsletter->isModerated()) {
             return response()->view('public.offline', ['newsletter' => $newsletter], 410);
+        }
+
+        // A suspended owner's publications are on hold: a friendly "coming soon" page that search engines treat as temporary.
+        if ($newsletter->isOnHold()) {
+            return response()
+                ->view('public.coming-soon', ['newsletter' => $newsletter, 'theme' => Theme::for($newsletter)], 503)
+                ->header('Retry-After', '86400');
         }
 
         $route->forgetParameter('customHost');

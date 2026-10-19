@@ -15,13 +15,14 @@
         <x-ui.input wire:model.live.debounce.300ms="search" icon="search" placeholder="Search name or email" aria-label="Search buyers" class="flex-1" />
         <x-ui.checkbox wire:model.live="revokedOnly" label="Only refunded or charged back" />
         <x-ui.checkbox wire:model.live="demoOnly" label="Only demo accounts" />
+        <x-ui.checkbox wire:model.live="suspendedOnly" label="Only suspended" />
     </div>
 
     <x-ui.table :headers="['Buyer', 'Publications', 'Joined', '']" :empty="$users->isEmpty()">
         <x-slot:emptyState><x-ui.empty-state icon="users" title="No buyers found" /></x-slot:emptyState>
         @foreach ($users as $user)
             <tr wire:key="admin-user-{{ $user->id }}">
-                <td class="px-4 py-3"><p class="font-medium text-ink">{{ $user->name }} @if ($user->is_admin)<x-ui.badge>Admin</x-ui.badge>@endif @if ($user->is_demo)<x-ui.badge tone="warning">Demo</x-ui.badge>@endif</p><p class="text-xs text-muted">{{ $user->email }}</p></td>
+                <td class="px-4 py-3"><p class="font-medium text-ink">{{ $user->name }} @if ($user->is_admin)<x-ui.badge>Admin</x-ui.badge>@endif @if ($user->is_demo)<x-ui.badge tone="warning">Demo</x-ui.badge>@endif @if ($user->isSuspended())<x-ui.badge tone="danger">Suspended</x-ui.badge>@endif</p><p class="text-xs text-muted">{{ $user->email }}</p></td>
                 <td class="px-4 py-3 text-muted tabular-nums">{{ $user->newsletters_count }}</td>
                 <td class="px-4 py-3 text-muted">{{ $user->created_at->toFormattedDateString() }}</td>
                 <td class="px-4 py-3 text-right"><x-ui.button variant="secondary" size="sm" wire:click="select({{ $user->id }})">Open</x-ui.button></td>
@@ -64,6 +65,33 @@
                     <x-ui.select wire:model="grantProduct" label="Grant a product or order bump" :options="$grantOptions" class="flex-1" />
                     <x-ui.button type="submit" loading="grant">Grant</x-ui.button>
                 </form>
+
+                @if (! $selected->is_admin && ! $selected->is(auth()->user()))
+                    <div class="space-y-3 border-t border-line pt-4">
+                        <p class="text-sm font-semibold text-ink">Account status</p>
+                        @if ($selected->isSuspended())
+                            <x-ui.alert tone="danger" title="Suspended {{ $selected->suspended_at->diffForHumans() }}">
+                                Their dashboard is closed and their newsletters show “coming soon”.
+                                @if ($selected->suspension_reason)<br>Note: {{ $selected->suspension_reason }}@endif
+                            </x-ui.alert>
+                            <x-ui.button variant="secondary" icon="check" wire:click="unsuspend" loading="unsuspend">Lift suspension</x-ui.button>
+                        @else
+                            <form wire:submit="suspend" class="space-y-3">
+                                <x-ui.input wire:model="suspensionReason" label="Private note" hint="Only admins see this. The owner is told to contact support." placeholder="e.g. Chargeback under review" optional />
+                                <x-ui.button type="submit" variant="secondary" icon="x-mark" loading="suspend" wire:confirm="Suspend {{ $selected->email }}? Their dashboard closes and their newsletters show “coming soon” until you lift it.">Suspend account</x-ui.button>
+                            </form>
+                        @endif
+                    </div>
+
+                    <div class="space-y-3 rounded-card border border-danger/40 p-4">
+                        <p class="text-sm font-semibold text-danger">Delete account</p>
+                        <p class="text-sm text-muted">Erases this account with its {{ $selected->newsletters_count }} {{ \Illuminate\Support\Str::plural('newsletter', $selected->newsletters_count) }}, every issue, reader and upload, and its purchase history. This cannot be undone.</p>
+                        <form wire:submit="deleteUser" class="space-y-3">
+                            <x-ui.input wire:model="deleteConfirmation" :label="'Type '.$selected->email.' to confirm'" autocomplete="off" />
+                            <x-ui.button type="submit" variant="danger" icon="trash" loading="deleteUser">Delete account and everything in it</x-ui.button>
+                        </form>
+                    </div>
+                @endif
 
                 @if ($selected->is_demo && ! $selected->is_admin)
                     <div class="border-t border-line pt-4">

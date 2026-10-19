@@ -40,6 +40,10 @@ class SyncSubscribersJob implements ShouldBeUnique, ShouldQueue
 
     public function handle(PlatformManager $platforms): void
     {
+        if ($this->newsletter->isOnHold()) {
+            return;
+        }
+
         $connections = $this->newsletter->platformConnections()
             ->where('status', ConnectionStatus::Connected)
             ->where('platform', '!=', Platform::HtmlExport)

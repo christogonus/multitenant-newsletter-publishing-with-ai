@@ -31,7 +31,7 @@ class NetworkRecommendations
         }
 
         return $listing->partners()
-            ->filter(fn (NetworkListing $partner) => $partner->is_listed && $partner->newsletter && ! $partner->newsletter->isModerated())
+            ->filter(fn (NetworkListing $partner) => $partner->is_listed && $partner->newsletter && ! $partner->newsletter->isModerated() && ! $partner->newsletter->isOnHold())
             ->sortByDesc(fn (NetworkListing $partner) => self::activityScore($partner))
             ->take(self::LIMIT)
             ->values();

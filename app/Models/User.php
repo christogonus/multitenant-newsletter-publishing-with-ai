@@ -35,6 +35,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_admin' => 'boolean',
             'is_demo' => 'boolean',
+            'suspended_at' => 'datetime',
         ];
     }
 
@@ -84,6 +85,14 @@ class User extends Authenticatable
     public function licenseCodes(): HasMany
     {
         return $this->hasMany(LicenseCode::class, 'reseller_id');
+    }
+
+    /**
+     * Suspended by an admin: the dashboard and every newsletter this account runs are on hold.
+     */
+    public function isSuspended(): bool
+    {
+        return $this->suspended_at !== null;
     }
 
     /**

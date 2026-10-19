@@ -36,6 +36,16 @@ class Users extends Component
     #[Url]
     public bool $demoOnly = false;
 
+    #[Url]
+    public bool $suspendedOnly = false;
+
+    public string $suspensionReason = '';
+
+    /**
+     * The email typed to confirm deleting an account.
+     */
+    public string $deleteConfirmation = '';
+
     public ?int $selectedId = null;
 
     public string $grantProduct = 'front_end';
@@ -62,6 +72,8 @@ class Users extends Component
     public function select(int $userId): void
     {
         $this->selectedId = $userId;
+        $this->reset('suspensionReason', 'deleteConfirmation');
+        $this->resetValidation();
         $this->dispatch('open-slide-over', 'buyer');
     }
 
@@ -125,6 +137,60 @@ class Users extends Component
     public function updatedDemoOnly(): void
     {
         $this->resetPage();
+    }
+
+    public function updatedSuspendedOnly(): void
+    {
+        $this->resetPage();
+    }
+
+    /**
+     * Puts the account on hold: the dashboard closes and every newsletter shows a "coming soon" page. Nothing is deleted.
+     */
+    public function suspend(): void
+    {
+        $this->authorizeAdmin();
+        $this->validate(['suspensionReason' => ['nullable', 'string', 'max:500']]);
+
+        $user = $this->manageableUser();
+        $user->forceFill(['suspended_at' => now(), 'suspension_reason' => trim($this->suspensionReason) ?: null])->save();
+
+        $this->reset('suspensionReason');
+        $this->dispatch('toast', message: $user->email.' is suspended. Their newsletters now show "coming soon".', tone: 'success');
+    }
+
+    public function unsuspend(): void
+    {
+        $this->authorizeAdmin();
+
+        $user = $this->manageableUser();
+        $user->forceFill(['suspended_at' => null, 'suspension_reason' => null])->save();
+
+        $this->dispatch('toast', message: $user->email.' is active again.', tone: 'success');
+    }
+
+    /**
+     * Erases a buyer with every newsletter, issue, reader, upload and purchase record. The email must be typed to confirm.
+     */
+    public function deleteUser(DeleteAccount $deleteAccount): void
+    {
+        $this->authorizeAdmin();
+        $this->resetErrorBag('deleteConfirmation');
+
+        $user = $this->manageableUser();
+
+        if (mb_strtolower(trim($this->deleteConfirmation)) !== mb_strtolower($user->email)) {
+            $this->addError('deleteConfirmation', 'Type the email exactly to confirm.');
+
+            return;
+        }
+
+        $email = $user->email;
+        $deleteAccount->handle($user);
+
+        $this->reset('selectedId', 'deleteConfirmation');
+        $this->dispatch('close-slide-over', 'buyer');
+        $this->dispatch('toast', message: $email.' and everything in the account were deleted.', tone: 'success');
     }
 
     public function openDemoForm(): void
@@ -209,10 +275,11 @@ class Users extends Component
                 ->orWhereHas('purchases', fn ($purchases) => $purchases->where('buyer_email', 'like', '%'.$this->search.'%'))))
             ->when($this->revokedOnly, fn ($query) => $query->whereHas('purchases', fn ($purchases) => $purchases->whereIn('action', [PurchaseAction::Refund, PurchaseAction::Chargeback])))
             ->when($this->demoOnly, fn ($query) => $query->where('is_demo', true))
+            ->when($this->suspendedOnly, fn ($query) => $query->whereNotNull('suspended_at'))
             ->latest()
             ->paginate(25);
 
-        $selected = $this->selectedId ? User::query()->with(['purchases' => fn ($query) => $query->latest(), 'purchases.bumpOffer'])->find($this->selectedId) : null;
+        $selected = $this->selectedId ? User::query()->with(['purchases' => fn ($query) => $query->latest(), 'purchases.bumpOffer'])->withCount('newsletters')->find($this->selectedId) : null;
 
         $products = collect(Product::cases())->mapWithKeys(fn (Product $product) => [$product->value => $product->label()])->all();
 
@@ -225,6 +292,18 @@ class Users extends Component
                 ->all(),
             'reversedTxns' => $selected ? $selected->purchases->filter(fn (Purchase $purchase) => $purchase->action->revokes())->map(fn (Purchase $purchase) => $purchase->transaction_id.'|'.$purchase->item_key)->all() : [],
         ]);
+    }
+
+    /**
+     * The open account, if an admin may suspend or delete it: never an admin account, and never your own.
+     */
+    private function manageableUser(): User
+    {
+        $user = User::query()->findOrFail($this->selectedId);
+
+        abort_if($user->is_admin || $user->is(auth()->user()), 403);
+
+        return $user;
     }
 
     private function authorizeAdmin(): void

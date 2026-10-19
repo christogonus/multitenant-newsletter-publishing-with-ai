@@ -34,7 +34,7 @@ Route::domain(config('newspub.app_host'))->group(function () {
         Route::view('/styleguide', 'styleguide')->name('styleguide');
     }
 
-    Route::middleware('auth')->group(function () {
+    Route::middleware(['auth', 'not-suspended'])->group(function () {
         Route::view('/account', 'account.settings')->name('account');
         Route::delete('/account', DeleteAccountController::class)->middleware('throttle:5,1')->name('account.destroy');
         Route::view('/support', 'support')->name('support');

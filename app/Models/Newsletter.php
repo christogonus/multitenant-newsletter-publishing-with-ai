@@ -182,6 +182,24 @@ class Newsletter extends Model
         $query->whereNull('moderated_at');
     }
 
+    /**
+     * Visible publications whose owner is not suspended: the ones that may appear on other newsletters and in the network.
+     *
+     * @param  Builder<Newsletter>  $query
+     */
+    public function scopeLive(Builder $query): void
+    {
+        $query->visible()->whereHas('user', fn (Builder $users) => $users->whereNull('suspended_at'));
+    }
+
+    /**
+     * The owner's account is suspended, so the publication is on hold.
+     */
+    public function isOnHold(): bool
+    {
+        return (bool) $this->user?->isSuspended();
+    }
+
     public function isModerated(): bool
     {
         return $this->moderated_at !== null;

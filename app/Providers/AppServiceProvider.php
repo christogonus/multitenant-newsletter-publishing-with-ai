@@ -6,6 +6,7 @@ use App\Ai\Contracts\NewsletterWriter;
 use App\Ai\FakeNewsletterWriter;
 use App\Ai\LaravelAiNewsletterWriter;
 use App\Http\Middleware\EnsureAdmin;
+use App\Http\Middleware\EnsureNotSuspended;
 use App\Http\Middleware\EnsureProduct;
 use App\Http\Middleware\EnsurePublication;
 use App\Integrations\Certificates\CertificateProvisioner;
@@ -56,7 +57,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Re-run the paid-feature and admin gates on every Livewire action, not only on page load,
         // so a refund or a removed admin flag takes effect in tabs that are already open.
-        Livewire::addPersistentMiddleware([EnsureProduct::class, EnsurePublication::class, EnsureAdmin::class]);
+        Livewire::addPersistentMiddleware([EnsureNotSuspended::class, EnsureProduct::class, EnsurePublication::class, EnsureAdmin::class]);
 
         RateLimiter::for('subscribe', function (Request $request) {
             $perMinute = (int) config('newspub.limits.subscribe_per_minute');

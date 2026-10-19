@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureAdmin;
+use App\Http\Middleware\EnsureNotSuspended;
 use App\Http\Middleware\EnsureProduct;
 use App\Http\Middleware\EnsurePublication;
 use App\Http\Middleware\ResolvePublication;
@@ -43,6 +44,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'publication' => EnsurePublication::class,
             'publication.public' => ResolvePublication::class,
             'admin' => EnsureAdmin::class,
+            'not-suspended' => EnsureNotSuspended::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
