@@ -140,6 +140,14 @@
         </header>
 
         <main id="main" class="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
+            @if (auth()->user()?->uses_default_password && ! request()->routeIs('account'))
+                <x-ui.alert tone="warning" title="You are still using the starting password" class="mb-6">
+                    Every new member gets the same password, so please choose your own.
+                    <x-slot:actions>
+                        <x-ui.button size="sm" variant="secondary" :href="route('account')">Change password</x-ui.button>
+                    </x-slot:actions>
+                </x-ui.alert>
+            @endif
             {{ $slot }}
         </main>
     </div>

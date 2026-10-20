@@ -122,6 +122,13 @@ return [
     'support_email' => env('NEWSPUB_SUPPORT_EMAIL', 'support@example.com'),
 
     /*
+     * The password every new buyer account starts with. It is printed in the welcome email and on the
+     * public /support page, so buyers whose inbox rejects our email can still sign in. Empty means new
+     * buyers get a set-password link instead.
+     */
+    'default_password' => env('NEWSPUB_DEFAULT_PASSWORD'),
+
+    /*
      * Where Horizon long-wait alerts go. Admins also get AI spend alerts by email.
      */
     'alert_email' => env('NEWSPUB_ALERT_EMAIL'),

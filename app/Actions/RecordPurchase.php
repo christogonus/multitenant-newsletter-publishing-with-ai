@@ -60,11 +60,16 @@ class RecordPurchase
 
         // Two IPNs for a new buyer (front end + an upsell) can arrive together; createOrFirst lets the
         // unique email index pick one winner instead of failing the second purchase.
+        $defaultPassword = (string) config('newspub.default_password');
         $user ??= User::createOrFirst(['email' => $email], [
             'name' => $name ?: Str::before($email, '@'),
-            'password' => Hash::make(Str::random(40)),
+            'password' => Hash::make($defaultPassword !== '' ? $defaultPassword : Str::random(40)),
         ]);
         $createdUser = $user->wasRecentlyCreated;
+
+        if ($createdUser && $defaultPassword !== '') {
+            $user->forceFill(['uses_default_password' => true])->save();
+        }
 
         try {
             $purchase = $user->purchases()->create([
@@ -86,9 +91,9 @@ class RecordPurchase
 
         $this->entitlements->refresh($user);
 
-        // A purchase that lands on an account whose email was never confirmed (for example one made with a
-        // reseller code) also gets the set-password link, so whoever owns the inbox controls the account.
-        if ($sendWelcome && $source === PurchaseSource::LaunchpadJv && ! $action->revokes() && ($createdUser || $user->email_verified_at === null)) {
+        // A purchase that lands on an account with no working login details (for example one made with a
+        // reseller code) also gets the welcome email's set-password link, so whoever owns the inbox controls the account.
+        if ($sendWelcome && $source === PurchaseSource::LaunchpadJv && ! $action->revokes() && ($createdUser || ! $user->hasLoginDetails())) {
             $user->notify(new WelcomeBuyer);
         }
 

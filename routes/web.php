@@ -25,6 +25,9 @@ Route::domain(config('newspub.app_host'))->group(function () {
     Route::view('/legal/terms', 'legal.terms')->name('legal.terms');
     Route::view('/legal/privacy', 'legal.privacy')->name('legal.privacy');
 
+    // Public, so buyers whose inbox rejects our welcome email can still find their login details.
+    Route::view('/support', 'support')->name('support');
+
     Route::get('/welcome/{user}/{hash}', [WelcomeController::class, 'show'])->middleware('signed')->name('welcome.show');
     Route::post('/welcome/{user}/{hash}', [WelcomeController::class, 'store'])->middleware('signed')->name('welcome.store');
 
@@ -37,8 +40,7 @@ Route::domain(config('newspub.app_host'))->group(function () {
 
     Route::middleware(['auth', 'not-suspended'])->group(function () {
         Route::view('/account', 'account.settings')->name('account');
-        Route::delete('/account', DeleteAccountController::class)->middleware('throttle:5,1')->name('account.destroy');
-        Route::view('/support', 'support')->name('support');
+        Route::delete('/account', DeleteAccountController::class)->middleware(['throttle:5,1', 'own-password'])->name('account.destroy');
         Route::view('/upgrades', 'upgrades')->name('upgrades');
         Route::get('/downloads', Livewire\Downloads\Index::class)->name('downloads.index');
         Route::get('/downloads/files/{file}', [BumpFileController::class, 'show'])->name('downloads.file');

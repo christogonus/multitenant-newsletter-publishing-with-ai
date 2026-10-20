@@ -5,6 +5,7 @@ namespace App\Actions\Fortify;
 use App\Models\User;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\UpdatesUserProfileInformation;
@@ -35,6 +36,13 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
         ], [
             'email.unique' => 'That email is already used by another account.',
         ])->validateWithBag('updateProfileInformation');
+
+        // Moving the email would also move where the password code goes, so it waits until the owner has confirmed their inbox.
+        if ($user->uses_default_password && Str::lower($input['email']) !== Str::lower($user->email)) {
+            throw ValidationException::withMessages([
+                'email' => 'Choose your own password first, then you can change your email.',
+            ])->errorBag('updateProfileInformation');
+        }
 
         if ($input['email'] !== $user->email &&
             $user instanceof MustVerifyEmail) {

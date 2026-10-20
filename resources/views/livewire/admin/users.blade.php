@@ -66,7 +66,7 @@
                 <div class="flex flex-wrap items-center justify-between gap-2 rounded-card border border-line p-3">
                     <div>
                         <p class="text-sm font-semibold text-ink">Welcome email</p>
-                        <p class="text-xs text-muted">{{ $selected->email_verified_at ? 'Account set up. A new email works like a password reset.' : 'Password not set yet.' }}</p>
+                        <p class="text-xs text-muted">{{ $selected->uses_default_password ? 'Still on the starting password. The email shows it again.' : ($selected->email_verified_at ? 'Account set up. A new email works like a password reset.' : 'Password not set yet.') }}</p>
                     </div>
                     <div class="flex flex-wrap gap-2">
                         <x-ui.button variant="ghost" size="sm" icon="eye" :href="route('admin.emails.welcome', $selected)" target="_blank">Preview</x-ui.button>

@@ -2,7 +2,9 @@
 
 namespace App\Notifications;
 
+use App\Enums\Product;
 use App\Models\User;
+use App\Support\GettingStarted;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -10,7 +12,8 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\URL;
 
 /**
- * System email sent once when the IPN creates an account. Contains a signed set-password link.
+ * System email sent when the IPN creates an account: login details, what was bought and a first-time setup guide.
+ * Accounts still on the default password are shown it; any other account gets a signed set-password link instead.
  */
 class WelcomeBuyer extends Notification implements ShouldQueue
 {
@@ -26,13 +29,27 @@ class WelcomeBuyer extends Notification implements ShouldQueue
 
     public function toMail(User $notifiable): MailMessage
     {
+        $defaultPassword = (string) config('newspub.default_password');
+        $showsDefaultPassword = $notifiable->uses_default_password && $defaultPassword !== '';
+
         return (new MailMessage)
-            ->subject('Your NewsPub AI account is ready')
-            ->greeting('Welcome, '.$notifiable->name.'!')
-            ->line('Thanks for your purchase. Your account is ready.')
-            ->line('Click the button to choose your password. You will be writing your first newsletter a few minutes later.')
-            ->action('Choose my password', self::setPasswordUrl($notifiable))
-            ->line('This link works for 7 days. If it stops working, use "Forgot password" on the sign-in page.');
+            ->subject($showsDefaultPassword ? 'Your NewsPub AI login details and quick-start guide' : 'Your NewsPub AI account is ready')
+            ->replyTo((string) config('newspub.support_email'))
+            ->markdown('mail.welcome-buyer', [
+                'name' => $notifiable->name,
+                'email' => $notifiable->email,
+                'loginUrl' => route('login'),
+                'defaultPassword' => $showsDefaultPassword ? $defaultPassword : null,
+                'setPasswordUrl' => $showsDefaultPassword ? null : self::setPasswordUrl($notifiable),
+                'products' => collect(Product::cases())
+                    ->filter(fn (Product $product) => $notifiable->owns($product))
+                    ->map(fn (Product $product) => ['label' => $product->label(), 'benefit' => $product->benefit()])
+                    ->values()
+                    ->all(),
+                'steps' => GettingStarted::steps(),
+                'supportUrl' => route('support'),
+                'supportEmail' => (string) config('newspub.support_email'),
+            ]);
     }
 
     /**

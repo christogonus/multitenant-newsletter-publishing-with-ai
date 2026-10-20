@@ -36,6 +36,7 @@ class User extends Authenticatable
             'is_admin' => 'boolean',
             'is_demo' => 'boolean',
             'suspended_at' => 'datetime',
+            'uses_default_password' => 'boolean',
         ];
     }
 
@@ -93,6 +94,15 @@ class User extends Authenticatable
     public function isSuspended(): bool
     {
         return $this->suspended_at !== null;
+    }
+
+    /**
+     * The buyer has working login details: a password they set from their inbox, or the published default.
+     * Accounts without either (for example ones made with a reseller code) still need a set-password link.
+     */
+    public function hasLoginDetails(): bool
+    {
+        return $this->email_verified_at !== null || $this->uses_default_password;
     }
 
     /**

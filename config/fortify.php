@@ -101,7 +101,8 @@ return [
     |
     */
 
-    'middleware' => ['web'],
+    // own-password refuses two-step sign in setup while an account still uses the shared starting password.
+    'middleware' => ['web', 'own-password'],
 
     /*
     |--------------------------------------------------------------------------

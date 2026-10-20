@@ -13,9 +13,14 @@
         </div>
 
         <x-ui.button type="submit" size="lg" class="w-full">Sign in</x-ui.button>
+
+        <p class="text-center text-xs text-muted">
+            By signing in you agree to the <a href="{{ route('legal.terms') }}" target="_blank" class="underline">terms</a>
+            and <a href="{{ route('legal.privacy') }}" target="_blank" class="underline">privacy policy</a>.
+        </p>
     </form>
 
     <x-slot:below>
-        Bought NewsPub AI? Check your inbox for the welcome email to choose your password.
+        Just bought NewsPub AI? <a href="{{ route('support') }}" class="font-medium text-brand hover:underline">Get your login details</a>
     </x-slot:below>
 </x-layouts::auth>

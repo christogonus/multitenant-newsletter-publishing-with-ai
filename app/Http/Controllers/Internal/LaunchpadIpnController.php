@@ -107,10 +107,10 @@ class LaunchpadIpnController extends Controller
             );
         }
 
-        // New or unconfirmed buyers got the welcome email; confirmed customers get one email for everything on the transaction.
+        // New buyers, and accounts still without login details, got the welcome email; everyone else gets one email for everything on the transaction.
         $buyer = $result['purchase']?->user;
 
-        if (! $result['duplicate'] && ! $result['created_user'] && $buyer?->email_verified_at !== null) {
+        if (! $result['duplicate'] && ! $result['created_user'] && $buyer?->hasLoginDetails()) {
             $buyer->notify(new UpgradeUnlocked($transactionId));
         }
 

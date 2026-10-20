@@ -21,6 +21,13 @@ class UpdateUserPassword implements UpdatesUserPasswords
      */
     public function update(User $user, array $input): void
     {
+        // The shared starting password is replaced through the emailed code on the Account page, never here.
+        if ($user->uses_default_password) {
+            throw ValidationException::withMessages([
+                'current_password' => 'Choose your password with the code we email you, on the Account page.',
+            ])->errorBag('updatePassword');
+        }
+
         Validator::make($input, [
             'current_password' => ['required', 'string', 'current_password:web'],
             'password' => $this->passwordRules(),

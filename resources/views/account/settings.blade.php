@@ -3,6 +3,7 @@
         $user = auth()->user();
         $twoFactorPending = $user->two_factor_secret && ! $user->two_factor_confirmed_at;
         $twoFactorOn = $user->two_factor_secret && $user->two_factor_confirmed_at;
+        $onStartingPassword = $user->uses_default_password;
     @endphp
 
     <div class="space-y-6">
@@ -14,6 +15,8 @@
             <x-ui.alert tone="success">Your password was changed.</x-ui.alert>
         @elseif (session('status') === 'two-factor-authentication-confirmed')
             <x-ui.alert tone="success">Two-step sign in is on.</x-ui.alert>
+        @elseif (session('status') === 'own-password-required')
+            <x-ui.alert tone="warning">Choose your own password first. It needs a code from your email, so only you can do it.</x-ui.alert>
         @endif
 
         <x-ui.card title="Your details">
@@ -21,24 +24,34 @@
                 @csrf
                 @method('PUT')
                 <x-ui.input name="name" label="Name" :value="old('name', $user->name)" required />
-                <x-ui.input name="email" type="email" label="Email" :value="old('email', $user->email)" hint="The email you sign in with. Your purchases stay linked to this account if you change it." required />
+                @if ($onStartingPassword)
+                    <x-ui.input name="email" type="email" label="Email" :value="$user->email" hint="You can change your email after you choose your own password." readonly required />
+                @else
+                    <x-ui.input name="email" type="email" label="Email" :value="old('email', $user->email)" hint="The email you sign in with. Your purchases stay linked to this account if you change it." required />
+                @endif
                 <div class="sm:col-span-2 flex justify-end"><x-ui.button type="submit">Save details</x-ui.button></div>
             </form>
         </x-ui.card>
 
-        <x-ui.card title="Password">
-            <form method="POST" action="{{ route('user-password.update') }}" class="grid gap-5 sm:grid-cols-3">
-                @csrf
-                @method('PUT')
-                <x-ui.input name="current_password" type="password" label="Current password" autocomplete="current-password" />
-                <x-ui.input name="password" type="password" label="New password" autocomplete="new-password" />
-                <x-ui.input name="password_confirmation" type="password" label="Type it again" autocomplete="new-password" />
-                <div class="sm:col-span-3 flex justify-end"><x-ui.button type="submit">Change password</x-ui.button></div>
-            </form>
-        </x-ui.card>
+        @if ($onStartingPassword)
+            <livewire:account.choose-own-password />
+        @else
+            <x-ui.card title="Password">
+                <form method="POST" action="{{ route('user-password.update') }}" class="grid gap-5 sm:grid-cols-3">
+                    @csrf
+                    @method('PUT')
+                    <x-ui.input name="current_password" type="password" label="Current password" autocomplete="current-password" />
+                    <x-ui.input name="password" type="password" label="New password" autocomplete="new-password" />
+                    <x-ui.input name="password_confirmation" type="password" label="Type it again" autocomplete="new-password" />
+                    <div class="sm:col-span-3 flex justify-end"><x-ui.button type="submit">Change password</x-ui.button></div>
+                </form>
+            </x-ui.card>
+        @endif
 
         <x-ui.card title="Two-step sign in" description="Ask for a code from your phone when you sign in. Keeps your account safe even if your password leaks.">
-            @if ($twoFactorOn)
+            @if ($onStartingPassword)
+                <p class="text-sm text-muted">Available once you choose your own password.</p>
+            @elseif ($twoFactorOn)
                 <x-ui.alert tone="success">Two-step sign in is on.</x-ui.alert>
                 <details class="mt-4">
                     <summary class="min-h-11 cursor-pointer text-sm font-medium text-brand">Show my backup codes</summary>
@@ -82,7 +95,11 @@
 
         <x-ui.card title="Delete my account" class="border-danger/40">
             <p class="text-sm text-muted">This erases your account, every publication, every issue and every reader. It cannot be undone. Your purchases cannot be used again after this.</p>
-            <x-ui.button variant="danger" class="mt-4" icon="trash" x-data x-on:click="$dispatch('open-modal', 'delete-account')">Delete my account</x-ui.button>
+            @if ($onStartingPassword)
+                <p class="mt-4 text-sm text-muted">Available once you choose your own password.</p>
+            @else
+                <x-ui.button variant="danger" class="mt-4" icon="trash" x-data x-on:click="$dispatch('open-modal', 'delete-account')">Delete my account</x-ui.button>
+            @endif
         </x-ui.card>
 
         <x-ui.modal name="delete-account" title="Delete your account?" max-width="md">

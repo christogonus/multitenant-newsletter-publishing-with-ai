@@ -39,6 +39,7 @@ class WelcomeController extends Controller
 
         $user->forceFill([
             'password' => Hash::make($validated['password']),
+            'uses_default_password' => false,
             'terms_accepted_at' => now(),
             'email_verified_at' => $user->email_verified_at ?? now(),
         ])->save();
