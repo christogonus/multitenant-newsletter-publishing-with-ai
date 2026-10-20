@@ -54,6 +54,7 @@
                                 <span class="flex-1 text-ink">{{ $purchase->itemLabel() }}</span>
                                 <span class="text-xs text-muted">{{ $purchase->source->value }} · {{ $purchase->created_at->toDateString() }}@if ($purchase->buyer_email && $purchase->buyer_email !== $selected->email) · paid as {{ $purchase->buyer_email }}@endif</span>
                                 @if (! $purchase->action->revokes() && ! in_array($purchase->transaction_id.'|'.$purchase->item_key, $reversedTxns, true))
+                                    <x-ui.button variant="ghost" size="sm" icon="eye" :href="route('admin.emails.upgrade', $purchase)" target="_blank">Preview</x-ui.button>
                                     <x-ui.button variant="ghost" size="sm" icon="envelope" wire:click="resendUpgrade({{ $purchase->id }})" loading="resendUpgrade({{ $purchase->id }})">Send upgrade email</x-ui.button>
                                     <x-ui.button variant="ghost" size="sm" wire:click="revoke({{ $purchase->id }})" wire:confirm="Revoke this purchase? The feature switches off.">Revoke</x-ui.button>
                                 @endif
@@ -67,7 +68,10 @@
                         <p class="text-sm font-semibold text-ink">Welcome email</p>
                         <p class="text-xs text-muted">{{ $selected->email_verified_at ? 'Account set up. A new email works like a password reset.' : 'Password not set yet.' }}</p>
                     </div>
-                    <x-ui.button variant="secondary" size="sm" icon="envelope" wire:click="resendWelcome" loading="resendWelcome" wire:confirm="Send {{ $selected->email }} a new welcome email with a set-password link?">Resend welcome email</x-ui.button>
+                    <div class="flex flex-wrap gap-2">
+                        <x-ui.button variant="ghost" size="sm" icon="eye" :href="route('admin.emails.welcome', $selected)" target="_blank">Preview</x-ui.button>
+                        <x-ui.button variant="secondary" size="sm" icon="envelope" wire:click="resendWelcome" loading="resendWelcome" wire:confirm="Send {{ $selected->email }} a new welcome email with a set-password link?">Resend welcome email</x-ui.button>
+                    </div>
                 </div>
 
                 <form wire:submit="grant" class="flex items-end gap-2">

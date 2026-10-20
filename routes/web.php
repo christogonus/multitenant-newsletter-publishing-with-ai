@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\BumpFileUploadController;
+use App\Http\Controllers\Admin\EmailPreviewController;
 use App\Http\Controllers\Auth\DeleteAccountController;
 use App\Http\Controllers\Auth\WelcomeController;
 use App\Http\Controllers\Dashboard\BumpFileController;
@@ -85,6 +86,8 @@ Route::domain(config('newspub.app_host'))->group(function () {
 
         Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
             Route::get('/users', Livewire\Admin\Users::class)->name('users');
+            Route::get('/users/{user}/emails/welcome', [EmailPreviewController::class, 'welcome'])->name('emails.welcome');
+            Route::get('/purchases/{purchase}/emails/upgrade', [EmailPreviewController::class, 'upgrade'])->name('emails.upgrade');
             Route::get('/reports', Livewire\Admin\Reports::class)->name('reports');
             Route::get('/spend', Livewire\Admin\Spend::class)->name('spend');
             Route::get('/content', Livewire\Admin\Content::class)->name('content');

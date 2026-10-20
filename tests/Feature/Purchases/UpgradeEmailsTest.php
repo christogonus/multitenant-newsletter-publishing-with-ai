@@ -97,3 +97,33 @@ test('only admins can resend buyer emails', function () {
 
     Notification::assertSentToTimes($buyer, WelcomeBuyer::class, 1);
 });
+
+test('admins preview the welcome and upgrade emails in the browser without sending them', function () {
+    $buyer = activatedBuyer();
+    postIpn(ipnPayload(['product_id' => launchpadId(Product::Oto4Sponsor), 'transaction_id' => 'pi_4004']));
+    $purchase = Purchase::query()->where('transaction_id', 'pi_4004')->sole();
+    $this->actingAs(User::factory()->admin()->create());
+
+    $this->get(route('admin.emails.welcome', $buyer))->assertOk()->assertSee('Choose my password')->assertSee($buyer->name);
+    $this->get(route('admin.emails.upgrade', $purchase))->assertOk()->assertSee('Sponsor and Payday Vault')->assertSee(route('sponsors.index'));
+
+    Notification::assertSentToTimes($buyer, WelcomeBuyer::class, 1);
+    Notification::assertSentToTimes($buyer, UpgradeUnlocked::class, 1);
+});
+
+test('refunded purchases have no upgrade email to preview', function () {
+    activatedBuyer();
+    postIpn(ipnPayload(['product_id' => launchpadId(Product::Oto6Social), 'transaction_id' => 'pi_6006']));
+    postIpn(ipnPayload(['product_id' => launchpadId(Product::Oto6Social), 'transaction_id' => 'pi_6006', 'action' => 'REFUND']));
+    $sale = Purchase::query()->where('transaction_id', 'pi_6006')->oldest('id')->first();
+    $this->actingAs(User::factory()->admin()->create());
+
+    $this->get(route('admin.emails.upgrade', $sale))->assertNotFound();
+});
+
+test('only admins can preview buyer emails', function () {
+    $buyer = activatedBuyer();
+    $this->actingAs(User::factory()->create());
+
+    $this->get(route('admin.emails.welcome', $buyer))->assertForbidden();
+});
