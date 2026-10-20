@@ -7,6 +7,7 @@ use Laravel\Ai\Attributes\MaxTokens;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\HasProviderOptions;
 use Laravel\Ai\Contracts\HasTools;
+use Laravel\Ai\Enums\Lab;
 use Laravel\Ai\Promptable;
 use Laravel\Ai\Providers\Tools\WebSearch;
 use Stringable;
@@ -37,6 +38,9 @@ class NicheResearcher implements Agent, HasProviderOptions, HasTools
      */
     public function tools(): iterable
     {
-        return [(new WebSearch)->max(4)];
+        // OpenAI bills the pages it reads as input; "low" context keeps that to the essentials.
+        return [(new WebSearch)->max(4)->withProviderOptions(
+            static fn (Lab|string $provider) => ($provider instanceof Lab ? $provider : Lab::tryFrom($provider)) === Lab::OpenAI ? ['search_context_size' => 'low'] : [],
+        )];
     }
 }

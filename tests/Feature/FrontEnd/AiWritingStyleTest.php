@@ -65,3 +65,10 @@ test('reasoning effort can be switched off', function () {
 
     expect((new NicheResearcher)->providerOptions(Lab::OpenAI))->toBe([]);
 });
+
+test('research asks OpenAI for low search context and leaves other providers alone', function () {
+    $search = collect((new NicheResearcher)->tools())->first();
+
+    expect($search->providerOptions(Lab::OpenAI))->toBe(['search_context_size' => 'low'])
+        ->and($search->providerOptions(Lab::Anthropic))->toBe([]);
+});
