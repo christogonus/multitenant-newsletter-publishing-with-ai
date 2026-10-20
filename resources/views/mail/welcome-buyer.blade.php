@@ -20,7 +20,7 @@ Thank you for your purchase. Your account is ready, and this email has everythin
 Sign in now
 </x-mail::button>
 
-Everyone starts with this password, so change it as soon as you sign in: open the account menu at the top right and choose **Account**.
+Everyone starts with this password, so choose your own as soon as you sign in: open the account menu at the top right, choose **Account**, and we will email you a code to confirm it is you.
 @else
 <x-mail::button :url="$setPasswordUrl">
 Choose my password
@@ -46,7 +46,7 @@ This link works for 7 days. If it stops working, use "Forgot password" on the si
 @endforeach
 ## Need help?
 
-Your login details and answers to common questions are always on our support page, even if this email goes missing: [{{ $supportUrl }}]({{ $supportUrl }})
+Your login details, this guide and answers to common questions are always here, even if this email goes missing: [{{ $accessUrl }}]({{ $accessUrl }})
 
 Still stuck? Reply to {{ $supportEmail }} from the email you bought with. We reply within one working day.
 

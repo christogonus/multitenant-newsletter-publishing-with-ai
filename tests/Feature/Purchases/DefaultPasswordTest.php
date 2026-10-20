@@ -28,7 +28,7 @@ test('a new buyer signs in with the default password, and the welcome email give
     $html = welcomeEmailHtml($buyer);
 
     expect($buyer->uses_default_password)->toBeTrue()
-        ->and($html)->toContain('Start-Here-2026')->toContain($buyer->email)->toContain(route('login'))->toContain(route('support'))
+        ->and($html)->toContain('Start-Here-2026')->toContain($buyer->email)->toContain(route('login'))->toContain(route('access'))
         ->toContain('Get started in 10 minutes')->toContain(Product::FrontEnd->label())
         ->not->toContain('/welcome/');
 
@@ -140,14 +140,18 @@ test('a buyer still on the default password gets upgrade emails without ever sig
     Notification::assertSentToTimes($buyer, UpgradeUnlocked::class, 1);
 });
 
-test('anyone can open the support page to find the login details', function () {
-    $this->get(route('support'))->assertOk()->assertSee('Your login details')->assertSee('Start-Here-2026')->assertSee(route('login'));
+test('anyone can open the access page to find the login details, while Help stays for signed-in buyers', function () {
+    $this->get(route('access'))->assertOk()->assertSee('Your login details')->assertSee('Start-Here-2026')->assertSee(route('login'));
+    $this->get(route('support'))->assertRedirect(route('login'));
+
+    $this->actingAs(User::factory()->create());
+    $this->get(route('support'))->assertOk()->assertSee('Common questions')->assertDontSee('Start-Here-2026');
 });
 
-test('without a default password the support page points to the welcome email and password reset', function () {
+test('without a default password the access page points to the welcome email and password reset', function () {
     config(['newspub.default_password' => null]);
 
-    $this->get(route('support'))->assertOk()->assertSee('Use the password you chose')->assertDontSee('Start-Here-2026');
+    $this->get(route('access'))->assertOk()->assertSee('Use the password you chose')->assertDontSee('Start-Here-2026');
 });
 
 test('existing buyers who never set a password are moved to the default password', function () {

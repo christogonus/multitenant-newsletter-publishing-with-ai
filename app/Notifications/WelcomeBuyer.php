@@ -47,7 +47,7 @@ class WelcomeBuyer extends Notification implements ShouldQueue
                     ->values()
                     ->all(),
                 'steps' => GettingStarted::steps(),
-                'supportUrl' => route('support'),
+                'accessUrl' => route('access'),
                 'supportEmail' => (string) config('newspub.support_email'),
             ]);
     }

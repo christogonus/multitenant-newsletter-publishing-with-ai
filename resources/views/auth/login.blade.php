@@ -21,6 +21,6 @@
     </form>
 
     <x-slot:below>
-        Just bought NewsPub AI? <a href="{{ route('support') }}" class="font-medium text-brand hover:underline">Get your login details</a>
+        Just bought NewsPub AI? <a href="{{ route('access') }}" class="font-medium text-brand hover:underline">Get your login details</a>
     </x-slot:below>
 </x-layouts::auth>

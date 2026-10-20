@@ -1,11 +1,8 @@
 @php
-    $defaultPassword = (string) config('newspub.default_password');
     $supportEmail = config('newspub.support_email');
-    $loginDetails = 'Sign in at: '.route('login')."\nEmail: the email you used at checkout"
-        .($defaultPassword !== '' ? "\nPassword: ".$defaultPassword : '');
 
     $faqs = [
-        'I did not get the welcome email' => 'Check your spam, junk and promotions folders, and add '.config('mail.from.address').' to your contacts. Some email providers block messages from new senders. You do not need the email to get started: sign in with the login details at the top of this page.',
+        'I did not get the welcome email' => 'Check your spam, junk and promotions folders, and add '.config('mail.from.address').' to your contacts. Some email providers block messages from new senders. You do not need the email to get started: your login details are always at '.route('access').'.',
         'My password does not work' => 'If you have already changed your password, use the one you chose. Forgotten it? Use "Forgot password" on the sign-in page and we will email you a link to choose a new one.',
         'How do I get my first issue out?' => 'Press "Write a new issue" on Home. The AI writes it in about a minute. Read it, change anything you like, then press Publish. You get a link to share straight away.',
         'Where do my readers sign up?' => 'Every newsletter has its own page with a sign-up box. Find the link under "View my page" at the top of the screen. Share it in your bio, in posts and with friends.',
@@ -17,36 +14,6 @@
         'How do I get a refund?' => 'Refunds are handled by the store you bought from. Once refunded, the matching feature is switched off automatically.',
     ];
 @endphp
-
-@guest
-    <x-ui.card title="Your login details" description="Thank you for your purchase. Use these details to sign in.">
-        <div class="space-y-4">
-            <x-ui.copy-field label="Sign-in page" :value="route('login')" />
-
-            <div>
-                <p class="mb-1.5 text-sm font-medium text-ink">Email</p>
-                <p class="rounded-control border border-line bg-subtle px-3 py-2.5 text-sm text-ink">The email address you used at checkout</p>
-            </div>
-
-            @if ($defaultPassword !== '')
-                <x-ui.copy-field label="Password" :value="$defaultPassword" />
-                <x-ui.alert tone="warning">Everyone starts with this password. After you sign in, open Account from the menu at the top right and change it.</x-ui.alert>
-            @else
-                <div>
-                    <p class="mb-1.5 text-sm font-medium text-ink">Password</p>
-                    <p class="text-sm text-muted">Use the password you chose from your welcome email. No email? Use <a href="{{ route('password.request') }}" class="font-medium text-brand underline">Forgot password</a> with the email you used at checkout.</p>
-                </div>
-            @endif
-
-            <div class="flex flex-wrap gap-2 pt-1" x-data="{ copied: false }">
-                <x-ui.button :href="route('login')" icon-right="arrow-right">Sign in now</x-ui.button>
-                <x-ui.button variant="secondary" icon="clipboard" x-on:click="navigator.clipboard.writeText({{ \Illuminate\Support\Js::from($loginDetails) }}).then(() => { copied = true; setTimeout(() => copied = false, 2000) })">
-                    <span x-text="copied ? 'Copied' : 'Copy all'">Copy all</span>
-                </x-ui.button>
-            </div>
-        </div>
-    </x-ui.card>
-@endguest
 
 <x-ui.card title="Get started in 10 minutes" description="Follow these steps the first time you sign in.">
     <ol class="space-y-4">
