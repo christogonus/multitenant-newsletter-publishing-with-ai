@@ -3,17 +3,19 @@
 namespace App\Ai\Agents;
 
 use App\Ai\Agents\Concerns\UsesNewsPubModel;
+use App\Ai\WritingStyle;
 use App\Models\Newsletter;
 use App\Support\Entitlements;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Attributes\MaxTokens;
 use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\HasProviderOptions;
 use Laravel\Ai\Contracts\HasStructuredOutput;
 use Laravel\Ai\Promptable;
 use Stringable;
 
 #[MaxTokens(4096)]
-class IssueWriter implements Agent, HasStructuredOutput
+class IssueWriter implements Agent, HasProviderOptions, HasStructuredOutput
 {
     use Promptable, UsesNewsPubModel;
 
@@ -48,6 +50,8 @@ class IssueWriter implements Agent, HasStructuredOutput
             '- subject_line: under 60 characters, specific and curiosity-driven, no clickbait.',
             '- preheader: under 110 characters, complements the subject line.',
             '- Use empty strings or empty lists for anything you do not need.',
+            '',
+            WritingStyle::rules(),
         ]);
     }
 

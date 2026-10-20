@@ -3,16 +3,18 @@
 namespace App\Ai\Agents;
 
 use App\Ai\Agents\Concerns\UsesNewsPubModel;
+use App\Ai\WritingStyle;
 use App\Enums\SocialChannel;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Attributes\MaxTokens;
 use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\HasProviderOptions;
 use Laravel\Ai\Contracts\HasStructuredOutput;
 use Laravel\Ai\Promptable;
 use Stringable;
 
 #[MaxTokens(2000)]
-class SocialRepurposer implements Agent, HasStructuredOutput
+class SocialRepurposer implements Agent, HasProviderOptions, HasStructuredOutput
 {
     use Promptable, UsesNewsPubModel;
 
@@ -29,7 +31,8 @@ class SocialRepurposer implements Agent, HasStructuredOutput
             SocialChannel::VideoScript => 'A 45 to 60 second vertical video script with sections labelled HOOK, POINTS and CALL TO ACTION. Lines are short and spoken, with simple on-screen text suggestions in [brackets].',
         };
 
-        return 'You turn newsletter issues into social content that sounds human and specific. Never invent facts that are not in the issue. Format: '.$format;
+        return 'You turn newsletter issues into social content that sounds human and specific. Never invent facts that are not in the issue. Format: '.$format
+            ."\n\n".WritingStyle::rules();
     }
 
     /**

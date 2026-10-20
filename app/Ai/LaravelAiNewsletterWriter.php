@@ -62,12 +62,13 @@ class LaravelAiNewsletterWriter implements NewsletterWriter
         $this->usage->record($response, AiUsageKind::Issue, $newsletter);
 
         $allowedUrls = $research ? $this->urlsIn($research) : [];
+        $output = WritingStyle::cleanAll($response->toArray());
 
         return new IssueDraft(
-            title: Str::limit(trim((string) ($response['title'] ?? '')) ?: ($topic ?: $newsletter->name), 180, ''),
-            subjectLine: Str::limit(trim((string) ($response['subject_line'] ?? '')), 150, ''),
-            preheader: Str::limit(trim((string) ($response['preheader'] ?? '')), 200, ''),
-            blocks: $this->toBlocks($response->toArray(), $allowedUrls),
+            title: Str::limit(trim((string) ($output['title'] ?? '')) ?: ($topic ?: $newsletter->name), 180, ''),
+            subjectLine: Str::limit(trim((string) ($output['subject_line'] ?? '')), 150, ''),
+            preheader: Str::limit(trim((string) ($output['preheader'] ?? '')), 200, ''),
+            blocks: $this->toBlocks($output, $allowedUrls),
         );
     }
 
@@ -81,7 +82,7 @@ class LaravelAiNewsletterWriter implements NewsletterWriter
         $this->usage->record($response, AiUsageKind::Topics, $newsletter);
 
         return collect($response['topics'] ?? [])
-            ->map(fn ($topic) => Str::limit(trim((string) $topic), 120, ''))
+            ->map(fn ($topic) => Str::limit(trim(WritingStyle::clean((string) $topic)), 120, ''))
             ->filter()
             ->unique()
             ->take($count)
@@ -98,7 +99,7 @@ class LaravelAiNewsletterWriter implements NewsletterWriter
         ]));
         $this->usage->record($response, AiUsageKind::Social, $issue->newsletter);
 
-        return trim((string) ($response['body'] ?? ''));
+        return trim(WritingStyle::clean((string) ($response['body'] ?? '')));
     }
 
     public function mediaKit(Newsletter $newsletter, array $stats): array
@@ -114,6 +115,7 @@ class LaravelAiNewsletterWriter implements NewsletterWriter
             'Suggested prices: '.collect(app(RateGuide::class)->packages($stats['subscribers']))->map(fn ($package) => $package['name'].' '.$package['price'])->implode(', '),
         ]));
         $this->usage->record($response, AiUsageKind::MediaKit, $newsletter);
+        $response = WritingStyle::cleanAll($response->toArray());
 
         return [
             'headline' => (string) ($response['headline'] ?? ''),
@@ -136,6 +138,7 @@ class LaravelAiNewsletterWriter implements NewsletterWriter
             $idea ? "Gift idea from the owner: {$idea}" : 'Choose the most useful free gift for this audience.',
         ])));
         $this->usage->record($response, AiUsageKind::LeadPage, $newsletter);
+        $response = WritingStyle::cleanAll($response->toArray());
 
         return [
             'headline' => (string) ($response['headline'] ?? ''),

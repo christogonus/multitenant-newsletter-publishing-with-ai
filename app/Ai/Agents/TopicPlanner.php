@@ -3,16 +3,18 @@
 namespace App\Ai\Agents;
 
 use App\Ai\Agents\Concerns\UsesNewsPubModel;
+use App\Ai\WritingStyle;
 use App\Models\Newsletter;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Attributes\MaxTokens;
 use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\HasProviderOptions;
 use Laravel\Ai\Contracts\HasStructuredOutput;
 use Laravel\Ai\Promptable;
 use Stringable;
 
 #[MaxTokens(1500)]
-class TopicPlanner implements Agent, HasStructuredOutput
+class TopicPlanner implements Agent, HasProviderOptions, HasStructuredOutput
 {
     use Promptable, UsesNewsPubModel;
 
@@ -25,7 +27,8 @@ class TopicPlanner implements Agent, HasStructuredOutput
     {
         return "You plan issues for \"{$this->newsletter->name}\", a newsletter about {$this->newsletter->niche}. "
             .'Suggest specific, evergreen-friendly issue topics a non-expert reader would want to open. '
-            .'Each topic is a short phrase under 80 characters. Do not repeat topics you are told were already covered.';
+            .'Each topic is a short phrase under 80 characters. Do not repeat topics you are told were already covered.'
+            ."\n\n".WritingStyle::rules();
     }
 
     /**

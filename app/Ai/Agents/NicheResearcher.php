@@ -5,6 +5,7 @@ namespace App\Ai\Agents;
 use App\Ai\Agents\Concerns\UsesNewsPubModel;
 use Laravel\Ai\Attributes\MaxTokens;
 use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\HasProviderOptions;
 use Laravel\Ai\Contracts\HasTools;
 use Laravel\Ai\Promptable;
 use Laravel\Ai\Providers\Tools\WebSearch;
@@ -14,7 +15,7 @@ use Stringable;
  * Finds fresh stories for a niche with the provider's web search tool. Results are cached per niche.
  */
 #[MaxTokens(1500)]
-class NicheResearcher implements Agent, HasTools
+class NicheResearcher implements Agent, HasProviderOptions, HasTools
 {
     use Promptable, UsesNewsPubModel;
 

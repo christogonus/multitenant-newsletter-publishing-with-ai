@@ -3,15 +3,17 @@
 namespace App\Ai\Agents;
 
 use App\Ai\Agents\Concerns\UsesNewsPubModel;
+use App\Ai\WritingStyle;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Attributes\MaxTokens;
 use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\HasProviderOptions;
 use Laravel\Ai\Contracts\HasStructuredOutput;
 use Laravel\Ai\Promptable;
 use Stringable;
 
 #[MaxTokens(3000)]
-class LeadPageWriter implements Agent, HasStructuredOutput
+class LeadPageWriter implements Agent, HasProviderOptions, HasStructuredOutput
 {
     use Promptable, UsesNewsPubModel;
 
@@ -21,7 +23,8 @@ class LeadPageWriter implements Agent, HasStructuredOutput
     public function instructions(): Stringable|string
     {
         return 'You write high-converting but honest newsletter sign-up pages and the free gift (lead magnet) readers get for joining. '
-            .'The gift is a short, genuinely useful guide or checklist of 4 to 6 sections. Plain English, no hype, no fake numbers or testimonials.';
+            .'The gift is a short, genuinely useful guide or checklist of 4 to 6 sections. Plain English, no hype, no fake numbers or testimonials.'
+            ."\n\n".WritingStyle::rules();
     }
 
     /**

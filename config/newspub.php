@@ -81,6 +81,10 @@ return [
          * Used for issues written for OTO 2 Gold buyers. Empty means the normal model.
          */
         'premium_model' => env('NEWSPUB_AI_PREMIUM_MODEL'),
+        /*
+         * How hard OpenAI reasoning models think: minimal, low, medium or high. Empty sends nothing.
+         */
+        'reasoning_effort' => env('NEWSPUB_AI_REASONING_EFFORT', 'low'),
         'research_enabled' => (bool) env('NEWSPUB_AI_RESEARCH', true),
         'research_cache_hours' => (int) env('NEWSPUB_RESEARCH_CACHE_HOURS', 6),
         'price_per_million_input' => (float) env('NEWSPUB_AI_PRICE_INPUT', 3.00),
