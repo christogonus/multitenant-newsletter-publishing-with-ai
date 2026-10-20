@@ -7,14 +7,12 @@ use App\Models\Newsletter;
 use App\Support\Entitlements;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Attributes\MaxTokens;
-use Laravel\Ai\Attributes\Temperature;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\HasStructuredOutput;
 use Laravel\Ai\Promptable;
 use Stringable;
 
 #[MaxTokens(4096)]
-#[Temperature(0.7)]
 class IssueWriter implements Agent, HasStructuredOutput
 {
     use Promptable, UsesNewsPubModel;
