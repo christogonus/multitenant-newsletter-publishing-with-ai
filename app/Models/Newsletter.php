@@ -53,6 +53,8 @@ class Newsletter extends Model
             'topic_pipeline' => 'array',
             'auto_publish' => 'boolean',
             'moderated_at' => 'datetime',
+            'link_shared_at' => 'datetime',
+            'checklist_dismissed_at' => 'datetime',
             'paid_enabled' => 'boolean',
             'paid_manual_enabled' => 'boolean',
             'paid_monthly_cents' => 'integer',

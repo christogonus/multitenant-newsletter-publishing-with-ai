@@ -29,8 +29,11 @@
             </x-slot:actions>
         </x-ui.page-header>
 
-        @if ($done < count($checklist))
+        @if ($done < count($checklist) && ! $newsletter->checklist_dismissed_at)
             <x-ui.card title="Get your newsletter live" :description="$done.' of '.count($checklist).' steps done'">
+                <x-slot:actions>
+                    <x-ui.button variant="ghost" size="sm" icon="x-mark" wire:click="dismissChecklist">Hide</x-ui.button>
+                </x-slot:actions>
                 <x-ui.progress :value="$done" :max="count($checklist)" class="mb-5" />
                 <ol class="divide-y divide-line">
                     @foreach ($checklist as $step)

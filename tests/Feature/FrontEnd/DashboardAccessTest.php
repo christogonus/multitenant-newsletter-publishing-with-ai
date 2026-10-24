@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Product;
+use App\Livewire\Dashboard;
 use App\Livewire\Issues\Editor;
 use App\Models\Issue;
 use App\Models\Newsletter;
@@ -139,4 +140,29 @@ test('admins can reach admin pages and buyers cannot', function () {
     $this->actingAs($admin)->get(route('admin.users'))->assertOk();
     $this->actingAs($admin)->get(route('admin.reports'))->assertOk();
     $this->actingAs($admin)->get(route('admin.spend'))->assertOk();
+});
+
+test('opening the share page completes the getting-started checklist', function () {
+    $user = buyer();
+    $newsletter = Newsletter::factory()->for($user)->create();
+    $issue = Issue::factory()->for($newsletter)->published()->create();
+    $this->actingAs($user)->get(route('dashboard'))->assertOk()->assertSee('Get your newsletter live');
+
+    $this->get(route('issues.share', $issue))->assertOk();
+
+    expect($newsletter->fresh()->link_shared_at)->not->toBeNull();
+    $this->get(route('dashboard'))->assertOk()->assertDontSee('Get your newsletter live');
+});
+
+test('a buyer can hide the getting-started checklist', function () {
+    $user = buyer();
+    $newsletter = Newsletter::factory()->for($user)->create();
+    $this->actingAs($user);
+
+    Livewire::test(Dashboard::class)
+        ->assertSee('Get your newsletter live')
+        ->call('dismissChecklist')
+        ->assertDontSee('Get your newsletter live');
+
+    expect($newsletter->fresh()->checklist_dismissed_at)->not->toBeNull();
 });

@@ -21,6 +21,10 @@ class Share extends Component
         $this->authorize('view', $issue);
         abort_unless($issue->isPublished(), 404);
         $this->issue = $issue;
+
+        // Seeing the share links completes the "Share your link" step on Home.
+        $issue->newsletter->link_shared_at ??= now();
+        $issue->newsletter->save();
     }
 
     public function render(): View
