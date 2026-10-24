@@ -2,7 +2,7 @@
     @if (! $newsletter)
         <section class="relative overflow-hidden rounded-hero bg-brand px-6 py-12 text-white shadow-raised sm:px-12">
             <div class="max-w-xl">
-                <p class="text-sm font-semibold tracking-wide text-white/80 uppercase">Welcome to NewsPub AI</p>
+                <p class="text-sm font-semibold tracking-wide text-white/80 uppercase">Welcome to {{ config('app.name') }}</p>
                 <h1 class="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Your newsletter is about 10 minutes away.</h1>
                 <p class="mt-3 text-base text-white/85">Pick a topic, and AI writes your first issue. You review it, press publish and share your link. No writing or tech skills needed.</p>
                 <a href="{{ route('newsletters.create') }}" class="mt-8 inline-flex min-h-14 items-center gap-2 rounded-control bg-white px-8 text-base font-bold text-brand-ink shadow-card hover:bg-brand-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">

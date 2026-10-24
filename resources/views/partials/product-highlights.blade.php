@@ -14,7 +14,7 @@
         \App\Enums\Product::Oto9Multi => ['Every newsletter on one dashboard', 'Readers and earnings for each, side by side', 'Switch between them in one click'],
         \App\Enums\Product::Oto10Network => ['A directory of newsletters to team up with', 'Recommend each other on your pages', 'Active members get shown first'],
         \App\Enums\Product::Oto11Agency => ['Run newsletters for paying clients', 'Ready packages and prices', 'Contract templates'],
-        \App\Enums\Product::Oto12Reseller => ['Sell NewsPub AI accounts as your own', 'Create access codes in one click', 'Sales pages, emails and banners included'],
+        \App\Enums\Product::Oto12Reseller => ['Sell '.config('app.name').' accounts as your own', 'Create access codes in one click', 'Sales pages, emails and banners included'],
     };
 @endphp
 

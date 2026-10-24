@@ -24,7 +24,7 @@ class RedeemCodeController extends Controller
 
         return view('auth.redeem', [
             'reseller' => $reseller,
-            'brand' => $reseller?->reseller_brand ?: 'NewsPub AI',
+            'brand' => $reseller?->reseller_brand ?: config('app.name'),
             'code' => (string) $request->query('code', ''),
         ]);
     }

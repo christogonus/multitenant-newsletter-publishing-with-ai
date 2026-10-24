@@ -1,7 +1,7 @@
 <x-layouts::app :title="$product->label()">
     <div class="space-y-6">
         @if ($product === \App\Enums\Product::FrontEnd)
-            <x-ui.alert tone="warning" title="Your NewsPub AI access is not active">
+            <x-ui.alert tone="warning" title="Your {{ config('app.name') }} access is not active">
                 This can happen after a refund. If you think this is a mistake, contact us from the Help page.
             </x-ui.alert>
         @endif

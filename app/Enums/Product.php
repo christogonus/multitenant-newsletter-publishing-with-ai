@@ -26,7 +26,7 @@ enum Product: string
     public function label(): string
     {
         return match ($this) {
-            self::FrontEnd => 'NewsPub AI',
+            self::FrontEnd => config('app.name'),
             self::BumpVault => 'Niche and Swipe Vault',
             self::Oto1Delivery => 'Delivery and Platform Integrations',
             self::Oto2Silver => 'Unlimited Creation Silver',
@@ -64,7 +64,7 @@ enum Product: string
             self::Oto9Multi => 'See all your newsletters, their readers and what each one earns, on one dashboard.',
             self::Oto10Network => 'Swap recommendations with other newsletters to grow together.',
             self::Oto11Agency => 'Run newsletters for paying clients with ready packages and contracts.',
-            self::Oto12Reseller => 'Sell NewsPub AI accounts and keep the profit.',
+            self::Oto12Reseller => 'Sell '.config('app.name').' accounts and keep the profit.',
         };
     }
 

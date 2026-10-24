@@ -28,9 +28,9 @@ class PasswordChangeCode extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Your NewsPub AI confirmation code: '.$this->code)
+            ->subject('Your '.config('app.name').' confirmation code: '.$this->code)
             ->greeting('Confirm it is you')
-            ->line('Someone signed in to your NewsPub AI account asked to choose a new password. Type this code on the Account page to finish:')
+            ->line('Someone signed in to your '.config('app.name').' account asked to choose a new password. Type this code on the Account page to finish:')
             ->line('**'.$this->code.'**')
             ->line('The code works for '.ChooseOwnPassword::CODE_MINUTES.' minutes.')
             ->line('Did not ask for this? Someone may know your email and the starting password. Sign in and change your password now: until you do, nobody else can change it, because the code only comes to you.');

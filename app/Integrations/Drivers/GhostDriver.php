@@ -25,7 +25,7 @@ class GhostDriver extends HttpDriver
     {
         return [
             'Sign in to Ghost and open Settings, then Integrations.',
-            'Press "Add custom integration" and name it NewsPub AI.',
+            'Press "Add custom integration" and name it '.config('app.name').'.',
             'Copy the Admin key and your site address.',
             'Paste both below and press Test connection.',
         ];

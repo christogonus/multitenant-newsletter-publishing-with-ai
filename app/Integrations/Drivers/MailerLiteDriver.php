@@ -27,7 +27,7 @@ class MailerLiteDriver extends HttpDriver
     {
         return [
             'Sign in to MailerLite and open Integrations.',
-            'Generate a new key, name it NewsPub AI and copy it.',
+            'Generate a new key, name it '.config('app.name').' and copy it.',
             'Open Subscribers, then Groups, pick a group and copy its ID from the web address.',
             'Paste them below with your sender details, then press Test connection.',
         ];

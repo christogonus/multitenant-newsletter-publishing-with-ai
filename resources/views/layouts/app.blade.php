@@ -25,7 +25,7 @@
         <div class="flex h-16 shrink-0 items-center gap-2 border-b border-line px-5">
             <a href="{{ route('dashboard') }}" class="flex items-center gap-2 font-bold text-ink">
                 <span class="inline-flex size-8 items-center justify-center rounded-control bg-brand text-white"><x-ui.icon name="newspaper" size="5" /></span>
-                NewsPub AI
+                {{ config('app.name') }}
             </a>
         </div>
 

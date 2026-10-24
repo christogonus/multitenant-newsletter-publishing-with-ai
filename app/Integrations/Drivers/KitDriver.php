@@ -25,7 +25,7 @@ class KitDriver extends HttpDriver
     {
         return [
             'Sign in to Kit and open Settings, then Developer.',
-            'Create a new key, name it NewsPub AI and copy it.',
+            'Create a new key, name it '.config('app.name').' and copy it.',
             'Optional: open a form in Kit and copy the number from its web address. Turn on "double opt-in" for that form so readers confirm.',
             'Paste below and press Test connection.',
         ];

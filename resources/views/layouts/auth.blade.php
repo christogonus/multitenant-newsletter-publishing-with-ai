@@ -8,7 +8,7 @@
 
     <a href="{{ url('/') }}" class="mb-8 flex items-center gap-2 text-lg font-bold text-ink">
         <span class="inline-flex size-9 items-center justify-center rounded-control bg-brand text-white"><x-ui.icon name="newspaper" size="5" /></span>
-        NewsPub AI
+        {{ config('app.name') }}
     </a>
 
     <div class="w-full max-w-md rounded-hero border border-line bg-card p-6 shadow-raised sm:p-8">

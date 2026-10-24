@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Reseller" description="Sell NewsPub AI on your own checkout. Each code you sell gives one buyer a full account." icon="ticket" area="earn" />
+    <x-ui.page-header title="Reseller" description="Sell {{ config('app.name') }} on your own checkout. Each code you sell gives one buyer a full account." icon="ticket" area="earn" />
 
     <div class="grid gap-4 sm:grid-cols-3">
         <x-ui.stat-card label="Codes left to create" :value="$remaining.' of '.$quota" icon="ticket" area="earn" />

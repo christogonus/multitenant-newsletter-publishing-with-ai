@@ -113,7 +113,7 @@
                     </form>
                 </details>
             </p>
-            <p>Made with NewsPub AI</p>
+            <p>Made with {{ config('app.name') }}</p>
         </footer>
     </div>
 </body>

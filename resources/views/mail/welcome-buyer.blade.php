@@ -1,5 +1,5 @@
 <x-mail::message>
-# Welcome to NewsPub AI, {{ $name }}!
+# Welcome to {{ config('app.name') }}, {{ $name }}!
 
 Thank you for your purchase. Your account is ready, and this email has everything you need to publish your first newsletter today.
 
@@ -51,5 +51,5 @@ Your login details, this guide and answers to common questions are always here, 
 Still stuck? Reply to {{ $supportEmail }} from the email you bought with. We reply within one working day.
 
 Happy publishing,<br>
-The NewsPub AI team
+The {{ config('app.name') }} team
 </x-mail::message>

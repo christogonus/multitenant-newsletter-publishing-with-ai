@@ -7,7 +7,7 @@
     <header class="mx-auto flex w-full max-w-3xl items-center justify-between gap-4 px-4 py-6">
         <a href="{{ route('login') }}" class="flex items-center gap-2 text-lg font-bold text-ink">
             <span class="inline-flex size-9 items-center justify-center rounded-control bg-brand text-white"><x-ui.icon name="newspaper" size="5" /></span>
-            NewsPub AI
+            {{ config('app.name') }}
         </a>
         <div class="flex items-center gap-2">
             <x-ui.theme-toggle />

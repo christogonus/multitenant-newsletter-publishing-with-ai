@@ -33,7 +33,7 @@ class WelcomeBuyer extends Notification implements ShouldQueue
         $showsDefaultPassword = $notifiable->uses_default_password && $defaultPassword !== '';
 
         return (new MailMessage)
-            ->subject($showsDefaultPassword ? 'Your NewsPub AI login details and quick-start guide' : 'Your NewsPub AI account is ready')
+            ->subject($showsDefaultPassword ? 'Your '.config('app.name').' login details and quick-start guide' : 'Your '.config('app.name').' account is ready')
             ->replyTo((string) config('newspub.support_email'))
             ->markdown('mail.welcome-buyer', [
                 'name' => $notifiable->name,

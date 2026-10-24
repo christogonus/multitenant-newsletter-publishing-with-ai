@@ -7,7 +7,7 @@
 <x-layouts::page title="Your login details">
     <div class="space-y-6">
         <div class="py-4 text-center">
-            <h1 class="text-2xl font-bold text-ink sm:text-3xl">Welcome to NewsPub AI</h1>
+            <h1 class="text-2xl font-bold text-ink sm:text-3xl">Welcome to {{ config('app.name') }}</h1>
             <p class="mx-auto mt-2 max-w-xl text-muted">Your login details, a quick setup guide, and how to reach us if you get stuck.</p>
         </div>
 

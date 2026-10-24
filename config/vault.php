@@ -5,6 +5,8 @@
  *
  * Contains ranked niche ideas, subject line templates and a 30-day starter plan.
  */
+$appName = env('APP_NAME', 'NewsletterPub AI');
+
 return [
 
     'niches' => [
@@ -190,30 +192,30 @@ return [
 
     'plan' => [
         ['day' => 1, 'title' => 'Pick your niche', 'task' => 'Browse the niche list in this vault and choose one topic you enjoy and could write about for a year. Write one sentence describing who it is for.', 'minutes' => 30],
-        ['day' => 2, 'title' => 'Name your newsletter', 'task' => 'Brainstorm ten possible names and pick a short one that is easy to say and remember. Add it to your newsletter settings in NewsPub AI.', 'minutes' => 20],
+        ['day' => 2, 'title' => 'Name your newsletter', 'task' => 'Brainstorm ten possible names and pick a short one that is easy to say and remember. Add it to your newsletter settings in '.$appName.'.', 'minutes' => 20],
         ['day' => 3, 'title' => 'Write your one-line promise', 'task' => 'Write a tagline that tells readers exactly what they will get and how often. Add it to your newsletter profile.', 'minutes' => 15],
-        ['day' => 4, 'title' => 'Set your voice', 'task' => 'Choose a writing style in NewsPub AI, such as friendly, practical or calm. Read a sample paragraph and adjust until it sounds like you.', 'minutes' => 20],
-        ['day' => 5, 'title' => 'Plan ten topics', 'task' => 'Use NewsPub AI to suggest topic ideas for your niche and keep the ten you like most. This becomes your first few months of content.', 'minutes' => 25],
-        ['day' => 6, 'title' => 'Write your welcome issue', 'task' => 'Ask NewsPub AI to draft a welcome issue that explains who you are and what readers can expect. Edit it so it sounds personal.', 'minutes' => 40],
+        ['day' => 4, 'title' => 'Set your voice', 'task' => 'Choose a writing style in '.$appName.', such as friendly, practical or calm. Read a sample paragraph and adjust until it sounds like you.', 'minutes' => 20],
+        ['day' => 5, 'title' => 'Plan ten topics', 'task' => 'Use '.$appName.' to suggest topic ideas for your niche and keep the ten you like most. This becomes your first few months of content.', 'minutes' => 25],
+        ['day' => 6, 'title' => 'Write your welcome issue', 'task' => 'Ask '.$appName.' to draft a welcome issue that explains who you are and what readers can expect. Edit it so it sounds personal.', 'minutes' => 40],
         ['day' => 7, 'title' => 'Rest and review', 'task' => 'Take a break. Read your welcome issue once more with fresh eyes and fix anything that feels unclear.', 'minutes' => 10],
-        ['day' => 8, 'title' => 'Set up your sign-up page', 'task' => 'Turn on your public sign-up page in NewsPub AI. Add your name, tagline and a short description of what readers will get.', 'minutes' => 20],
+        ['day' => 8, 'title' => 'Set up your sign-up page', 'task' => 'Turn on your public sign-up page in '.$appName.'. Add your name, tagline and a short description of what readers will get.', 'minutes' => 20],
         ['day' => 9, 'title' => 'Publish your first issue', 'task' => 'Publish your welcome issue so it appears on your public page. Open the page link yourself to check it looks right on your phone.', 'minutes' => 15],
         ['day' => 10, 'title' => 'Invite ten friends', 'task' => 'Send a short personal message to ten people who might enjoy your topic, with your sign-up page link. Ask them to join and give honest feedback.', 'minutes' => 30],
-        ['day' => 11, 'title' => 'Write issue two', 'task' => 'Pick a topic from your list and let NewsPub AI write a first draft. Add one personal example or opinion before saving.', 'minutes' => 40],
+        ['day' => 11, 'title' => 'Write issue two', 'task' => 'Pick a topic from your list and let '.$appName.' write a first draft. Add one personal example or opinion before saving.', 'minutes' => 40],
         ['day' => 12, 'title' => 'Share your page on social media', 'task' => 'Post your sign-up page link on one social platform you already use. Explain in a sentence or two why you started the newsletter.', 'minutes' => 15],
         ['day' => 13, 'title' => 'Add your link everywhere', 'task' => 'Put your sign-up page link in your email signature and social media profiles so people can find it without asking.', 'minutes' => 15],
         ['day' => 14, 'title' => 'Send issue two', 'task' => 'Publish and send issue two to your readers. Note how many people have joined so far without judging the number.', 'minutes' => 15],
         ['day' => 15, 'title' => 'Ask for replies', 'task' => 'Email your readers one simple question about what they would like to read next. Replies help you write better issues and build loyalty.', 'minutes' => 15],
         ['day' => 16, 'title' => 'Join one community', 'task' => 'Find one online group or forum where your audience gathers. Read the rules and introduce yourself without promoting yet.', 'minutes' => 20],
         ['day' => 17, 'title' => 'Help before you share', 'task' => 'Answer two or three questions in that community with genuinely helpful replies. Mention your newsletter only if the rules allow it.', 'minutes' => 25],
-        ['day' => 18, 'title' => 'Write issue three', 'task' => 'Use reader replies or your topic list to choose the subject. Let NewsPub AI draft it, then edit and schedule it.', 'minutes' => 40],
+        ['day' => 18, 'title' => 'Write issue three', 'task' => 'Use reader replies or your topic list to choose the subject. Let '.$appName.' draft it, then edit and schedule it.', 'minutes' => 40],
         ['day' => 19, 'title' => 'Create a share-worthy issue', 'task' => 'Turn one of your best issues into a short list or guide people would want to forward. Add a friendly line asking readers to share it.', 'minutes' => 30],
         ['day' => 20, 'title' => 'Invite ten more people', 'task' => 'Message ten more people who might enjoy your newsletter, such as colleagues or local contacts. Keep it personal and low pressure.', 'minutes' => 30],
         ['day' => 21, 'title' => 'Rest and reflect', 'task' => 'Take a break. Write down what has felt easy and what has felt hard so far, and one thing to change next week.', 'minutes' => 10],
         ['day' => 22, 'title' => 'Send issue four', 'task' => 'Publish and send your next issue. Try a subject line from the swipe file in this vault and see if more people open it.', 'minutes' => 20],
         ['day' => 23, 'title' => 'Ask readers to forward', 'task' => 'In your next email or a short note, ask readers to forward the newsletter to one friend who would enjoy it.', 'minutes' => 10],
         ['day' => 24, 'title' => 'Partner with a similar creator', 'task' => 'Find another small newsletter or creator in a related topic and suggest mentioning each other to your readers.', 'minutes' => 30],
-        ['day' => 25, 'title' => 'Write issue five', 'task' => 'Draft your next issue with NewsPub AI. Include a short personal story to help readers get to know you.', 'minutes' => 40],
+        ['day' => 25, 'title' => 'Write issue five', 'task' => 'Draft your next issue with '.$appName.'. Include a short personal story to help readers get to know you.', 'minutes' => 40],
         ['day' => 26, 'title' => 'Share a snippet', 'task' => 'Post one useful tip from a recent issue on social media, with your sign-up page link for anyone who wants more.', 'minutes' => 15],
         ['day' => 27, 'title' => 'Tidy your archive', 'task' => 'Check that your published issues look good on your public page. Make sure titles are clear so new visitors can see what you offer.', 'minutes' => 20],
         ['day' => 28, 'title' => 'Send issue six', 'task' => 'Publish and send your next issue on your usual day. Consistency builds trust faster than anything else.', 'minutes' => 20],

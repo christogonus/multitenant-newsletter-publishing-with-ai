@@ -1,5 +1,5 @@
 <x-layouts::auth title="Welcome">
-    <x-slot:heading>Welcome to NewsPub AI, {{ $user->name }}</x-slot:heading>
+    <x-slot:heading>Welcome to {{ config('app.name') }}, {{ $user->name }}</x-slot:heading>
     <x-slot:subheading>Choose a password and you will be writing your first newsletter in a few minutes.</x-slot:subheading>
 
     <form method="POST" action="{{ $action }}" class="space-y-5">

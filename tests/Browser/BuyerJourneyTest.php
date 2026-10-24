@@ -22,7 +22,7 @@ test('a new buyer reaches a live public issue in under 15 minutes', function () 
 
     $this->browse(function (Browser $browser) use ($welcomeUrl) {
         $browser->visit($welcomeUrl)
-            ->assertSee('Welcome to NewsPub AI')
+            ->assertSee('Welcome to '.config('app.name'))
             ->type('password', 'a-strong-password-1')
             ->type('password_confirmation', 'a-strong-password-1')
             ->check('terms')
