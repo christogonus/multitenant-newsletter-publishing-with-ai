@@ -1,5 +1,9 @@
 # NewsPub AI
 
+**World's First AI Newsletter Empire Builder That Turns Any Niche Into Fully Written, Published & Monetized Newsletters: Fresh Topics, Ready-To-Send Content, Branded Pages, Subscriber Growth, Sponsors & Paid Readers, All On Autopilot**
+
+**World's First AI Newsletter Publisher That Researches, Writes, Designs & Publishes 15 Done-For-You Newsletters A Week In Any Niche, Then Grows Your List And Lands You Sponsors**
+
 NewsPub AI lets a buyer start a newsletter business with AI. They pick a niche, the app researches fresh topics and writes each newsletter, and the buyer edits, publishes and grows a readership from one dashboard. Every publication gets its own public page on a subdomain (or, with an upgrade, the buyer's own domain), a subscribe form, and optional delivery to the email service the buyer already uses.
 
 It is sold as a lifetime deal on LaunchpadJV: a front-end product, an order bump and twelve upgrades (OTOs). Checkout happens on LaunchpadJV; this app receives the sale, creates the account and unlocks what the buyer paid for.
