@@ -21,8 +21,10 @@ class NetworkSeeder extends Seeder
     {
         $owner = User::firstOrCreate(
             ['email' => 'network@newspub.local'],
-            ['name' => 'NewsPub Network', 'password' => Hash::make(Str::random(40)), 'terms_accepted_at' => now()],
+            ['name' => config('app.name').' Network', 'password' => Hash::make(Str::random(40)), 'terms_accepted_at' => now()],
         );
+
+        $owner->update(['name' => config('app.name').' Network']);
 
         $publications = [
             ['The Weekly Ledger', 'money', 'personal finance', 'Clear money tips for everyday people.'],
