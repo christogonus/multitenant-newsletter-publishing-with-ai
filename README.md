@@ -1,10 +1,12 @@
-# NewsPub AI
+<p align="center"><img src="public/logo-dark-trim.webp" width="420" alt="NewsletterPub AI"></p>
+
+# NewsletterPub AI
 
 **World's First AI Newsletter Empire Builder That Turns Any Niche Into Fully Written, Published & Monetized Newsletters: Fresh Topics, Ready-To-Send Content, Branded Pages, Subscriber Growth, Sponsors & Paid Readers, All On Autopilot**
 
 **World's First AI Newsletter Publisher That Researches, Writes, Designs & Publishes 15 Done-For-You Newsletters A Week In Any Niche, Then Grows Your List And Lands You Sponsors**
 
-NewsPub AI lets a buyer start a newsletter business with AI. They pick a niche, the app researches fresh topics and writes each newsletter, and the buyer edits, publishes and grows a readership from one dashboard. Every publication gets its own public page on a subdomain (or, with an upgrade, the buyer's own domain), a subscribe form, and optional delivery to the email service the buyer already uses.
+NewsletterPub AI lets a buyer start a newsletter business with AI. They pick a niche, the app researches fresh topics and writes each newsletter, and the buyer edits, publishes and grows a readership from one dashboard. Every publication gets its own public page on a subdomain (or, with an upgrade, the buyer's own domain), a subscribe form, and optional delivery to the email service the buyer already uses.
 
 It is sold as a lifetime deal on LaunchpadJV: a front-end product, an order bump and twelve upgrades (OTOs). Checkout happens on LaunchpadJV; this app receives the sale, creates the account and unlocks what the buyer paid for.
 
@@ -12,7 +14,7 @@ It is sold as a lifetime deal on LaunchpadJV: a front-end product, an order bump
 
 | Product | Price | What it unlocks |
 | --- | --- | --- |
-| NewsPub AI (front end) | $17 | Up to 3 publications, 15 AI-written newsletters per publication per week |
+| NewsletterPub AI (front end) | $17 | Up to 3 publications, 15 AI-written newsletters per publication per week |
 | Niche and Swipe Vault (bump) | $17 | Ranked niches, proven subject lines and a 30-day launch plan |
 | OTO 1 Delivery | $97 | Send newsletters through beehiiv, Ghost, Kit, Mailchimp, MailerLite, a webhook or an HTML export |
 | OTO 2 Silver | $67 | No publication cap and unlimited newsletters |
@@ -26,7 +28,7 @@ It is sold as a lifetime deal on LaunchpadJV: a front-end product, an order bump
 | OTO 9 Multi | $97 | One dashboard for every publication, its readers and its earnings |
 | OTO 10 Network | $97 | Swap recommendations with other publications |
 | OTO 11 Agency | $197 | Run publications for paying clients, with packages and contracts |
-| OTO 12 Reseller | $297 | Sell NewsPub AI accounts through license codes |
+| OTO 12 Reseller | $297 | Sell NewsletterPub AI accounts through license codes |
 
 Each product is a Pennant feature that resolves from the `purchases` ledger, so refunds and chargebacks revoke access automatically. Product IDs and checkout links come from `config/products.php`.
 

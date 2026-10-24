@@ -6,6 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title ? $title.' · '.$newsletter->name : $newsletter->name }}</title>
+    <link rel="icon" href="{{ $theme['logo_url'] ?: 'data:,' }}">
     <meta name="description" content="{{ $description ?? $newsletter->tagline ?? 'A newsletter about '.$newsletter->niche }}">
     <meta property="og:title" content="{{ $title ?? $newsletter->name }}">
     <meta property="og:description" content="{{ $description ?? $newsletter->tagline ?? $newsletter->niche }}">

@@ -6,9 +6,12 @@
 <body class="flex min-h-full flex-col items-center justify-center bg-page px-4 py-10 font-sans">
     <div class="absolute top-4 right-4"><x-ui.theme-toggle /></div>
 
-    <a href="{{ url('/') }}" class="mb-8 flex items-center gap-2 text-lg font-bold text-ink">
-        <span class="inline-flex size-9 items-center justify-center rounded-control bg-brand text-white"><x-ui.icon name="newspaper" size="5" /></span>
-        {{ config('app.name') }}
+    <a href="{{ url('/') }}" class="mb-8 text-lg font-bold text-ink">
+        <img src="{{ asset('logo-dark-trim.webp') }}" alt="{{ config('app.name') }}" class="h-12 w-auto dark:hidden">
+        <span class="hidden items-center gap-2 dark:flex">
+            <img src="{{ asset('icon-square.webp') }}" alt="" class="size-9">
+            {{ config('app.name') }}
+        </span>
     </a>
 
     <div class="w-full max-w-md rounded-hero border border-line bg-card p-6 shadow-raised sm:p-8">

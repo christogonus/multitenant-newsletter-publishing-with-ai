@@ -2,7 +2,7 @@
 <tr>
 <td class="header">
 <a href="{{ $url }}" style="display: inline-block;">
-<span class="brand-mark">{{ mb_substr(trim($slot), 0, 1) }}</span>{{ trim($slot) }}
+<img src="{{ asset('icon-mail.png') }}" class="brand-mark" width="32" height="32" alt="">{{ trim($slot) }}
 </a>
 </td>
 </tr>
