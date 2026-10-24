@@ -44,6 +44,26 @@ class Ui
         };
     }
 
+    /**
+     * A bold gradient fill with a white icon, for the round icon badges on stats and page headers.
+     */
+    public static function chip(Area|string|null $area): string
+    {
+        return match (self::key($area)) {
+            'create' => 'bg-linear-to-br from-create to-create-hover text-white',
+            'publish' => 'bg-linear-to-br from-publish to-publish-hover text-white',
+            'grow' => 'bg-linear-to-br from-grow to-grow-hover text-white',
+            'earn' => 'bg-linear-to-br from-gold to-earn-hover text-white',
+            'social' => 'bg-linear-to-br from-social to-social-hover text-white',
+            'automate' => 'bg-linear-to-br from-automate to-automate-hover text-white',
+            'success' => 'bg-linear-to-br from-success to-success-ink text-white',
+            'warning' => 'bg-linear-to-br from-warning to-warning-ink text-white',
+            'danger' => 'bg-linear-to-br from-danger to-danger-hover text-white',
+            'neutral' => 'bg-subtle text-muted',
+            default => 'bg-linear-to-br from-navy-soft to-navy text-white',
+        };
+    }
+
     public static function dot(Area|string|null $tone): string
     {
         return match (self::key($tone)) {

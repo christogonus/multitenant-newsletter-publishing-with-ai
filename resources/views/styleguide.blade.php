@@ -11,7 +11,6 @@
                 <h1 class="text-display tracking-tight text-ink">Component kit</h1>
                 <p class="text-muted">Every component in every state. Local only.</p>
             </div>
-            <x-ui.theme-toggle />
         </div>
 
         <section class="space-y-4">

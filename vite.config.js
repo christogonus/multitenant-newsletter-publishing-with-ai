@@ -12,6 +12,9 @@ export default defineConfig({
                 bunny('Inter', {
                     weights: [400, 500, 600, 700],
                 }),
+                bunny('DM Serif Display', {
+                    weights: [400],
+                }),
             ],
         }),
         tailwindcss(),

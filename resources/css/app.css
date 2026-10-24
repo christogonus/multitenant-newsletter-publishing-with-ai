@@ -4,112 +4,86 @@
 @source '../../storage/framework/views/*.php';
 @source '../../app/**/*.php';
 
-@custom-variant dark (&:where(.dark, .dark *));
-
 /*
- * NewsPub AI design tokens. Neutral slate surfaces carry the page; colour does the guiding.
- * Each product area has a solid (white text at AA), a tint (backgrounds) and an ink (text on the tint).
+ * NewsletterPub AI design tokens. Light only: a warm cream page, white cards, navy ink and gold highlights,
+ * with a bold colour for each product area. Each area has a solid (white text at AA), a tint (backgrounds)
+ * and an ink (text on the tint).
  */
 @theme {
     --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+    --font-display: 'DM Serif Display', Georgia, 'Times New Roman', serif;
 
-    --color-page: #f8fafc;
+    --color-page: #faf6ee;
     --color-card: #ffffff;
-    --color-line: #e2e8f0;
-    --color-ink: #0f172a;
-    --color-muted: #475569;
-    --color-subtle: #f1f5f9;
+    --color-line: #ebe3d2;
+    --color-ink: #0f1b3d;
+    --color-muted: #545e75;
+    --color-subtle: #f6f0e3;
 
-    --color-brand: #4f46e5;
-    --color-brand-hover: #4338ca;
-    --color-brand-tint: #eef2ff;
-    --color-brand-ink: #3730a3;
+    --color-brand: #12245c;
+    --color-brand-hover: #0b1840;
+    --color-brand-tint: #e9eefb;
+    --color-brand-ink: #12245c;
+
+    --color-navy: #0f1b3d;
+    --color-navy-soft: #1c2c5c;
+
+    --color-gold: #d99a1e;
+    --color-gold-hover: #bf8414;
+    --color-gold-tint: #fdf3dc;
+    --color-gold-ink: #7a4f06;
 
     --color-create: #7c3aed;
-    --color-create-hover: #6d28d9;
-    --color-create-tint: #f5f3ff;
+    --color-create-hover: #6425d0;
+    --color-create-tint: #f1eaff;
     --color-create-ink: #5b21b6;
 
-    --color-publish: #2563eb;
-    --color-publish-hover: #1d4ed8;
-    --color-publish-tint: #eff6ff;
-    --color-publish-ink: #1e40af;
+    --color-publish: #1d4ed8;
+    --color-publish-hover: #1e3fae;
+    --color-publish-tint: #e6eeff;
+    --color-publish-ink: #1e3a8a;
 
-    --color-grow: #047857;
-    --color-grow-hover: #065f46;
-    --color-grow-tint: #ecfdf5;
-    --color-grow-ink: #064e3b;
+    --color-grow: #0f8a6a;
+    --color-grow-hover: #0b6e54;
+    --color-grow-tint: #e3f6ef;
+    --color-grow-ink: #065f46;
 
-    --color-earn: #b45309;
-    --color-earn-hover: #92400e;
-    --color-earn-tint: #fffbeb;
+    --color-earn: #c27c0e;
+    --color-earn-hover: #a0660a;
+    --color-earn-tint: #fdf1d8;
     --color-earn-ink: #78350f;
 
-    --color-social: #e11d48;
-    --color-social-hover: #be123c;
-    --color-social-tint: #fff1f2;
-    --color-social-ink: #9f1239;
+    --color-social: #e11d63;
+    --color-social-hover: #be1253;
+    --color-social-tint: #ffe8f0;
+    --color-social-ink: #9f1240;
 
-    --color-automate: #0e7490;
-    --color-automate-hover: #155e75;
-    --color-automate-tint: #ecfeff;
-    --color-automate-ink: #164e63;
+    --color-automate: #0e8fa8;
+    --color-automate-hover: #0b7389;
+    --color-automate-tint: #e1f6fa;
+    --color-automate-ink: #155e75;
 
     --color-success: #15803d;
-    --color-success-tint: #f0fdf4;
+    --color-success-tint: #e9f8ee;
     --color-success-ink: #14532d;
     --color-warning: #b45309;
-    --color-warning-tint: #fffbeb;
+    --color-warning-tint: #fff4dc;
     --color-warning-ink: #78350f;
-    --color-danger: #b91c1c;
-    --color-danger-hover: #991b1b;
-    --color-danger-tint: #fef2f2;
+    --color-danger: #c81e1e;
+    --color-danger-hover: #a51818;
+    --color-danger-tint: #fdecec;
     --color-danger-ink: #7f1d1d;
 
-    --radius-control: 8px;
-    --radius-card: 12px;
-    --radius-hero: 16px;
+    --radius-control: 10px;
+    --radius-card: 16px;
+    --radius-hero: 20px;
 
-    --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.06), 0 1px 3px 0 rgb(15 23 42 / 0.08);
-    --shadow-raised: 0 10px 25px -5px rgb(15 23 42 / 0.12), 0 8px 10px -6px rgb(15 23 42 / 0.08);
+    --shadow-card: 0 1px 2px 0 rgb(64 44 12 / 0.04), 0 4px 14px -4px rgb(64 44 12 / 0.08);
+    --shadow-raised: 0 18px 40px -12px rgb(15 27 61 / 0.25), 0 8px 14px -8px rgb(15 27 61 / 0.12);
 
     --text-display: 2.25rem;
     --text-display--line-height: 2.75rem;
-    --text-display--font-weight: 700;
-}
-
-.dark {
-    --color-page: #0b1120;
-    --color-card: #111827;
-    --color-line: #1f2a3c;
-    --color-ink: #f1f5f9;
-    --color-muted: #a3b1c6;
-    --color-subtle: #182134;
-
-    --color-brand-tint: #1e1b4b;
-    --color-brand-ink: #c7d2fe;
-    --color-create-tint: #2e1065;
-    --color-create-ink: #ddd6fe;
-    --color-publish-tint: #172554;
-    --color-publish-ink: #bfdbfe;
-    --color-grow-tint: #022c22;
-    --color-grow-ink: #a7f3d0;
-    --color-earn-tint: #3b1d06;
-    --color-earn-ink: #fde68a;
-    --color-social-tint: #4c0519;
-    --color-social-ink: #fecdd3;
-    --color-automate-tint: #083344;
-    --color-automate-ink: #a5f3fc;
-
-    --color-success-tint: #052e16;
-    --color-success-ink: #bbf7d0;
-    --color-warning-tint: #3b1d06;
-    --color-warning-ink: #fde68a;
-    --color-danger-tint: #450a0a;
-    --color-danger-ink: #fecaca;
-
-    --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.4);
-    --shadow-raised: 0 10px 25px -5px rgb(0 0 0 / 0.5);
+    --text-display--font-weight: 400;
 }
 
 @layer base {

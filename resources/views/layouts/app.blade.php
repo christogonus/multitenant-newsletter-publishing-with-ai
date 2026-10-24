@@ -22,10 +22,9 @@
         x-bind:class="nav ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
         aria-label="Main"
     >
-        <div class="flex h-16 shrink-0 items-center gap-2 border-b border-line px-5">
-            <a href="{{ route('dashboard') }}" class="flex items-center gap-2 font-bold text-ink">
-                <img src="{{ asset('icon-square.webp') }}" alt="" class="size-8">
-                {{ config('app.name') }}
+        <div class="flex h-20 shrink-0 items-center px-5">
+            <a href="{{ route('dashboard') }}">
+                <img src="{{ asset('logo-dark-trim.webp') }}" alt="{{ config('app.name') }}" class="h-9 w-auto">
             </a>
         </div>
 
@@ -43,22 +42,23 @@
                                     href="{{ route($item['route']) }}"
                                     @class([
                                         'group flex min-h-11 items-center gap-3 rounded-control px-3 text-sm font-medium transition',
-                                        'bg-subtle text-ink' => $isActive,
+                                        'bg-navy text-white shadow-raised' => $isActive,
                                         'text-muted hover:bg-subtle hover:text-ink' => ! $isActive && ! $item['locked'],
                                         'text-muted/80 hover:bg-subtle' => $item['locked'],
                                     ])
                                     @if ($isActive) aria-current="page" @endif
                                 >
                                     <span @class([
-                                        'inline-flex size-7 items-center justify-center rounded-[6px]',
-                                        \App\Support\Ui::tint($section['area']),
+                                        'inline-flex size-7 items-center justify-center rounded-full',
+                                        \App\Support\Ui::chip($section['area']) => $isActive,
+                                        \App\Support\Ui::tint($section['area']) => ! $isActive,
                                         'opacity-60' => $item['locked'],
                                     ])>
                                         <x-ui.icon :name="$item['icon']" size="4" />
                                     </span>
                                     <span class="flex-1 truncate">{{ $item['label'] }}</span>
                                     @if ($item['locked'])
-                                        <x-ui.icon name="lock-closed" size="4" class="text-muted" />
+                                        <x-ui.icon name="lock-closed" size="4" :class="$isActive ? 'text-white/70' : 'text-muted'" />
                                         <span class="sr-only">(upgrade)</span>
                                     @endif
                                 </a>
@@ -69,10 +69,17 @@
             @endforeach
         </nav>
 
-        <div class="border-t border-line px-3 py-3">
-            <a href="{{ route('upgrades') }}" class="flex min-h-11 items-center gap-3 rounded-control px-3 text-sm font-semibold text-brand hover:bg-brand-tint">
-                <x-ui.icon name="sparkles" size="4" /> See all upgrades
-            </a>
+        <div class="space-y-1 px-3 py-3">
+            <div class="relative overflow-hidden rounded-card bg-linear-to-br from-navy-soft to-navy p-4 text-white shadow-raised">
+                <div class="pointer-events-none absolute -top-8 -right-8 size-24 rounded-full bg-gold/25 blur-xl"></div>
+                <p class="relative flex items-center gap-2 text-sm font-semibold text-gold">
+                    <x-ui.icon name="sparkles" size="4" /> Grow faster
+                </p>
+                <p class="relative mt-1 text-xs text-white/80">Unlock more newsletters, delivery, sponsors and autopilot.</p>
+                <a href="{{ route('upgrades') }}" class="relative mt-3 flex min-h-10 items-center justify-center rounded-control border border-gold/60 text-sm font-semibold text-gold hover:bg-gold hover:text-navy">
+                    See all upgrades
+                </a>
+            </div>
             <a href="{{ route('support') }}" class="flex min-h-11 items-center gap-3 rounded-control px-3 text-sm font-medium text-muted hover:bg-subtle hover:text-ink">
                 <x-ui.icon name="question" size="4" /> Help
             </a>
@@ -80,7 +87,7 @@
     </aside>
 
     <div class="lg:pl-72">
-        <header class="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-line bg-card/90 px-4 backdrop-blur sm:px-6">
+        <header class="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-line bg-page/85 px-4 backdrop-blur sm:px-6">
             <button type="button" class="-ml-2 inline-flex size-11 items-center justify-center rounded-control text-muted hover:bg-subtle lg:hidden" x-on:click="nav = true" aria-label="Open menu">
                 <x-ui.icon name="bars-3" size="6" />
             </button>
@@ -116,7 +123,6 @@
                 @if ($currentNewsletter)
                     <x-ui.button variant="ghost" size="sm" :href="$currentNewsletter->publicUrl()" target="_blank" rel="noopener" icon="eye" class="hidden sm:inline-flex">View my page</x-ui.button>
                 @endif
-                <x-ui.theme-toggle />
                 <x-ui.dropdown>
                     <x-slot:trigger>
                         <button type="button" class="inline-flex size-11 items-center justify-center rounded-full text-muted hover:bg-subtle" aria-label="Account menu">

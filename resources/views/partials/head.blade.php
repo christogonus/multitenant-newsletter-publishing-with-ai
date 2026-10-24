@@ -4,13 +4,6 @@
 <title>{{ isset($title) && $title ? $title.' · ' : '' }}{{ config('app.name') }}</title>
 <link rel="icon" href="{{ asset('icon-square.webp') }}" type="image/webp">
 <link rel="apple-touch-icon" href="{{ asset('icon-touch.png') }}">
-<script>
-    (() => {
-        const stored = localStorage.getItem('theme');
-        const dark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-        document.documentElement.classList.toggle('dark', dark);
-    })();
-</script>
 @fonts
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 @livewireStyles

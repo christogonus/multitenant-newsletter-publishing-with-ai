@@ -1,4 +1,4 @@
-/* NewsPub AI: the customer area's colours (resources/css/app.css) on Laravel's default mail theme. */
+/* NewsletterPub AI: the customer area's colours (resources/css/app.css) on Laravel's default mail theme. */
 
 /* Base */
 
@@ -12,7 +12,7 @@ body *:not(html):not(style):not(br):not(tr):not(code) {
 
 body {
     -webkit-text-size-adjust: none;
-    background-color: #f8fafc;
+    background-color: #faf6ee;
     color: #475569;
     height: 100%;
     line-height: 1.4;
@@ -30,7 +30,7 @@ blockquote {
 }
 
 a {
-    color: #4f46e5;
+    color: #12245c;
 }
 
 a img {
@@ -40,7 +40,7 @@ a img {
 /* Typography */
 
 h1 {
-    color: #0f172a;
+    color: #0f1b3d;
     font-size: 18px;
     font-weight: bold;
     margin-top: 0;
@@ -48,7 +48,7 @@ h1 {
 }
 
 h2 {
-    color: #0f172a;
+    color: #0f1b3d;
     font-size: 16px;
     font-weight: bold;
     margin-top: 0;
@@ -56,7 +56,7 @@ h2 {
 }
 
 h3 {
-    color: #0f172a;
+    color: #0f1b3d;
     font-size: 14px;
     font-weight: bold;
     margin-top: 0;
@@ -84,7 +84,7 @@ img {
     -premailer-cellpadding: 0;
     -premailer-cellspacing: 0;
     -premailer-width: 100%;
-    background-color: #f8fafc;
+    background-color: #faf6ee;
     margin: 0;
     padding: 0;
     width: 100%;
@@ -107,7 +107,7 @@ img {
 }
 
 .header a {
-    color: #0f172a;
+    color: #0f1b3d;
     font-size: 19px;
     font-weight: bold;
     text-decoration: none;
@@ -129,9 +129,9 @@ img {
     -premailer-cellpadding: 0;
     -premailer-cellspacing: 0;
     -premailer-width: 100%;
-    background-color: #f8fafc;
-    border-bottom: 1px solid #f8fafc;
-    border-top: 1px solid #f8fafc;
+    background-color: #faf6ee;
+    border-bottom: 1px solid #faf6ee;
+    border-top: 1px solid #faf6ee;
     margin: 0;
     padding: 0;
     width: 100%;
@@ -243,11 +243,11 @@ img {
 
 .button-blue,
 .button-primary {
-    background-color: #4f46e5;
-    border-bottom: 8px solid #4f46e5;
-    border-left: 18px solid #4f46e5;
-    border-right: 18px solid #4f46e5;
-    border-top: 8px solid #4f46e5;
+    background-color: #12245c;
+    border-bottom: 8px solid #12245c;
+    border-left: 18px solid #12245c;
+    border-right: 18px solid #12245c;
+    border-top: 8px solid #12245c;
 }
 
 .button-green,
@@ -271,18 +271,18 @@ img {
 /* Panels */
 
 .panel {
-    border-left: #4f46e5 solid 4px;
+    border-left: #12245c solid 4px;
     margin: 21px 0;
 }
 
 .panel-content {
-    background-color: #eef2ff;
-    color: #3730a3;
+    background-color: #e9eefb;
+    color: #12245c;
     padding: 16px;
 }
 
 .panel-content p {
-    color: #3730a3;
+    color: #12245c;
 }
 
 .panel-item {
@@ -312,14 +312,14 @@ img {
 }
 
 .inner-body {
-    border-top: 4px solid #4f46e5;
+    border-top: 4px solid #12245c;
 }
 
 code {
     background-color: #ffffff;
     border: 1px solid #c7d2fe;
     border-radius: 4px;
-    color: #3730a3;
+    color: #12245c;
     font-weight: bold;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 15px;

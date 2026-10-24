@@ -1,11 +1,14 @@
 <div class="space-y-6">
     @if (! $newsletter)
-        <section class="relative overflow-hidden rounded-hero bg-brand px-6 py-12 text-white shadow-raised sm:px-12">
-            <div class="max-w-xl">
-                <p class="text-sm font-semibold tracking-wide text-white/80 uppercase">Welcome to {{ config('app.name') }}</p>
-                <h1 class="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Your newsletter is about 10 minutes away.</h1>
+        <section class="relative overflow-hidden rounded-hero bg-linear-to-br from-navy-soft via-navy to-navy px-6 py-12 text-white shadow-raised sm:px-12">
+            <div class="pointer-events-none absolute -top-24 -right-16 size-80 rounded-full bg-publish/40 blur-3xl"></div>
+            <div class="pointer-events-none absolute -bottom-28 right-1/4 size-72 rounded-full bg-gold/30 blur-3xl"></div>
+            <div class="pointer-events-none absolute top-10 right-10 hidden size-40 rounded-full bg-create/30 blur-2xl sm:block"></div>
+            <div class="relative max-w-xl">
+                <p class="text-sm font-semibold tracking-wide text-gold uppercase">Welcome to {{ config('app.name') }}</p>
+                <h1 class="mt-2 font-display text-4xl sm:text-5xl">Your newsletter is about 10 minutes away.</h1>
                 <p class="mt-3 text-base text-white/85">Pick a topic, and AI writes your first issue. You review it, press publish and share your link. No writing or tech skills needed.</p>
-                <a href="{{ route('newsletters.create') }}" class="mt-8 inline-flex min-h-14 items-center gap-2 rounded-control bg-white px-8 text-base font-bold text-brand-ink shadow-card hover:bg-brand-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                <a href="{{ route('newsletters.create') }}" class="mt-8 inline-flex min-h-14 items-center gap-2 rounded-control bg-gold px-8 text-base font-bold text-navy shadow-card hover:bg-gold-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
                     Start My Newsletter <x-ui.icon name="arrow-right" />
                 </a>
             </div>

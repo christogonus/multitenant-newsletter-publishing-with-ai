@@ -5,15 +5,10 @@
 </head>
 <body class="min-h-full bg-page font-sans">
     <header class="mx-auto flex w-full max-w-3xl items-center justify-between gap-4 px-4 py-6">
-        <a href="{{ route('login') }}" class="text-lg font-bold text-ink">
-            <img src="{{ asset('logo-dark-trim.webp') }}" alt="{{ config('app.name') }}" class="h-10 w-auto dark:hidden">
-            <span class="hidden items-center gap-2 dark:flex">
-                <img src="{{ asset('icon-square.webp') }}" alt="" class="size-9">
-                {{ config('app.name') }}
-            </span>
+        <a href="{{ route('login') }}">
+            <img src="{{ asset('logo-dark-trim.webp') }}" alt="{{ config('app.name') }}" class="h-10 w-auto">
         </a>
         <div class="flex items-center gap-2">
-            <x-ui.theme-toggle />
             <x-ui.button variant="secondary" size="sm" :href="route('login')" icon-right="arrow-right">Sign in</x-ui.button>
         </div>
     </header>
