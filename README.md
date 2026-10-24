@@ -1,58 +1,97 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# NewsPub AI
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+NewsPub AI lets a buyer start a newsletter business with AI. They pick a niche, the app researches fresh topics and writes each newsletter, and the buyer edits, publishes and grows a readership from one dashboard. Every publication gets its own public page on a subdomain (or, with an upgrade, the buyer's own domain), a subscribe form, and optional delivery to the email service the buyer already uses.
 
-## About Laravel
+It is sold as a lifetime deal on LaunchpadJV: a front-end product, an order bump and twelve upgrades (OTOs). Checkout happens on LaunchpadJV; this app receives the sale, creates the account and unlocks what the buyer paid for.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Products
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Product | Price | What it unlocks |
+| --- | --- | --- |
+| NewsPub AI (front end) | $17 | Up to 3 publications, 15 AI-written newsletters per publication per week |
+| Niche and Swipe Vault (bump) | $17 | Ranked niches, proven subject lines and a 30-day launch plan |
+| OTO 1 Delivery | $97 | Send newsletters through beehiiv, Ghost, Kit, Mailchimp, MailerLite, a webhook or an HTML export |
+| OTO 2 Silver | $67 | No publication cap and unlimited newsletters |
+| OTO 2 Gold | $97 | Silver, plus a priority writing queue and the premium AI model |
+| OTO 3 Growth | $97 | Sign-up pages, free gifts and reader referrals |
+| OTO 4 Sponsor | $97 | Sponsor directory, media kit, rate guide and paid newsletters (Stripe, PayPal or manual payments) |
+| OTO 5 Done-For-You | $127 | Ready-made publications with topics and first newsletters written |
+| OTO 6 Social | $67 | Turn each newsletter into social posts and video scripts |
+| OTO 7 Autopilot | $67 | Plan a month of newsletters and publish them on schedule |
+| OTO 8 Premium | $67 | Premium designs, logo and colours, and a custom domain |
+| OTO 9 Multi | $97 | One dashboard for every publication, its readers and its earnings |
+| OTO 10 Network | $97 | Swap recommendations with other publications |
+| OTO 11 Agency | $197 | Run publications for paying clients, with packages and contracts |
+| OTO 12 Reseller | $297 | Sell NewsPub AI accounts through license codes |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Each product is a Pennant feature that resolves from the `purchases` ledger, so refunds and chargebacks revoke access automatically. Product IDs and checkout links come from `config/products.php`.
 
-## Learning Laravel
+## How it works
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+1. **Sale.** LaunchpadJV posts an IPN to `/ipn/launchpad?key=…`. The app records it in the purchases ledger (idempotent on the transaction ID), creates the buyer if the email is new and sends a welcome email.
+2. **Writing.** The buyer asks for a newsletter. The app checks the weekly quota, runs an optional web-search research step (cached per niche) and has a `laravel/ai` agent write the newsletter as structured blocks on the Horizon `generation` queue. Gold buyers go to `generation-priority`.
+3. **Publishing.** The buyer edits the blocks and publishes. Blade renders the blocks into the public page and email-safe HTML, so no raw AI HTML is ever stored or shown.
+4. **Delivery.** With OTO 1, publishing pushes the newsletter to the buyer's connected platform and syncs subscribers on the `publishing` and `integrations` queues.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+One Laravel app serves three surfaces: the dashboard (Livewire, behind Fortify), public publication pages on subdomains and custom domains (`routes/public.php`), and internal endpoints such as the IPN and the proxy's domain check (`routes/internal.php`).
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## Stack
 
-## Agentic Development
+- PHP 8.5, Laravel 13
+- Livewire 4, Alpine and Tailwind v4 on a custom Blade component kit
+- `laravel/ai` for writing, research and provider failover (OpenAI by default, Anthropic as a backup)
+- `laravel/fortify` for authentication, `laravel/pennant` for product access
+- `laravel/horizon` on Redis for queues, `laravel/pulse` for monitoring
+- Pest for tests, Dusk for the signup-to-live browser journey
+- Ploi for hosting and custom-domain certificates
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Local setup
+
+The app is served by Laravel Herd at `https://newsletterpub.test`.
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer run setup
+php artisan db:seed
+php artisan newspub:make-admin you@example.com --name="Your Name"
+composer run dev
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Set `NEWSPUB_AI_FAKE=true` in `.env` to write newsletters with a fake writer instead of calling an AI provider. For real writing, set `OPENAI_API_KEY`, `NEWSPUB_AI_PROVIDER` and `NEWSPUB_AI_MODEL`.
 
-## Contributing
+Admins can create demo accounts with any mix of products under Admin → Buyers, which is the quickest way to try each upgrade.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Configuration
 
-## Code of Conduct
+The main `.env` settings beyond Laravel's defaults:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Setting | Purpose |
+| --- | --- |
+| `NEWSPUB_PUBLIC_ROOT` | Domain that publication subdomains live under |
+| `NEWSPUB_SUPPORT_EMAIL`, `NEWSPUB_ALERT_EMAIL` | Support address shown to buyers; where admin alerts go |
+| `NEWSPUB_DEFAULT_PASSWORD` | Starting password given to new buyers |
+| `NEWSPUB_AI_PROVIDER`, `NEWSPUB_AI_MODEL`, `NEWSPUB_AI_PREMIUM_MODEL` | AI providers (comma-separated for failover) and models |
+| `NEWSPUB_AI_PRICE_INPUT`, `NEWSPUB_AI_PRICE_OUTPUT`, `NEWSPUB_AI_DAILY_SPEND_ALERT` | Token prices and the daily spend alert |
+| `LAUNCHPAD_WEBHOOK_KEY` | Secret in the IPN URL |
+| `LAUNCHPAD_PRODUCT_*`, `CHECKOUT_*` | LaunchpadJV product IDs and checkout links per product |
+| `NEWSPUB_CERTIFICATES`, `PLOI_*`, `NEWSPUB_SERVER_IP` | Custom-domain certificates through Ploi |
 
-## Security Vulnerabilities
+## Artisan commands
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+| Command | What it does |
+| --- | --- |
+| `newspub:make-admin` | Create an admin account or promote an existing one (`--revoke` removes admin access) |
+| `newspub:apply-default-password` | Give buyers who never set a password the default password (`--dry-run` to count first) |
+| `newspub:publish-scheduled` | Publish Autopilot newsletters whose time has come (every minute) |
+| `newspub:check-domain-certificates` | Check certificate status of custom domains (every 10 minutes) |
+| `newspub:check-ai-spend` | Email admins when AI spend passes the daily alert (hourly) |
 
-## License
+## Tests
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+php artisan test --compact
+php artisan dusk
+```
+
+## Deployment
+
+See [DEPLOY-CHECKLIST.md](DEPLOY-CHECKLIST.md) for the Ploi server, environment, deploy script, scheduler, Horizon daemon and smoke test. [HOW-TO-ADD-BUMP.md](HOW-TO-ADD-BUMP.md) covers setting up order bumps, and [TODO.md](TODO.md) lists deferred features.
