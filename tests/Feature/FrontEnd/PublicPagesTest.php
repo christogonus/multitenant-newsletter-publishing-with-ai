@@ -154,6 +154,21 @@ test('a reader can unsubscribe and delete their details with a signed link', fun
     expect(Subscriber::count())->toBe(0);
 });
 
+test('publication pages never carry the app icon or logo', function () {
+    $newsletter = Newsletter::factory()->create(['name' => 'Garden Weekly']);
+    $subscriber = Subscriber::factory()->for($newsletter)->create();
+
+    $pages = [
+        $this->get(publicationUrl($newsletter)),
+        $this->get(URL::signedRoute('readers.unsubscribe', ['subscriber' => $subscriber->id])),
+        $this->post(URL::signedRoute('readers.delete', ['subscriber' => $subscriber->id])),
+    ];
+
+    foreach ($pages as $page) {
+        $page->assertOk()->assertSee('Garden Weekly')->assertDontSee('icon-square.webp')->assertDontSee('icon-touch.png')->assertDontSee('logo-dark');
+    }
+});
+
 test('unsigned reader links are rejected', function () {
     $subscriber = Subscriber::factory()->create();
 

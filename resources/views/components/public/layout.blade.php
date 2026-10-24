@@ -6,7 +6,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title ? $title.' · '.$newsletter->name : $newsletter->name }}</title>
+    {{-- Only the owner's logo, never the app's icon: publications carry the owner's brand alone. --}}
     <link rel="icon" href="{{ $theme['logo_url'] ?: 'data:,' }}">
+    @if ($theme['logo_url'])
+        <link rel="apple-touch-icon" href="{{ $theme['logo_url'] }}">
+    @endif
     <meta name="description" content="{{ $description ?? $newsletter->tagline ?? 'A newsletter about '.$newsletter->niche }}">
     <meta property="og:title" content="{{ $title ?? $newsletter->name }}">
     <meta property="og:description" content="{{ $description ?? $newsletter->tagline ?? $newsletter->niche }}">

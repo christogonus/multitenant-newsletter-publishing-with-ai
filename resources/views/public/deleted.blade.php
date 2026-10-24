@@ -1,4 +1,6 @@
-<x-layouts::auth title="Details deleted">
-    <x-slot:heading>Your details are gone</x-slot:heading>
-    <x-slot:subheading>We erased your email from {{ $name }}.</x-slot:subheading>
-</x-layouts::auth>
+<x-public.layout :newsletter="$newsletter" :theme="$theme" title="Details deleted">
+    <main class="card">
+        <h1 style="font-size: 28px;">Your details are gone</h1>
+        <p>We erased your email from {{ $newsletter->name }}.</p>
+    </main>
+</x-public.layout>
