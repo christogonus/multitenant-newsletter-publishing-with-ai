@@ -15,7 +15,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Title('Start your newsletter')]
+#[Title('Start your publication')]
 class CreatePublication extends Component
 {
     use InteractsWithPublication;

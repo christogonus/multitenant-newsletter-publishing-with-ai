@@ -10,7 +10,7 @@ use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-#[Title('Issues')]
+#[Title('Newsletters')]
 class Index extends Component
 {
     use InteractsWithPublication, WithPagination;

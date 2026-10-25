@@ -17,7 +17,7 @@
     @if ($tab === 'sponsors')
         @if ($unchecked > 0)
             <x-ui.alert tone="warning" title="{{ $unchecked }} {{ \Illuminate\Support\Str::plural('entry', $unchecked) }} not checked yet">
-                Open each website, confirm the programme is real and still taking newsletters, then press "Mark checked". Hide any that are not.
+                Open each website, confirm the programme is real and still taking publications, then press "Mark checked". Hide any that are not.
             </x-ui.alert>
         @endif
 

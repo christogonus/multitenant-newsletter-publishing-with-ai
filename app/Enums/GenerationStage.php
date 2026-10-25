@@ -13,7 +13,7 @@ enum GenerationStage: string
     {
         return match ($this) {
             self::Researching => 'Finding fresh stories',
-            self::Writing => 'Writing your issue',
+            self::Writing => 'Writing your newsletter',
             self::Designing => 'Laying out the page',
             self::Done => 'Ready',
         };

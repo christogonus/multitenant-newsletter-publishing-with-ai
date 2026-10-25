@@ -1,7 +1,7 @@
 <div class="space-y-6">
     @if ($issue->status === \App\Enums\IssueStatus::Generating)
         <div wire:poll.2s="refreshGeneration">
-            <x-ui.page-header :title="$issue->topic ?: 'Your new issue'" description="Hang tight. This usually takes under a minute." icon="sparkles" area="create" :back="route('issues.index')" />
+            <x-ui.page-header :title="$issue->topic ?: 'Your new newsletter'" description="Hang tight. This usually takes under a minute." icon="sparkles" area="create" :back="route('issues.index')" />
 
             @php
                 $stages = [\App\Enums\GenerationStage::Researching, \App\Enums\GenerationStage::Writing, \App\Enums\GenerationStage::Designing];
@@ -43,14 +43,14 @@
         </div>
     @elseif ($issue->status === \App\Enums\IssueStatus::Failed)
         <x-ui.page-header :title="$issue->title" icon="sparkles" area="create" :back="route('issues.index')" />
-        <x-ui.alert tone="danger" title="This issue did not finish">
-            {{ $issue->generation_error ?: 'Something went wrong while writing.' }} It did not count toward your weekly issues.
+        <x-ui.alert tone="danger" title="This newsletter did not finish">
+            {{ $issue->generation_error ?: 'Something went wrong while writing.' }} It did not count toward your weekly newsletters.
             <x-slot:actions>
                 <x-ui.button wire:click="retry" icon="retry" loading="retry" area="create">Try again</x-ui.button>
             </x-slot:actions>
         </x-ui.alert>
     @else
-        <x-ui.page-header :title="$title ?: 'Untitled issue'" icon="pencil-square" area="create" :back="route('issues.index')">
+        <x-ui.page-header :title="$title ?: 'Untitled newsletter'" icon="pencil-square" area="create" :back="route('issues.index')">
             <x-slot:actions>
                 <x-ui.pill :tone="$issue->status->tone()">{{ $issue->status->label() }}</x-ui.pill>
                 <x-ui.dropdown>
@@ -100,7 +100,7 @@
                             <div>
                                 <x-ui.checkbox wire:model.live="paidOnly" label="Paying readers only" hint="Everyone sees the title and the opening up to the first paragraph. Paying readers sign in with their email to read the rest." />
                                 @if ($paidOnly && ! $this->newsletter->hasPaidSubscriptions())
-                                    <x-ui.alert tone="warning" class="mt-2">This issue stays free until you turn on paid subscriptions. <a href="{{ route('sponsors.index', ['tab' => 'paid']) }}" class="font-semibold underline">Set them up</a></x-ui.alert>
+                                    <x-ui.alert tone="warning" class="mt-2">This newsletter stays free until you turn on paid subscriptions. <a href="{{ route('sponsors.index', ['tab' => 'paid']) }}" class="font-semibold underline">Set them up</a></x-ui.alert>
                                 @endif
                             </div>
                         @endif
@@ -174,7 +174,7 @@
                     </ul>
 
                     @if ($blocks === [])
-                        <x-ui.empty-state icon="document-text" area="create" title="This issue is empty" description="Add a heading or some text to get started." />
+                        <x-ui.empty-state icon="document-text" area="create" title="This newsletter is empty" description="Add a heading or some text to get started." />
                     @endif
 
                     <div class="mt-4 flex flex-wrap gap-2">
@@ -195,7 +195,7 @@
                         <iframe
                             wire:key="preview-{{ $previewVersion }}"
                             src="{{ route('issues.preview', $issue) }}?v={{ $previewVersion }}"
-                            title="Issue preview"
+                            title="Newsletter preview"
                             class="h-[70vh] w-full rounded-b-card bg-white"
                             loading="lazy"
                         ></iframe>
@@ -205,7 +205,7 @@
         </div>
         </div>
 
-        <x-ui.modal name="schedule" title="Schedule this issue">
+        <x-ui.modal name="schedule" title="Schedule this newsletter">
             <p class="mb-4 text-sm text-muted">It goes live on your page at this time, and to your connected email services if auto-send is on.</p>
             <x-ui.input type="datetime-local" wire:model="scheduleAt" label="Date and time" />
             <x-slot:footer>
@@ -214,11 +214,11 @@
             </x-slot:footer>
         </x-ui.modal>
 
-        <x-ui.modal name="delete-issue" title="Delete this issue?" max-width="md">
+        <x-ui.modal name="delete-issue" title="Delete this newsletter?" max-width="md">
             <p class="text-sm text-muted">It is removed from your page and cannot be brought back.</p>
             <x-slot:footer>
                 <x-ui.button variant="secondary" x-on:click="open = false">Keep it</x-ui.button>
-                <x-ui.button variant="danger" wire:click="delete" loading="delete">Delete issue</x-ui.button>
+                <x-ui.button variant="danger" wire:click="delete" loading="delete">Delete newsletter</x-ui.button>
             </x-slot:footer>
         </x-ui.modal>
     @endif

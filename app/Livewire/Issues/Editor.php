@@ -94,7 +94,7 @@ class Editor extends Component
             'subjectLine' => ['nullable', 'string', 'max:150'],
             'preheader' => ['nullable', 'string', 'max:200'],
         ], [
-            'title.required' => 'Give your issue a title.',
+            'title.required' => 'Give your newsletter a title.',
         ]);
 
         $this->blocks = Blocks::normalize($this->blocks);
@@ -211,7 +211,7 @@ class Editor extends Component
         $this->authorize('update', $this->issue);
         $publishIssue->unpublish($this->issue);
         $this->issue->refresh();
-        $this->toast('Your issue is now a draft and hidden from your page.');
+        $this->toast('Your newsletter is now a draft and hidden from your page.');
     }
 
     public function schedule(): void

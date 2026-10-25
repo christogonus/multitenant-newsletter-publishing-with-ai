@@ -25,13 +25,13 @@ class Index extends Component
         try {
             $newsletter = $installKit->handle($this->user(), $kit);
         } catch (PublicationLimitReachedException) {
-            $this->toast('You have reached your newsletter limit. Upgrade to Unlimited Creation to run as many as you like.', 'warning');
+            $this->toast('You have reached your publication limit. Upgrade to Unlimited Creation to run as many as you like.', 'warning');
 
             return;
         }
 
         $this->redirectRoute('dashboard');
-        session()->flash('toast', ['message' => $newsletter->name.' is installed with '.count($kit->seed_issues).' ready issues.', 'tone' => 'success']);
+        session()->flash('toast', ['message' => $newsletter->name.' is installed with '.count($kit->seed_issues).' ready newsletters.', 'tone' => 'success']);
     }
 
     public function render(): View

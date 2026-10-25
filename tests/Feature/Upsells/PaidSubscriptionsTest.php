@@ -80,7 +80,7 @@ test('a locked issue shows only its opening and a continue-reading prompt', func
         ->assertSee('Opening heading')
         ->assertSee('Free opening paragraph.')
         ->assertDontSee('Secret paying part.')
-        ->assertSee('The rest of this issue is for paying readers')
+        ->assertSee('The rest of this newsletter is for paying readers')
         ->assertSee(publicationUrl($newsletter, 'members?next='.$issue->public_slug), false);
 });
 

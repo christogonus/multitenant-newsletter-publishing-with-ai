@@ -1,17 +1,17 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Publication settings" description="How your newsletter is named, written and found." icon="adjustments" area="publish" />
+    <x-ui.page-header title="Publication settings" description="How your publication is named, written and found." icon="adjustments" area="publish" />
 
     <form wire:submit="save" class="space-y-6">
         <x-ui.card title="Basics">
             <div class="grid gap-5 sm:grid-cols-2">
-                <x-ui.input wire:model="name" label="Newsletter name" />
+                <x-ui.input wire:model="name" label="Publication name" />
                 <x-ui.input wire:model="tagline" label="Tagline" hint="One line under your name on your page." optional />
                 <x-ui.input wire:model="niche" label="Topic" />
                 <x-ui.segmented wire:model="frequency" label="How often" :options="$frequencies" />
             </div>
         </x-ui.card>
 
-        <x-ui.card title="How the AI writes" description="These notes guide every issue.">
+        <x-ui.card title="How the AI writes" description="These notes guide every newsletter.">
             <div class="space-y-5">
                 <x-ui.input wire:model="audience" label="Who is it for?" optional />
                 <x-ui.textarea wire:model="voice" label="Voice and style" rows="3" optional placeholder="For example: warm and funny, short sentences, uses everyday examples" />
@@ -41,12 +41,12 @@
     </form>
 
     <x-ui.card title="Delete this publication" class="border-danger/40">
-        <p class="text-sm text-muted">Removes the page, every issue and every reader. This cannot be undone.</p>
+        <p class="text-sm text-muted">Removes the page, every newsletter and every reader. This cannot be undone.</p>
         <x-ui.button variant="danger" class="mt-4" x-on:click="$dispatch('open-modal', 'delete-publication')" icon="trash">Delete publication</x-ui.button>
     </x-ui.card>
 
     <x-ui.modal name="delete-publication" title="Delete {{ $name }}?" max-width="md">
-        <x-ui.input wire:model="confirmName" label="Type the newsletter name to confirm" />
+        <x-ui.input wire:model="confirmName" label="Type the publication name to confirm" />
         <x-slot:footer>
             <x-ui.button variant="secondary" x-on:click="open = false">Cancel</x-ui.button>
             <x-ui.button variant="danger" wire:click="deletePublication" loading="deletePublication">Delete forever</x-ui.button>

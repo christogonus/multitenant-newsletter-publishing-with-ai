@@ -8,7 +8,7 @@
 
             <div class="section" style="position: relative; margin-top: 8px; padding: 28px 24px; border: 2px solid var(--accent); border-radius: var(--radius); text-align: center;">
                 <p style="font-size: 28px; margin: 0;" aria-hidden="true">&#128274;</p>
-                <h2 style="font-size: 22px; margin: 8px 0;">The rest of this issue is for paying readers</h2>
+                <h2 style="font-size: 22px; margin: 8px 0;">The rest of this newsletter is for paying readers</h2>
                 @if ($newsletter->paid_perks)
                     <p class="muted">{{ \Illuminate\Support\Str::limit($newsletter->paid_perks, 240) }}</p>
                 @endif
@@ -25,7 +25,7 @@
     </article>
 
     <div class="card section">
-        <x-public.subscribe-form :newsletter="$newsletter" :heading="'Get the next issue of '.$newsletter->name" button="Subscribe" />
+        <x-public.subscribe-form :newsletter="$newsletter" :heading="'Get the next newsletter from '.$newsletter->name" button="Subscribe" />
     </div>
 
     @include('public.partials.recommendations')

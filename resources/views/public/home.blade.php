@@ -6,9 +6,9 @@
     </main>
 
     <section class="section">
-        <h2 class="on-bg" style="font-size: 20px;">Latest issues</h2>
+        <h2 class="on-bg" style="font-size: 20px;">Latest newsletters</h2>
         @if ($issues->isEmpty())
-            <div class="card"><p class="muted" style="margin: 0;">The first issue is on its way. Subscribe so you do not miss it.</p></div>
+            <div class="card"><p class="muted" style="margin: 0;">The first newsletter is on its way. Subscribe so you do not miss it.</p></div>
         @else
             <div class="card" style="padding-top: 8px; padding-bottom: 8px;">
                 <ul class="issue-list">

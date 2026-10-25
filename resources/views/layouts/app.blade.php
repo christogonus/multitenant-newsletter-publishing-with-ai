@@ -75,7 +75,7 @@
                 <p class="relative flex items-center gap-2 text-sm font-semibold text-gold">
                     <x-ui.icon name="sparkles" size="4" /> Grow faster
                 </p>
-                <p class="relative mt-1 text-xs text-white/80">Unlock more newsletters, delivery, sponsors and autopilot.</p>
+                <p class="relative mt-1 text-xs text-white/80">Unlock more publications, delivery, sponsors and autopilot.</p>
                 <a href="{{ route('upgrades') }}" class="relative mt-3 flex min-h-10 items-center justify-center rounded-control border border-gold/60 text-sm font-semibold text-gold hover:bg-gold hover:text-navy">
                     See all upgrades
                 </a>
@@ -109,12 +109,12 @@
                     @endforeach
                     <div class="my-1 border-t border-line"></div>
                     @if ($canCreatePublication)
-                        <x-ui.dropdown-item :href="route('newsletters.create')" icon="plus">New newsletter</x-ui.dropdown-item>
+                        <x-ui.dropdown-item :href="route('newsletters.create')" icon="plus">New publication</x-ui.dropdown-item>
                     @elseif (! $entitlements->hasUnlimitedIssues($user))
-                        <x-ui.dropdown-item :href="route('upgrades')" icon="sparkles">Run more newsletters</x-ui.dropdown-item>
+                        <x-ui.dropdown-item :href="route('upgrades')" icon="sparkles">Run more publications</x-ui.dropdown-item>
                     @endif
                     @if ($hasPortfolio)
-                        <x-ui.dropdown-item :href="route('publications.index')" icon="squares">All newsletters dashboard</x-ui.dropdown-item>
+                        <x-ui.dropdown-item :href="route('publications.index')" icon="squares">All publications dashboard</x-ui.dropdown-item>
                     @endif
                 </x-ui.dropdown>
             @endif

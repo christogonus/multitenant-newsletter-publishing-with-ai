@@ -4,12 +4,12 @@
     $faqs = [
         'I did not get the welcome email' => 'Check your spam, junk and promotions folders, and add '.config('mail.from.address').' to your contacts. Some email providers block messages from new senders. You do not need the email to get started: your login details are always at '.route('access').'.',
         'My password does not work' => 'If you have already changed your password, use the one you chose. Forgotten it? Use "Forgot password" on the sign-in page and we will email you a link to choose a new one.',
-        'How do I get my first issue out?' => 'Press "Write a new issue" on Home. The AI writes it in about a minute. Read it, change anything you like, then press Publish. You get a link to share straight away.',
-        'Where do my readers sign up?' => 'Every newsletter has its own page with a sign-up box. Find the link under "View my page" at the top of the screen. Share it in your bio, in posts and with friends.',
-        'Do my readers get emails?' => 'Your page shows every issue. To send issues to inboxes, connect an email service such as beehiiv, Kit or Mailchimp from "Email services". That service sends the emails and asks new readers to confirm they want them.',
-        'How many newsletters and issues can I have?' => 'You can run up to 3 newsletters, and write 15 issues for each one every 7 days. Issues free up again as the week rolls on. Unlimited Creation removes both limits.',
+        'How do I get my first newsletter out?' => 'Press "Create newsletter" on Home. The AI writes it in about a minute. Read it, change anything you like, then press Publish. You get a link to share straight away.',
+        'Where do my readers sign up?' => 'Every publication has its own page with a sign-up box. Find the link under "View my page" at the top of the screen. Share it in your bio, in posts and with friends.',
+        'Do my readers get emails?' => 'Your page shows every newsletter. To send newsletters to inboxes, connect an email service such as beehiiv, Kit or Mailchimp from "Email services". That service sends the emails and asks new readers to confirm they want them.',
+        'How many publications and newsletters can I have?' => 'You can run up to 3 publications, and write 15 newsletters for each one every 7 days. Newsletters free up again as the week rolls on. Unlimited Creation removes both limits.',
         'Can I change what the AI wrote?' => 'Yes. Every heading, paragraph and list is editable. Drag the handle to reorder. Changes save on their own.',
-        'Something says "Needs a retry"' => 'Sometimes the writer cannot finish. Open the issue and press "Try again". Failed attempts never count toward your weekly issues.',
+        'Something says "Needs a retry"' => 'Sometimes the writer cannot finish. Open the newsletter and press "Try again". Failed attempts never count toward your weekly newsletters.',
         'I bought an upgrade but it is still locked' => 'Upgrades unlock within a minute of payment. Refresh the page. If it is still locked after 10 minutes, email us with your receipt.',
         'How do I get a refund?' => 'Refunds are handled by the store you bought from. Once refunded, the matching feature is switched off automatically.',
     ];

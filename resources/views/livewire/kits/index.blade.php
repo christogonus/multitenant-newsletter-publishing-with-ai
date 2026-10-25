@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Ready-made kits" description="Install a complete newsletter: name, voice, a month of topics and first issues already written." icon="stack" area="create">
+    <x-ui.page-header title="Ready-made kits" description="Install a complete publication: name, voice, a month of topics and first newsletters already written." icon="stack" area="create">
         <x-slot:actions>
             <x-ui.badge tone="create">{{ $limit === null ? 'Unlimited publications' : $used.' of '.$limit.' publications used' }}</x-ui.badge>
         </x-slot:actions>
@@ -20,7 +20,7 @@
                 <dl class="mt-4 space-y-2 text-sm">
                     <div class="flex gap-2"><dt class="w-20 shrink-0 text-muted">Topic</dt><dd class="text-ink">{{ $kit->niche }}</dd></div>
                     <div class="flex gap-2"><dt class="w-20 shrink-0 text-muted">Readers</dt><dd class="text-ink">{{ $kit->audience }}</dd></div>
-                    <div class="flex gap-2"><dt class="w-20 shrink-0 text-muted">Includes</dt><dd class="text-ink">{{ count($kit->topics) }} topics, {{ count($kit->seed_issues) }} ready issues</dd></div>
+                    <div class="flex gap-2"><dt class="w-20 shrink-0 text-muted">Includes</dt><dd class="text-ink">{{ count($kit->topics) }} topics, {{ count($kit->seed_issues) }} ready newsletters</dd></div>
                 </dl>
                 <div class="mt-5 flex justify-end">
                     @if (in_array($kit->key, $installed, true))
@@ -37,10 +37,10 @@
 
     <x-ui.card title="Your commercial rights" description="What you may do with kit content.">
         <ul class="space-y-2 text-sm text-ink">
-            <li class="flex gap-2"><x-ui.icon name="check" size="4" class="mt-0.5 text-success" />Publish kit issues under your own name and brand.</li>
+            <li class="flex gap-2"><x-ui.icon name="check" size="4" class="mt-0.5 text-success" />Publish kit newsletters under your own name and brand.</li>
             <li class="flex gap-2"><x-ui.icon name="check" size="4" class="mt-0.5 text-success" />Edit, rewrite and add to anything in a kit.</li>
-            <li class="flex gap-2"><x-ui.icon name="check" size="4" class="mt-0.5 text-success" />Earn money from newsletters built on a kit, including sponsors and paid subscriptions.</li>
-            <li class="flex gap-2"><x-ui.icon name="check" size="4" class="mt-0.5 text-success" />Run a kit newsletter for a client.</li>
+            <li class="flex gap-2"><x-ui.icon name="check" size="4" class="mt-0.5 text-success" />Earn money from publications built on a kit, including sponsors and paid subscriptions.</li>
+            <li class="flex gap-2"><x-ui.icon name="check" size="4" class="mt-0.5 text-success" />Run a kit publication for a client.</li>
             <li class="flex gap-2"><x-ui.icon name="x-mark" size="4" class="mt-0.5 text-danger" />Resell or give away the kits themselves as a product.</li>
         </ul>
     </x-ui.card>

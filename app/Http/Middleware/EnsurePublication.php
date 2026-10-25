@@ -20,7 +20,7 @@ class EnsurePublication
     {
         if (! $request->user()?->newsletters()->exists()) {
             return redirect()->route('newsletters.create')
-                ->with('toast', ['message' => 'Let’s set up your newsletter first. It takes about a minute.', 'tone' => 'danger']);
+                ->with('toast', ['message' => 'Let’s set up your publication first. It takes about a minute.', 'tone' => 'danger']);
         }
 
         return $next($request);

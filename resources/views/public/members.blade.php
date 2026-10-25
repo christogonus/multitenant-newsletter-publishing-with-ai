@@ -1,6 +1,6 @@
 <x-public.layout :newsletter="$newsletter" :theme="$theme" title="Paying readers">
     <main class="card">
-        <h1 style="font-size: 28px;">{{ $hasAccess ? 'You are a paying reader' : 'Read every issue of '.$newsletter->name }}</h1>
+        <h1 style="font-size: 28px;">{{ $hasAccess ? 'You are a paying reader' : 'Read every newsletter from '.$newsletter->name }}</h1>
 
         @if (session('status'))
             <p role="status"><strong>{{ session('status') }}</strong></p>
@@ -47,7 +47,7 @@
                     @if ($nextUrl)
                         <a class="btn" href="{{ $nextUrl }}">Continue reading</a>
                     @else
-                        <a class="btn" href="{{ \App\Support\PublicLinks::route('archive') }}">Read past issues</a>
+                        <a class="btn" href="{{ \App\Support\PublicLinks::route('archive') }}">Read past newsletters</a>
                     @endif
                 </p>
             @else

@@ -1,16 +1,16 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Social posts" description="Turn any issue into posts and video scripts that bring readers back to your page." icon="share" area="social" />
+    <x-ui.page-header title="Social posts" description="Turn any newsletter into posts and video scripts that bring readers back to your page." icon="share" area="social" />
 
     @if ($issues->isEmpty())
         <x-ui.card>
-            <x-ui.empty-state icon="newspaper" area="social" title="Write an issue first" description="Social posts are made from your issues.">
-                <x-ui.button :href="route('issues.create')" area="social" icon="sparkles">Write an issue</x-ui.button>
+            <x-ui.empty-state icon="newspaper" area="social" title="Write a newsletter first" description="Social posts are made from your newsletters.">
+                <x-ui.button :href="route('issues.create')" area="social" icon="sparkles">Write a newsletter</x-ui.button>
             </x-ui.empty-state>
         </x-ui.card>
     @else
         <x-ui.card>
             <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
-                <x-ui.select wire:model.live="issue" label="Issue" :options="$issues->all()" class="flex-1" />
+                <x-ui.select wire:model.live="issue" label="Newsletter" :options="$issues->all()" class="flex-1" />
                 <x-ui.button wire:click="generateAll" area="social" icon="sparkles" loading="generateAll">Make all three</x-ui.button>
             </div>
         </x-ui.card>
@@ -39,7 +39,7 @@
         </div>
 
         @if ($selected && ! $selected->isPublished())
-            <x-ui.alert tone="warning">This issue is not live yet. Publish it before sharing posts, so the link in them works.</x-ui.alert>
+            <x-ui.alert tone="warning">This newsletter is not live yet. Publish it before sharing posts, so the link in them works.</x-ui.alert>
         @endif
     @endif
 </div>

@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Cross-promo network" description="Team up with other newsletters and recommend each other on your pages." icon="swap" area="grow" />
+    <x-ui.page-header title="Cross-promo network" description="Team up with other publications and recommend each other on your pages." icon="swap" area="grow" />
 
     <x-ui.card :title="$mine ? 'Your listing' : 'Join the network'" description="This is what other members see.">
         <form wire:submit="saveListing" class="grid gap-4 sm:grid-cols-[14rem_1fr_auto] sm:items-start">
@@ -38,7 +38,7 @@
 
         <x-ui.card title="Your partners" description="Up to three partners appear on your page. The most active ones are shown first.">
             @if ($partners->isEmpty())
-                <x-ui.empty-state icon="swap" area="grow" title="No partners yet" description="Send a request to a newsletter below. When they accept, you recommend each other." />
+                <x-ui.empty-state icon="swap" area="grow" title="No partners yet" description="Send a request to a publication below. When they accept, you recommend each other." />
             @else
                 <ul class="divide-y divide-line">
                     @foreach ($partners as $swap)

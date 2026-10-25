@@ -1,7 +1,7 @@
 <x-public.layout :newsletter="$newsletter" :theme="$theme" title="You are in">
     <main class="card">
         <h1 style="font-size: 28px;">You are on the list</h1>
-        <p>Thanks for subscribing to {{ $newsletter->name }}. You may get an email asking you to confirm. Click it so the next issue reaches you.</p>
+        <p>Thanks for subscribing to {{ $newsletter->name }}. You may get an email asking you to confirm. Click it so the next newsletter reaches you.</p>
 
         @if ($subscriber && $referralsEnabled)
             <div class="section">
@@ -20,6 +20,6 @@
             </div>
         @endif
 
-        <p class="section"><a class="btn secondary" href="{{ \App\Support\PublicLinks::route('home') }}">Read past issues</a></p>
+        <p class="section"><a class="btn secondary" href="{{ \App\Support\PublicLinks::route('home') }}">Read past newsletters</a></p>
     </main>
 </x-public.layout>

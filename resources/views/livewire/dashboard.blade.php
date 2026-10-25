@@ -7,7 +7,7 @@
             <div class="relative max-w-xl">
                 <p class="text-sm font-semibold tracking-wide text-gold uppercase">Welcome to {{ config('app.name') }}</p>
                 <h1 class="mt-2 font-display text-4xl sm:text-5xl">Your newsletter is about 10 minutes away.</h1>
-                <p class="mt-3 text-base text-white/85">Pick a topic, and AI writes your first issue. You review it, press publish and share your link. No writing or tech skills needed.</p>
+                <p class="mt-3 text-base text-white/85">Pick a topic, and AI writes your first newsletter. You review it, press publish and share your link. No writing or tech skills needed.</p>
                 <a href="{{ route('newsletters.create') }}" class="mt-8 inline-flex min-h-14 items-center gap-2 rounded-control bg-gold px-8 text-base font-bold text-navy shadow-card hover:bg-gold-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
                     Start My Newsletter <x-ui.icon name="arrow-right" />
                 </a>
@@ -15,7 +15,7 @@
         </section>
 
         <x-ui.card title="What happens next">
-            <x-ui.stepper :steps="['Pick your niche', 'Review your first issue', 'Publish', 'Share your link']" :current="0" />
+            <x-ui.stepper :steps="['Pick your niche', 'Review your first newsletter', 'Publish', 'Share your link']" :current="0" />
         </x-ui.card>
     @else
         @php
@@ -25,7 +25,7 @@
 
         <x-ui.page-header :title="$newsletter->name" :description="$newsletter->tagline ?: 'A newsletter about '.$newsletter->niche" icon="newspaper">
             <x-slot:actions>
-                <x-ui.button :href="route('issues.create')" icon="sparkles" size="lg">Write a new issue</x-ui.button>
+                <x-ui.button :href="route('issues.create')" icon="sparkles" size="lg">Create newsletter</x-ui.button>
             </x-slot:actions>
         </x-ui.page-header>
 
@@ -56,19 +56,19 @@
         @endif
 
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <x-ui.stat-card label="Issues left this week" :value="$unlimited ? 'Unlimited' : $remaining.' of '.$weeklyLimit" icon="sparkles" area="create" />
+            <x-ui.stat-card label="Newsletters left this week" :value="$unlimited ? 'Unlimited' : $remaining.' of '.$weeklyLimit" icon="sparkles" area="create" />
             <x-ui.stat-card label="Readers" :value="number_format($readers)" icon="users" area="publish" />
-            <x-ui.stat-card label="Live issues" :value="$liveIssues" icon="globe" area="grow" />
-            <x-ui.stat-card label="Issue views" :value="number_format($views)" hint="People who read on your page" icon="eye" area="grow" />
+            <x-ui.stat-card label="Live newsletters" :value="$liveIssues" icon="globe" area="grow" />
+            <x-ui.stat-card label="Newsletter views" :value="number_format($views)" hint="People who read on your page" icon="eye" area="grow" />
         </div>
 
-        <x-ui.card title="Recent issues">
+        <x-ui.card title="Recent newsletters">
             <x-slot:actions>
-                <x-ui.button variant="ghost" size="sm" :href="route('issues.index')" icon-right="arrow-right">All issues</x-ui.button>
+                <x-ui.button variant="ghost" size="sm" :href="route('issues.index')" icon-right="arrow-right">All newsletters</x-ui.button>
             </x-slot:actions>
             @if ($recentIssues->isEmpty())
-                <x-ui.empty-state icon="newspaper" area="create" title="No issues yet" description="Your first issue takes about a minute to write.">
-                    <x-ui.button :href="route('issues.create')" icon="sparkles">Write my first issue</x-ui.button>
+                <x-ui.empty-state icon="newspaper" area="create" title="No newsletters yet" description="Your first newsletter takes about a minute to write.">
+                    <x-ui.button :href="route('issues.create')" icon="sparkles">Write my first newsletter</x-ui.button>
                 </x-ui.empty-state>
             @else
                 <ul class="-my-2 divide-y divide-line">

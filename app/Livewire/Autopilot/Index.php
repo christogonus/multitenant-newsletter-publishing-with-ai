@@ -110,7 +110,7 @@ class Index extends Component
             try {
                 $issue = $startIssueGeneration->handle($newsletter, $item->topic, scheduledFor: $item->scheduled_for);
             } catch (QuotaExceededException $exception) {
-                $this->toast($started > 0 ? "Started {$started} issues. ".$exception->getMessage() : $exception->getMessage(), 'warning');
+                $this->toast($started > 0 ? "Started {$started} newsletters. ".$exception->getMessage() : $exception->getMessage(), 'warning');
 
                 return;
             }
@@ -119,7 +119,7 @@ class Index extends Component
             $started++;
         }
 
-        $this->toast($started > 0 ? "Writing {$started} issues. Each one goes live on its date. You can review them any time." : 'Nothing left to write.');
+        $this->toast($started > 0 ? "Writing {$started} newsletters. Each one goes live on its date. You can review them any time." : 'Nothing left to write.');
     }
 
     public function render(): View

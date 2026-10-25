@@ -39,7 +39,7 @@ class Navigation
                 'area' => Area::Create,
                 'label' => 'Create',
                 'items' => [
-                    $item('Issues', 'issues.index', 'newspaper', active: 'issues.*'),
+                    $item('Newsletters', 'issues.index', 'newspaper', active: 'issues.*'),
                     $item('Design', 'design.index', 'swatch'),
                     $item('Ready-made kits', 'kits.index', 'stack', Product::Oto5Dfy),
                     $item('Niche vault', 'vault.index', 'archive', Product::BumpVault),

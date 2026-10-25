@@ -47,7 +47,7 @@
 
     <x-ui.card title="Top referrers">
         @if ($topReferrers->isEmpty())
-            <x-ui.empty-state icon="share" area="grow" title="No referrals yet" description="Readers see their link right after they subscribe. Mention your rewards in your next issue to get things going." />
+            <x-ui.empty-state icon="share" area="grow" title="No referrals yet" description="Readers see their link right after they subscribe. Mention your rewards in your next newsletter to get things going." />
         @else
             <ul class="divide-y divide-line">
                 @foreach ($topReferrers as $referrer)

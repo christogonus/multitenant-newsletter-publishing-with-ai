@@ -98,7 +98,7 @@
 
         <footer class="site">
             <p>
-                <a href="{{ \App\Support\PublicLinks::route('archive') }}">All issues</a>
+                <a href="{{ \App\Support\PublicLinks::route('archive') }}">All newsletters</a>
                 ·
                 <details class="report">
                     <summary>Report this page</summary>

@@ -51,7 +51,7 @@
                     </div>
                 </article>
             @else
-                <x-ui.empty-state icon="document-text" area="earn" title="No media kit yet" description="Press the button and the AI writes one from your readers and issues." />
+                <x-ui.empty-state icon="document-text" area="earn" title="No media kit yet" description="Press the button and the AI writes one from your readers and newsletters." />
             @endif
         </x-ui.card>
     @elseif ($tab === 'outreach')
@@ -76,7 +76,7 @@
                     <x-ui.stat-card :label="$package['name']" :value="$package['price']" :hint="$package['description']" icon="currency-dollar" area="earn" />
                 @endforeach
             </div>
-            <p class="mt-4 text-sm text-muted">Based on about {{ number_format($assumptions['opens']) }} people opening each issue and ${{ $assumptions['cpm_low'] }} to ${{ $assumptions['cpm_high'] }} per 1,000 opens, which is typical for focused newsletters.</p>
+            <p class="mt-4 text-sm text-muted">Based on about {{ number_format($assumptions['opens']) }} people opening each newsletter and ${{ $assumptions['cpm_low'] }} to ${{ $assumptions['cpm_high'] }} per 1,000 opens, which is typical for focused newsletters.</p>
         </x-ui.card>
     @else
         <livewire:sponsors.paid-subscriptions />

@@ -184,7 +184,7 @@ class Users extends Component
         $user->forceFill(['suspended_at' => now(), 'suspension_reason' => trim($this->suspensionReason) ?: null])->save();
 
         $this->reset('suspensionReason');
-        $this->dispatch('toast', message: $user->email.' is suspended. Their newsletters now show "coming soon".', tone: 'success');
+        $this->dispatch('toast', message: $user->email.' is suspended. Their publications now show "coming soon".', tone: 'success');
     }
 
     public function unsuspend(): void

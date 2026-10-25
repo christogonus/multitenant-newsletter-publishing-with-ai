@@ -133,7 +133,7 @@ class Index extends Component
         ], [
             'hostname.regex' => 'Enter an address like news.yourname.com.',
             'hostname.not_regex' => 'Use your own web address, not ours.',
-            'hostname.unique' => 'That address is already used by another newsletter.',
+            'hostname.unique' => 'That address is already used by another publication.',
         ]);
 
         $domain = $newsletter->domain;

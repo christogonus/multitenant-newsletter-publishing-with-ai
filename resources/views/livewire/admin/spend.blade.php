@@ -24,7 +24,7 @@
             <x-slot:emptyState><x-ui.empty-state icon="chart-bar" title="No AI usage yet" /></x-slot:emptyState>
             @foreach ($byKind as $row)
                 <tr>
-                    <td class="px-4 py-3 text-ink">{{ $row->kind->value }}</td>
+                    <td class="px-4 py-3 text-ink">{{ $row->kind->label() }}</td>
                     <td class="px-4 py-3 text-muted tabular-nums">{{ number_format($row->calls) }}</td>
                     <td class="px-4 py-3 text-muted tabular-nums">{{ number_format($row->tokens) }}</td>
                     <td class="px-4 py-3 text-ink tabular-nums">${{ number_format($row->total, 2) }}</td>

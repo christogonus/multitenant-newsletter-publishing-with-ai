@@ -185,7 +185,7 @@ class MembersController extends Controller
         $this->paidReaders->grant($newsletter, $email, $access->paidUntil, $provider, $access->plan, $access->reference, $request->ip());
 
         return redirect($this->nextUrl($request, $newsletter) ?? PublicLinks::route('members'))
-            ->with('status', 'Thank you for subscribing. You can now read every issue.');
+            ->with('status', 'Thank you for subscribing. You can now read every newsletter.');
     }
 
     private function newsletter(Request $request): Newsletter

@@ -3,7 +3,7 @@
 @endphp
 
 <div class="space-y-6">
-    <x-ui.page-header title="All publications" description="Every newsletter you run, and what each one earns, in one place." icon="squares" area="automate">
+    <x-ui.page-header title="All publications" description="Every publication you run, and what each one earns, in one place." icon="squares" area="automate">
         <x-slot:actions>
             @if ($publications->isNotEmpty())
                 <x-ui.button variant="secondary" icon="currency-dollar" wire:click="openEarningForm">Log earnings</x-ui.button>
@@ -23,8 +23,8 @@
 
     @if ($publications->isEmpty())
         <x-ui.card>
-            <x-ui.empty-state icon="newspaper" area="automate" title="No publications yet" description="Create your first newsletter in about a minute.">
-                <x-ui.button :href="route('newsletters.create')" area="automate" icon="plus">Start a newsletter</x-ui.button>
+            <x-ui.empty-state icon="newspaper" area="automate" title="No publications yet" description="Create your first publication in about a minute.">
+                <x-ui.button :href="route('newsletters.create')" area="automate" icon="plus">Start a publication</x-ui.button>
             </x-ui.empty-state>
         </x-ui.card>
     @else
@@ -42,7 +42,7 @@
                     </div>
                     <dl class="mt-4 grid grid-cols-2 gap-3 text-sm">
                         <div><dt class="text-muted">Readers</dt><dd class="font-semibold text-ink tabular-nums">{{ number_format($publication->subscribers_count) }}</dd></div>
-                        <div><dt class="text-muted">Live issues</dt><dd class="font-semibold text-ink tabular-nums">{{ $publication->live_issues_count }}</dd></div>
+                        <div><dt class="text-muted">Live newsletters</dt><dd class="font-semibold text-ink tabular-nums">{{ $publication->live_issues_count }}</dd></div>
                         <div><dt class="text-muted">Earned this month</dt><dd class="font-semibold text-ink tabular-nums">{{ $money($publication->earned_this_month) }}</dd></div>
                         <div><dt class="text-muted">Earned all time</dt><dd class="font-semibold text-ink tabular-nums">{{ $money($publication->earned_total) }}</dd></div>
                     </dl>
@@ -59,7 +59,7 @@
 
         <x-ui.card title="Recent earnings" description="Log each sponsor payment, month of paid subscriptions or promotion as it comes in.">
             @if ($recentEarnings->isEmpty())
-                <x-ui.empty-state icon="currency-dollar" area="earn" title="Nothing logged yet" description="When a sponsor pays you, log it here to see which newsletter earns the most.">
+                <x-ui.empty-state icon="currency-dollar" area="earn" title="Nothing logged yet" description="When a sponsor pays you, log it here to see which publication earns the most.">
                     <x-ui.button area="earn" icon="plus" wire:click="openEarningForm">Log your first earnings</x-ui.button>
                 </x-ui.empty-state>
             @else
@@ -82,7 +82,7 @@
 
     <x-ui.modal name="earning" title="Log earnings" max-width="md">
         <form id="earning-form" wire:submit="logEarning" class="space-y-4">
-            <x-ui.select wire:model="earningNewsletterId" label="Newsletter" :options="$newsletterOptions" />
+            <x-ui.select wire:model="earningNewsletterId" label="Publication" :options="$newsletterOptions" />
             <x-ui.select wire:model="earningSource" label="Where it came from" :options="$sources" />
             <x-ui.input wire:model="earningDescription" label="Who paid" placeholder="For example, Acme Tools" maxlength="120" />
             <div class="grid gap-4 sm:grid-cols-2">

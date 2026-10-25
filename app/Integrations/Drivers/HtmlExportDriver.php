@@ -20,7 +20,7 @@ class HtmlExportDriver implements PlatformDriver
     public function steps(): array
     {
         return [
-            'Open any issue and choose More, then "Download email file".',
+            'Open any newsletter and choose More, then "Download email file".',
             'In Substack (or your email service), start a new post.',
             'Open the file in your browser, select everything and copy it.',
             'Paste it into the new post, check it and send.',

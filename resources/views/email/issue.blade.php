@@ -70,7 +70,7 @@
                                 @endswitch
                             @endforeach
                             @if ($locked)
-                                <p style="margin:24px 0 0;font-weight:bold;">The rest of this issue is for paying readers.</p>
+                                <p style="margin:24px 0 0;font-weight:bold;">The rest of this newsletter is for paying readers.</p>
                             @endif
                             @if ($issue->public_slug)
                                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top:24px;">

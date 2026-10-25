@@ -9,7 +9,7 @@
     </nav>
 
     @if ($section === 'niches')
-        <x-ui.table :headers="['#', 'Niche', 'Who reads it', 'Sponsor money', 'Competition', 'First issue idea']" :empty="empty($vault['niches'])">
+        <x-ui.table :headers="['#', 'Niche', 'Who reads it', 'Sponsor money', 'Competition', 'First newsletter idea']" :empty="empty($vault['niches'])">
             <x-slot:emptyState><x-ui.empty-state icon="archive" area="create" title="Coming soon" /></x-slot:emptyState>
             @foreach ($vault['niches'] as $niche)
                 <tr>
@@ -23,7 +23,7 @@
             @endforeach
         </x-ui.table>
     @elseif ($section === 'subject-lines')
-        <x-ui.alert>Swap the words in {curly brackets} for your own. Use one in your next issue's subject line.</x-ui.alert>
+        <x-ui.alert>Swap the words in {curly brackets} for your own. Use one in your next newsletter's subject line.</x-ui.alert>
         <div class="grid gap-4 md:grid-cols-2">
             @foreach ($vault['subject_lines'] as $group)
                 <x-ui.card :title="$group['category']">

@@ -9,7 +9,7 @@ use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Title('Write a new issue')]
+#[Title('Create newsletter')]
 class Create extends Component
 {
     use InteractsWithPublication;

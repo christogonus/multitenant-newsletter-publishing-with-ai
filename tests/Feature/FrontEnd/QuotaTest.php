@@ -98,5 +98,5 @@ test('the write screen shows a plain message when the week is used up', function
     Livewire::test(Create::class)
         ->call('generate')
         ->assertHasErrors('topic')
-        ->assertSee('used all 15 issues');
+        ->assertSee('used all 15 newsletters');
 });

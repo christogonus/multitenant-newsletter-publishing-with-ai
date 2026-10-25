@@ -9,7 +9,7 @@ use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Title('Your issue is live')]
+#[Title('Your newsletter is live')]
 class Share extends Component
 {
     use InteractsWithPublication;

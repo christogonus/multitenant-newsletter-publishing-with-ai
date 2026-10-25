@@ -84,21 +84,21 @@
                         <p class="text-sm font-semibold text-ink">Account status</p>
                         @if ($selected->isSuspended())
                             <x-ui.alert tone="danger" title="Suspended {{ $selected->suspended_at->diffForHumans() }}">
-                                Their dashboard is closed and their newsletters show “coming soon”.
+                                Their dashboard is closed and their publications show “coming soon”.
                                 @if ($selected->suspension_reason)<br>Note: {{ $selected->suspension_reason }}@endif
                             </x-ui.alert>
                             <x-ui.button variant="secondary" icon="check" wire:click="unsuspend" loading="unsuspend">Lift suspension</x-ui.button>
                         @else
                             <form wire:submit="suspend" class="space-y-3">
                                 <x-ui.input wire:model="suspensionReason" label="Private note" hint="Only admins see this. The owner is told to contact support." placeholder="e.g. Chargeback under review" optional />
-                                <x-ui.button type="submit" variant="secondary" icon="x-mark" loading="suspend" wire:confirm="Suspend {{ $selected->email }}? Their dashboard closes and their newsletters show “coming soon” until you lift it.">Suspend account</x-ui.button>
+                                <x-ui.button type="submit" variant="secondary" icon="x-mark" loading="suspend" wire:confirm="Suspend {{ $selected->email }}? Their dashboard closes and their publications show “coming soon” until you lift it.">Suspend account</x-ui.button>
                             </form>
                         @endif
                     </div>
 
                     <div class="space-y-3 rounded-card border border-danger/40 p-4">
                         <p class="text-sm font-semibold text-danger">Delete account</p>
-                        <p class="text-sm text-muted">Erases this account with its {{ $selected->newsletters_count }} {{ \Illuminate\Support\Str::plural('newsletter', $selected->newsletters_count) }}, every issue, reader and upload, and its purchase history. This cannot be undone.</p>
+                        <p class="text-sm text-muted">Erases this account with its {{ $selected->newsletters_count }} {{ \Illuminate\Support\Str::plural('publication', $selected->newsletters_count) }}, every newsletter, reader and upload, and its purchase history. This cannot be undone.</p>
                         <form wire:submit="deleteUser" class="space-y-3">
                             <x-ui.input wire:model="deleteConfirmation" :label="'Type '.$selected->email.' to confirm'" autocomplete="off" />
                             <x-ui.button type="submit" variant="danger" icon="trash" loading="deleteUser">Delete account and everything in it</x-ui.button>

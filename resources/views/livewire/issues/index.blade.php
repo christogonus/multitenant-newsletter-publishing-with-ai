@@ -1,7 +1,7 @@
 <div class="space-y-6" @if ($hasGenerating) wire:poll.4s @endif>
-    <x-ui.page-header title="Issues" description="Everything you have written, in one place." icon="newspaper" area="create">
+    <x-ui.page-header title="Newsletters" description="Everything you have written, in one place." icon="newspaper" area="create">
         <x-slot:actions>
-            <x-ui.button :href="route('issues.create')" area="create" icon="sparkles" size="lg">Write a new issue</x-ui.button>
+            <x-ui.button :href="route('issues.create')" area="create" icon="sparkles" size="lg">Create newsletter</x-ui.button>
         </x-slot:actions>
     </x-ui.page-header>
 
@@ -21,12 +21,12 @@
         @endforeach
     </div>
 
-    <x-ui.input wire:model.live.debounce.300ms="search" icon="search" placeholder="Search your issues" aria-label="Search issues" />
+    <x-ui.input wire:model.live.debounce.300ms="search" icon="search" placeholder="Search your newsletters" aria-label="Search newsletters" />
 
-    <x-ui.table :headers="['Issue', 'Status', 'Views', 'Updated', '']" :empty="$issues->isEmpty()">
+    <x-ui.table :headers="['Newsletter', 'Status', 'Views', 'Updated', '']" :empty="$issues->isEmpty()">
         <x-slot:emptyState>
-            <x-ui.empty-state icon="newspaper" area="create" title="Nothing here yet" description="Write an issue and it shows up here.">
-                <x-ui.button :href="route('issues.create')" area="create" icon="sparkles">Write a new issue</x-ui.button>
+            <x-ui.empty-state icon="newspaper" area="create" title="Nothing here yet" description="Write a newsletter and it shows up here.">
+                <x-ui.button :href="route('issues.create')" area="create" icon="sparkles">Create newsletter</x-ui.button>
             </x-ui.empty-state>
         </x-slot:emptyState>
 

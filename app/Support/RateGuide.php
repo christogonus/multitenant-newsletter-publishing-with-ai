@@ -22,10 +22,10 @@ class RateGuide
         $main = $this->roundPrice(max(25, $opens / 1000 * (self::CPM_LOW + self::CPM_HIGH) / 2));
 
         return [
-            ['name' => 'Classified', 'description' => 'A short text mention near the end of one issue.', 'amount' => $classified = $this->roundPrice(max(10, $main * 0.3)), 'price' => '$'.$classified],
-            ['name' => 'Main sponsor', 'description' => 'Logo and a short paragraph at the top of one issue.', 'amount' => $main, 'price' => '$'.$main],
-            ['name' => 'Dedicated email', 'description' => 'A whole issue written about the sponsor, clearly labelled.', 'amount' => $dedicated = $this->roundPrice($main * 2.5), 'price' => '$'.$dedicated],
-            ['name' => 'Monthly bundle', 'description' => 'Main sponsor slot in four issues, 15% off.', 'amount' => $bundle = $this->roundPrice($main * 4 * 0.85), 'price' => '$'.$bundle],
+            ['name' => 'Classified', 'description' => 'A short text mention near the end of one newsletter.', 'amount' => $classified = $this->roundPrice(max(10, $main * 0.3)), 'price' => '$'.$classified],
+            ['name' => 'Main sponsor', 'description' => 'Logo and a short paragraph at the top of one newsletter.', 'amount' => $main, 'price' => '$'.$main],
+            ['name' => 'Dedicated email', 'description' => 'A whole newsletter written about the sponsor, clearly labelled.', 'amount' => $dedicated = $this->roundPrice($main * 2.5), 'price' => '$'.$dedicated],
+            ['name' => 'Monthly bundle', 'description' => 'Main sponsor slot in four newsletters, 15% off.', 'amount' => $bundle = $this->roundPrice($main * 4 * 0.85), 'price' => '$'.$bundle],
         ];
     }
 

@@ -36,7 +36,7 @@ class IssueRenderer
         $html = Blade::render('<x-public.blocks :blocks="$blocks" />', ['blocks' => $issue->publicBlocks()]);
 
         if ($issue->isLocked() && $issue->public_slug) {
-            $html .= '<p><strong>The rest of this issue is for paying readers.</strong> <a href="'.e($issue->publicUrl()).'">Continue reading on the web &rarr;</a></p>';
+            $html .= '<p><strong>The rest of this newsletter is for paying readers.</strong> <a href="'.e($issue->publicUrl()).'">Continue reading on the web &rarr;</a></p>';
         }
 
         return $html;

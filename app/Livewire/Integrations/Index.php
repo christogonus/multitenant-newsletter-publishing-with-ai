@@ -147,7 +147,7 @@ class Index extends Component
         $issue = $this->newsletter->issues()->where('status', IssueStatus::Published)->latest('published_at')->first();
 
         if (! $issue) {
-            $this->toast('Publish an issue first, then send it from here.', 'warning');
+            $this->toast('Publish a newsletter first, then send it from here.', 'warning');
 
             return;
         }

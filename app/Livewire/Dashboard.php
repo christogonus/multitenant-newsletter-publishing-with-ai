@@ -62,7 +62,7 @@ class Dashboard extends Component
 
         return [
             ['label' => 'Pick your niche', 'done' => true, 'route' => route('newsletters.settings'), 'action' => 'Edit'],
-            ['label' => 'Review your first issue', 'done' => $hasDraft, 'route' => $firstIssue ? route('issues.edit', $firstIssue) : route('issues.create'), 'action' => 'Review'],
+            ['label' => 'Review your first newsletter', 'done' => $hasDraft, 'route' => $firstIssue ? route('issues.edit', $firstIssue) : route('issues.create'), 'action' => 'Review'],
             ['label' => 'Publish it', 'done' => $published, 'route' => $firstIssue ? route('issues.edit', $firstIssue) : route('issues.create'), 'action' => 'Publish'],
             ['label' => 'Share your link', 'done' => $published && ($newsletter->link_shared_at !== null || $newsletter->subscribers()->exists()), 'route' => $published ? route('issues.share', $newsletter->issues()->where('status', IssueStatus::Published)->latest('published_at')->first()) : route('issues.index'), 'action' => 'Share'],
         ];

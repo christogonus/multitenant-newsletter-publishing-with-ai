@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Autopilot" description="Plan a month of issues, write them in one go, and let them go live on their dates." icon="calendar" area="automate">
+    <x-ui.page-header title="Autopilot" description="Plan a month of newsletters, write them in one go, and let them go live on their dates." icon="calendar" area="automate">
         <x-slot:actions>
             <x-ui.button variant="secondary" wire:click="planMonth" icon="sparkles" loading="planMonth">Plan my month</x-ui.button>
             <x-ui.button wire:click="writeAll" area="automate" icon="bolt" loading="writeAll">Write them all</x-ui.button>
@@ -7,12 +7,12 @@
     </x-ui.page-header>
 
     @if (! $unlimited)
-        <x-ui.alert>This newsletter has {{ $remaining }} issues left this week. Planned issues beyond that are written as the week rolls on, or you can upgrade to Unlimited Creation.</x-ui.alert>
+        <x-ui.alert>This publication has {{ $remaining }} newsletters left this week. Planned newsletters beyond that are written as the week rolls on, or you can upgrade to Unlimited Creation.</x-ui.alert>
     @endif
 
     <x-ui.card title="Add a topic">
         <form wire:submit="addItem" class="grid gap-3 sm:grid-cols-[1fr_11rem_8rem_auto] sm:items-start">
-            <x-ui.input wire:model="newTopic" label="Topic" placeholder="What should this issue cover?" />
+            <x-ui.input wire:model="newTopic" label="Topic" placeholder="What should this newsletter cover?" />
             <x-ui.input wire:model="newDate" type="date" label="Date" />
             <x-ui.input wire:model="publishTime" type="time" label="Time" />
             <x-ui.button type="submit" variant="secondary" class="sm:mt-7" icon="plus" loading="addItem">Add</x-ui.button>
@@ -21,7 +21,7 @@
 
     <x-ui.card title="Coming up" :padding="false">
         @if ($items->isEmpty())
-            <x-ui.empty-state icon="calendar" area="automate" title="Your calendar is empty" description="Press Plan my month and the AI suggests a topic for every issue day.">
+            <x-ui.empty-state icon="calendar" area="automate" title="Your calendar is empty" description="Press Plan my month and the AI suggests a topic for every newsletter day.">
                 <x-ui.button wire:click="planMonth" area="automate" icon="sparkles">Plan my month</x-ui.button>
             </x-ui.empty-state>
         @else

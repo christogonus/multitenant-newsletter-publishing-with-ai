@@ -1,12 +1,12 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Email services" description="Send your issues to inboxes through the service you already use." icon="envelope" area="publish">
+    <x-ui.page-header title="Email services" description="Send your newsletters to inboxes through the service you already use." icon="envelope" area="publish">
         <x-slot:actions>
             <x-ui.badge tone="publish">{{ $limit === null ? 'Unlimited connections' : $used.' of '.$limit.' connected' }}</x-ui.badge>
         </x-slot:actions>
     </x-ui.page-header>
 
     <x-ui.alert title="Your email service sends the emails">
-        New readers are copied to your service, which asks them to confirm before they get anything. Turn on confirmation (often called "double opt-in") in your service's settings. Issues arrive there as drafts so you can check them before sending.
+        New readers are copied to your service, which asks them to confirm before they get anything. Turn on confirmation (often called "double opt-in") in your service's settings. Newsletters arrive there as drafts so you can check them before sending.
     </x-ui.alert>
 
     <div class="grid gap-4 lg:grid-cols-2">
@@ -39,7 +39,7 @@
                 @if ($connection && ! $isEditing)
                     <dl class="mt-4 grid grid-cols-2 gap-3 text-sm">
                         <div><dt class="text-muted">Readers copied</dt><dd class="text-ink">{{ $connection->last_synced_at?->diffForHumans() ?? 'Not yet' }}</dd></div>
-                        <div><dt class="text-muted">Last issue sent</dt><dd class="text-ink">{{ $connection->last_pushed_at?->diffForHumans() ?? 'Not yet' }}</dd></div>
+                        <div><dt class="text-muted">Last newsletter sent</dt><dd class="text-ink">{{ $connection->last_pushed_at?->diffForHumans() ?? 'Not yet' }}</dd></div>
                     </dl>
                 @endif
 
@@ -68,13 +68,13 @@
 
                 <x-slot:footer>
                     @if ($platform === \App\Enums\Platform::HtmlExport)
-                        <x-ui.button variant="secondary" :href="route('issues.index')" icon="download">Pick an issue to download</x-ui.button>
+                        <x-ui.button variant="secondary" :href="route('issues.index')" icon="download">Pick a newsletter to download</x-ui.button>
                     @elseif ($connection && ! $isEditing)
                         <x-ui.button variant="ghost" size="sm" wire:click="disconnect({{ $connection->id }})" wire:confirm="Disconnect {{ $platform->label() }}?">Disconnect</x-ui.button>
                         <x-ui.button variant="ghost" size="sm" wire:click="edit('{{ $platform->value }}')">Change details</x-ui.button>
                         <x-ui.button variant="secondary" size="sm" wire:click="test({{ $connection->id }})" loading="test">Test connection</x-ui.button>
                         <x-ui.button variant="secondary" size="sm" wire:click="syncNow({{ $connection->id }})">Copy readers now</x-ui.button>
-                        <x-ui.button area="publish" size="sm" wire:click="sendLatest({{ $connection->id }})" icon="envelope">Send latest issue</x-ui.button>
+                        <x-ui.button area="publish" size="sm" wire:click="sendLatest({{ $connection->id }})" icon="envelope">Send latest newsletter</x-ui.button>
                     @elseif (! $isEditing && $canAdd)
                         <x-ui.button area="publish" wire:click="edit('{{ $platform->value }}')" icon="link">Connect</x-ui.button>
                     @endif

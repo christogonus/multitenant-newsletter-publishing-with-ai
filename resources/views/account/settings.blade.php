@@ -94,7 +94,7 @@
         </x-ui.card>
 
         <x-ui.card title="Delete my account" class="border-danger/40">
-            <p class="text-sm text-muted">This erases your account, every publication, every issue and every reader. It cannot be undone. Your purchases cannot be used again after this.</p>
+            <p class="text-sm text-muted">This erases your account, every publication, every newsletter and every reader. It cannot be undone. Your purchases cannot be used again after this.</p>
             @if ($onStartingPassword)
                 <p class="mt-4 text-sm text-muted">Available once you choose your own password.</p>
             @else

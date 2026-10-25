@@ -44,7 +44,7 @@ class StartIssueGeneration
                 }
 
                 return $newsletter->issues()->create([
-                    'title' => $topic ?: 'New issue',
+                    'title' => $topic ?: 'New newsletter',
                     'topic' => $topic,
                     'status' => IssueStatus::Generating,
                     'is_ai_generated' => true,

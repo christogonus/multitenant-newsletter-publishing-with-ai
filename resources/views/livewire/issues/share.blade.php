@@ -2,7 +2,7 @@
     <section class="rounded-hero bg-grow px-6 py-10 text-white shadow-raised sm:px-10">
         <div class="flex items-center gap-3">
             <span class="inline-flex size-12 items-center justify-center rounded-full bg-white/15"><x-ui.icon name="check-circle" size="6" /></span>
-            <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">Your issue is live!</h1>
+            <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">Your newsletter is live!</h1>
         </div>
         <p class="mt-3 max-w-xl text-white/85">“{{ $issue->title }}” is on your page. Share the link below so people can read it and subscribe.</p>
     </section>
@@ -26,13 +26,13 @@
         <div class="grid gap-4 sm:grid-cols-3">
             <a href="{{ route('issues.create') }}" class="rounded-card border border-line p-4 transition hover:border-create hover:bg-create-tint">
                 <x-ui.area-chip area="create" icon="sparkles" />
-                <p class="mt-3 text-sm font-semibold text-ink">Write the next issue</p>
+                <p class="mt-3 text-sm font-semibold text-ink">Write the next newsletter</p>
                 <p class="text-sm text-muted">Keep a steady rhythm so readers come back.</p>
             </a>
             <a href="{{ route('integrations.index') }}" class="rounded-card border border-line p-4 transition hover:border-publish hover:bg-publish-tint">
                 <x-ui.area-chip area="publish" :icon="$hasDelivery ? 'envelope' : 'lock-closed'" />
                 <p class="mt-3 text-sm font-semibold text-ink">Send it by email</p>
-                <p class="text-sm text-muted">{{ $hasDelivery ? 'Send this issue through your email service.' : 'Connect your email service to reach inboxes.' }}</p>
+                <p class="text-sm text-muted">{{ $hasDelivery ? 'Send this newsletter through your email service.' : 'Connect your email service to reach inboxes.' }}</p>
             </a>
             <a href="{{ $hasSocial ? route('social.index', ['issue' => $issue->id]) : route('social.index') }}" class="rounded-card border border-line p-4 transition hover:border-social hover:bg-social-tint">
                 <x-ui.area-chip area="social" :icon="$hasSocial ? 'share' : 'lock-closed'" />
@@ -42,7 +42,7 @@
         </div>
     </x-ui.card>
 
-    <x-ui.card title="Your newsletter home page" description="Put this link in your bio so new readers can subscribe.">
+    <x-ui.card title="Your publication home page" description="Put this link in your bio so new readers can subscribe.">
         <x-ui.copy-field :value="$homeUrl" />
     </x-ui.card>
 </div>

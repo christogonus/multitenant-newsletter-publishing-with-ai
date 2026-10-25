@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-ui.page-header title="Agency clients" description="Run newsletters for paying clients, with ready packages and contracts." icon="briefcase" area="earn">
+    <x-ui.page-header title="Agency clients" description="Run publications for paying clients, with ready packages and contracts." icon="briefcase" area="earn">
         <x-slot:actions>
             <x-ui.button wire:click="create" area="earn" icon="plus" size="lg">Add a client</x-ui.button>
         </x-slot:actions>
@@ -37,7 +37,7 @@
                 <div class="rounded-card border border-line p-5">
                     <p class="text-sm font-semibold text-ink">{{ $package['name'] }}</p>
                     <p class="mt-1 text-2xl font-bold text-ink">${{ number_format($package['monthly_fee']) }}<span class="text-sm font-medium text-muted"> / month</span></p>
-                    <p class="mt-1 text-sm text-muted">{{ $package['issues_per_month'] }} issues a month · {{ $package['best_for'] }}</p>
+                    <p class="mt-1 text-sm text-muted">{{ $package['issues_per_month'] }} newsletters a month · {{ $package['best_for'] }}</p>
                     <ul class="mt-3 space-y-1 text-sm text-ink">
                         @foreach ($package['includes'] as $include)
                             <li class="flex gap-2"><x-ui.icon name="check" size="4" class="mt-0.5 text-success" />{{ $include }}</li>

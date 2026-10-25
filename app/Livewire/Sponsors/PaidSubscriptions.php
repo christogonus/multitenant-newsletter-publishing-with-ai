@@ -95,7 +95,7 @@ class PaidSubscriptions extends Component
         ]);
 
         PublicPageCache::bust($newsletter);
-        $this->toast($this->paidEnabled ? 'Saved. Issues you mark "Paying readers only" are now locked.' : 'Saved. Paid subscriptions are off, so every issue is free to read.');
+        $this->toast($this->paidEnabled ? 'Saved. Newsletters you mark "Paying readers only" are now locked.' : 'Saved. Paid subscriptions are off, so every newsletter is free to read.');
     }
 
     /**
@@ -228,7 +228,7 @@ class PaidSubscriptions extends Component
         $paidReaders->grant($newsletter, $this->grantEmail, Carbon::parse($this->grantUntil)->endOfDay(), PaymentProvider::Manual);
 
         $this->reset('grantEmail');
-        $this->toast('Done. They can now sign in with their email and read paid issues.');
+        $this->toast('Done. They can now sign in with their email and read paid newsletters.');
     }
 
     /**
@@ -256,7 +256,7 @@ class PaidSubscriptions extends Component
         $paidReaders->grant($newsletter, $claim->email, $paidUntil, PaymentProvider::Manual, $claim->plan, $claim->reference);
         $claim->update(['status' => PaymentClaimStatus::Approved, 'resolved_at' => now()]);
 
-        $this->toast($claim->email.' can now read paid issues until '.$paidUntil->toFormattedDateString().'.');
+        $this->toast($claim->email.' can now read paid newsletters until '.$paidUntil->toFormattedDateString().'.');
     }
 
     public function declineClaim(int $claimId): void

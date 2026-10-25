@@ -14,7 +14,7 @@ use Illuminate\Console\Command;
  * Runs every minute from the scheduler and publishes issues whose time has come (OTO 7).
  */
 #[Signature('newspub:publish-scheduled')]
-#[Description('Publish scheduled issues that are due')]
+#[Description('Publish scheduled newsletters that are due')]
 class PublishScheduledIssues extends Command
 {
     public function handle(PublishIssue $publishIssue): int
@@ -40,7 +40,7 @@ class PublishScheduledIssues extends Command
                 }
             });
 
-        $this->info("Published {$published} scheduled issues.");
+        $this->info("Published {$published} scheduled newsletters.");
 
         return self::SUCCESS;
     }

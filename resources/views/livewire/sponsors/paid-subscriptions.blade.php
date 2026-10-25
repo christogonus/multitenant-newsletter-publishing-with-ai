@@ -1,11 +1,11 @@
 <div class="space-y-6">
-    <x-ui.card title="Paid subscriptions" description="Lock chosen issues so only paying readers can finish them. Readers pay you directly through your own Stripe or PayPal.">
+    <x-ui.card title="Paid subscriptions" description="Lock chosen newsletters so only paying readers can finish them. Readers pay you directly through your own Stripe or PayPal.">
         <x-slot:actions>
             <x-ui.pill :tone="$this->newsletter->paid_enabled ? 'success' : 'neutral'">{{ $this->newsletter->paid_enabled ? 'On' : 'Off' }}</x-ui.pill>
         </x-slot:actions>
 
         <form wire:submit="saveSettings" class="space-y-4">
-            <x-ui.checkbox wire:model="paidEnabled" label="Turn on paid subscriptions" hint="Issues you mark “Paying readers only” in the editor show their opening, then ask readers to sign in or subscribe." />
+            <x-ui.checkbox wire:model="paidEnabled" label="Turn on paid subscriptions" hint="Newsletters you mark “Paying readers only” in the editor show their opening, then ask readers to sign in or subscribe." />
 
             <div class="grid gap-4 sm:grid-cols-3">
                 <x-ui.input wire:model="monthlyPrice" type="number" step="0.01" min="1" label="Monthly price" placeholder="5.00" optional />
@@ -13,7 +13,7 @@
                 <x-ui.select wire:model="currency" label="Currency" :options="$currencies" />
             </div>
 
-            <x-ui.textarea wire:model="perks" rows="3" label="What paying readers get" hint="Shown on locked issues and the subscribe page." placeholder="Every issue in full, plus a bonus deep-dive each Friday." optional />
+            <x-ui.textarea wire:model="perks" rows="3" label="What paying readers get" hint="Shown on locked newsletters and the subscribe page." placeholder="Every newsletter in full, plus a bonus deep-dive each Friday." optional />
 
             <div class="flex justify-end">
                 <x-ui.button type="submit" area="earn" loading="saveSettings">Save</x-ui.button>
@@ -124,7 +124,7 @@
         </x-ui.card>
     @endif
 
-    <x-ui.card title="Paying readers" :description="$payingCount.' '.\Illuminate\Support\Str::plural('reader', $payingCount).' can read locked issues right now.'">
+    <x-ui.card title="Paying readers" :description="$payingCount.' '.\Illuminate\Support\Str::plural('reader', $payingCount).' can read locked newsletters right now.'">
         <x-ui.copy-field :value="$membersUrl" label="Link to your subscribe page" />
 
         <form wire:submit="grantAccess" class="mt-5 grid gap-4 sm:grid-cols-[1fr_200px_auto] sm:items-end">

@@ -1,8 +1,8 @@
-<x-public.layout :newsletter="$newsletter" :theme="$theme" title="All issues">
+<x-public.layout :newsletter="$newsletter" :theme="$theme" title="All newsletters">
     <main class="card">
-        <h1 style="font-size: 28px;">All issues</h1>
+        <h1 style="font-size: 28px;">All newsletters</h1>
         @if ($issues->isEmpty())
-            <p class="muted">No issues yet.</p>
+            <p class="muted">No newsletters yet.</p>
         @else
             <ul class="issue-list">
                 @foreach ($issues as $issue)

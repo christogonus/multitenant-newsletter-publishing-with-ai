@@ -26,7 +26,7 @@ class Index extends Component
     public function mount(): void
     {
         $this->tiers = $this->newsletter->reward_tiers ?? [
-            ['referrals' => 3, 'reward' => 'A shout-out in the next issue'],
+            ['referrals' => 3, 'reward' => 'A shout-out in the next newsletter'],
             ['referrals' => 10, 'reward' => 'Our bonus guide'],
             ['referrals' => 25, 'reward' => 'A 20-minute call with me'],
         ];

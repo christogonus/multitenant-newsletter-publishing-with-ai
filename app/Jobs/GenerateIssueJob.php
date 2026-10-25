@@ -55,7 +55,7 @@ class GenerateIssueJob implements ShouldQueue
     {
         $this->issue->update([
             'status' => IssueStatus::Failed,
-            'generation_error' => 'The writer could not finish this issue. Press "Try again" and it will start over.',
+            'generation_error' => 'The writer could not finish this newsletter. Press "Try again" and it will start over.',
         ]);
 
         if ($exception) {

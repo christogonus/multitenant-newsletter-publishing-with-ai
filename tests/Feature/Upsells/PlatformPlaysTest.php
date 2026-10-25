@@ -80,7 +80,7 @@ test('front end buyers can start a second newsletter from the header menu', func
     $user = buyer();
     Newsletter::factory()->for($user)->create();
 
-    $this->actingAs($user)->get(route('dashboard'))->assertSee(route('newsletters.create'))->assertSee('New newsletter');
+    $this->actingAs($user)->get(route('dashboard'))->assertSee(route('newsletters.create'))->assertSee('New publication');
 });
 
 test('installing a kit creates a publication with its topics and draft seed issues', function () {
