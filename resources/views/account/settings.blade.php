@@ -4,6 +4,7 @@
         $twoFactorPending = $user->two_factor_secret && ! $user->two_factor_confirmed_at;
         $twoFactorOn = $user->two_factor_secret && $user->two_factor_confirmed_at;
         $onStartingPassword = $user->uses_default_password;
+        $isSharedDemo = $user->is_demo;
     @endphp
 
     <div class="space-y-6">
@@ -15,8 +16,14 @@
             <x-ui.alert tone="success">Your password was changed.</x-ui.alert>
         @elseif (session('status') === 'two-factor-authentication-confirmed')
             <x-ui.alert tone="success">Two-step sign in is on.</x-ui.alert>
+        @elseif (session('status') === 'demo-account-locked')
+            <x-ui.alert tone="warning">{{ \App\Http\Middleware\ProtectDemoAccount::MESSAGE }}</x-ui.alert>
         @elseif (session('status') === 'own-password-required')
             <x-ui.alert tone="warning">Choose your own password first. It needs a code from your email, so only you can do it.</x-ui.alert>
+        @endif
+
+        @if ($isSharedDemo)
+            <x-ui.alert tone="info" title="Shared demo account">Other people use this account too, so its name, email, password and two-step sign in cannot be changed, and it cannot be deleted. Everything else works as it does for a buyer.</x-ui.alert>
         @endif
 
         <x-ui.card title="Your details">
@@ -24,16 +31,24 @@
                 @csrf
                 @method('PUT')
                 <x-ui.input name="name" label="Name" :value="old('name', $user->name)" required />
-                @if ($onStartingPassword)
+                @if ($isSharedDemo)
+                    <x-ui.input name="email" type="email" label="Email" :value="$user->email" readonly required />
+                @elseif ($onStartingPassword)
                     <x-ui.input name="email" type="email" label="Email" :value="$user->email" hint="You can change your email after you choose your own password." readonly required />
                 @else
                     <x-ui.input name="email" type="email" label="Email" :value="old('email', $user->email)" hint="The email you sign in with. Your purchases stay linked to this account if you change it." required />
                 @endif
-                <div class="sm:col-span-2 flex justify-end"><x-ui.button type="submit">Save details</x-ui.button></div>
+                @unless ($isSharedDemo)
+                    <div class="sm:col-span-2 flex justify-end"><x-ui.button type="submit">Save details</x-ui.button></div>
+                @endunless
             </form>
         </x-ui.card>
 
-        @if ($onStartingPassword)
+        @if ($isSharedDemo)
+            <x-ui.card title="Password">
+                <p class="text-sm text-muted">Shared demo accounts keep the password they were given.</p>
+            </x-ui.card>
+        @elseif ($onStartingPassword)
             <livewire:account.choose-own-password />
         @else
             <x-ui.card title="Password">
@@ -49,7 +64,9 @@
         @endif
 
         <x-ui.card title="Two-step sign in" description="Ask for a code from your phone when you sign in. Keeps your account safe even if your password leaks.">
-            @if ($onStartingPassword)
+            @if ($isSharedDemo)
+                <p class="text-sm text-muted">Not available on shared demo accounts.</p>
+            @elseif ($onStartingPassword)
                 <p class="text-sm text-muted">Available once you choose your own password.</p>
             @elseif ($twoFactorOn)
                 <x-ui.alert tone="success">Two-step sign in is on.</x-ui.alert>
@@ -95,7 +112,9 @@
 
         <x-ui.card title="Delete my account" class="border-danger/40">
             <p class="text-sm text-muted">This erases your account, every publication, every newsletter and every reader. It cannot be undone. Your purchases cannot be used again after this.</p>
-            @if ($onStartingPassword)
+            @if ($isSharedDemo)
+                <p class="mt-4 text-sm text-muted">Not available on shared demo accounts.</p>
+            @elseif ($onStartingPassword)
                 <p class="mt-4 text-sm text-muted">Available once you choose your own password.</p>
             @else
                 <x-ui.button variant="danger" class="mt-4" icon="trash" x-data x-on:click="$dispatch('open-modal', 'delete-account')">Delete my account</x-ui.button>

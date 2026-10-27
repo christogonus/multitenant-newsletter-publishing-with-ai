@@ -107,6 +107,18 @@
                 @endif
 
                 @if ($selected->is_demo && ! $selected->is_admin)
+                    <div class="space-y-3 rounded-card border border-line p-3">
+                        <div>
+                            <p class="text-sm font-semibold text-ink">Demo password</p>
+                            <p class="text-xs text-muted">People signed in to a demo account cannot change its password, email or two-step sign in. A new password signs everyone out.</p>
+                        </div>
+                        @if ($demoNewPassword)
+                            <x-ui.alert tone="success">Copy the new password now. It is not shown again.</x-ui.alert>
+                            <x-ui.copy-field label="New password" :value="$demoNewPassword" />
+                        @endif
+                        <x-ui.button variant="secondary" size="sm" icon="lock-closed" wire:click="resetDemoPassword" loading="resetDemoPassword" wire:confirm="Give {{ $selected->email }} a new password? Everyone signed in to it is signed out.">New password</x-ui.button>
+                    </div>
+
                     <div class="border-t border-line pt-4">
                         <x-ui.button variant="danger" icon="trash" wire:click="deleteDemo({{ $selected->id }})" wire:confirm="Delete this demo account and everything made in it?">Delete demo account</x-ui.button>
                     </div>

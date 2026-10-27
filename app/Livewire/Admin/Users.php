@@ -66,6 +66,11 @@ class Users extends Component
      */
     public ?array $demoLogin = null;
 
+    /**
+     * A demo account's new password, shown once after an admin resets it.
+     */
+    public ?string $demoNewPassword = null;
+
     public function updatedSearch(): void
     {
         $this->resetPage();
@@ -74,7 +79,7 @@ class Users extends Component
     public function select(int $userId): void
     {
         $this->selectedId = $userId;
-        $this->reset('suspensionReason', 'deleteConfirmation');
+        $this->reset('suspensionReason', 'deleteConfirmation', 'demoNewPassword');
         $this->resetValidation();
         $this->dispatch('open-slide-over', 'buyer');
     }
@@ -273,6 +278,22 @@ class Users extends Component
         $this->demoLogin = ['email' => $user->email, 'password' => $password];
         $this->reset('demoName', 'demoEmail', 'demoProducts');
         $this->dispatch('toast', message: 'Demo account created.', tone: 'success');
+    }
+
+    /**
+     * Gives a shared demo account a fresh password. Its users cannot change it themselves, so this is how it is
+     * recovered; it also signs everyone out of the account.
+     */
+    public function resetDemoPassword(): void
+    {
+        $this->authorizeAdmin();
+
+        $user = User::query()->where('is_demo', true)->where('is_admin', false)->findOrFail($this->selectedId);
+        $password = Str::password(12, symbols: false);
+        $user->forceFill(['password' => $password, 'remember_token' => Str::random(60)])->save();
+
+        $this->demoNewPassword = $password;
+        $this->dispatch('toast', message: 'Demo password reset.', tone: 'success');
     }
 
     /**

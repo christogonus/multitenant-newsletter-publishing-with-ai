@@ -40,7 +40,7 @@ Route::domain(config('newspub.app_host'))->group(function () {
 
     Route::middleware(['auth', 'not-suspended'])->group(function () {
         Route::view('/account', 'account.settings')->name('account');
-        Route::delete('/account', DeleteAccountController::class)->middleware(['throttle:5,1', 'own-password'])->name('account.destroy');
+        Route::delete('/account', DeleteAccountController::class)->middleware(['throttle:5,1', 'own-password', 'demo-locked'])->name('account.destroy');
         Route::view('/support', 'support')->name('support');
         Route::view('/upgrades', 'upgrades')->name('upgrades');
         Route::get('/downloads', Livewire\Downloads\Index::class)->name('downloads.index');

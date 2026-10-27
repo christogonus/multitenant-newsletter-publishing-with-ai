@@ -101,8 +101,9 @@ return [
     |
     */
 
-    // own-password refuses two-step sign in setup while an account still uses the shared starting password.
-    'middleware' => ['web', 'own-password'],
+    // own-password refuses two-step sign in setup while an account still uses the shared starting password;
+    // demo-locked refuses password, email and two-step sign in changes on shared demo accounts.
+    'middleware' => ['web', 'own-password', 'demo-locked'],
 
     /*
     |--------------------------------------------------------------------------

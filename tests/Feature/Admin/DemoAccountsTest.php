@@ -7,6 +7,7 @@ use App\Models\Newsletter;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Password;
 use Livewire\Livewire;
 
 test('an admin creates a demo account that owns the chosen products and can sign in', function () {
@@ -110,4 +111,60 @@ test('make-admin refuses an invalid email', function () {
     $this->artisan('newspub:make-admin', ['email' => 'nope'])->assertFailed();
 
     expect(User::count())->toBe(0);
+});
+
+function sharedDemo(): User
+{
+    $demo = User::factory()->create(['email' => 'demo@example.com', 'password' => 'shared-demo-pass']);
+    $demo->forceFill(['is_demo' => true])->save();
+
+    return $demo;
+}
+
+test('people signed in to a demo account cannot change its password, email or two-step sign in, or delete it', function () {
+    $demo = sharedDemo();
+    $this->actingAs($demo);
+
+    $this->get(route('account'))->assertOk()->assertSee('Shared demo account')
+        ->assertDontSee('Change password')->assertDontSee('Set up two-step sign in')->assertDontSee('Delete my account</span>', false);
+
+    $this->put(route('user-password.update'), [
+        'current_password' => 'shared-demo-pass',
+        'password' => 'hijacked-password-1',
+        'password_confirmation' => 'hijacked-password-1',
+    ])->assertRedirect(route('account'))->assertSessionHas('status', 'demo-account-locked');
+    $this->put(route('user-profile-information.update'), ['name' => 'Hijacker', 'email' => 'hijacker@example.com'])->assertRedirect(route('account'));
+    $this->post(route('two-factor.enable'))->assertRedirect(route('account'));
+    $this->delete(route('account.destroy'), ['password' => 'shared-demo-pass', 'confirm' => 'DELETE'])->assertRedirect(route('account'));
+
+    $demo->refresh();
+    expect(Hash::check('shared-demo-pass', $demo->password))->toBeTrue()
+        ->and($demo->email)->toBe('demo@example.com')
+        ->and($demo->two_factor_secret)->toBeNull();
+});
+
+test('a password reset link cannot change a demo account password', function () {
+    $demo = sharedDemo();
+
+    $this->post(route('password.update'), [
+        'token' => Password::createToken($demo),
+        'email' => $demo->email,
+        'password' => 'hijacked-password-1',
+        'password_confirmation' => 'hijacked-password-1',
+    ])->assertSessionHasErrors('email');
+
+    expect(Hash::check('shared-demo-pass', $demo->fresh()->password))->toBeTrue();
+});
+
+test('an admin gives a demo account a new password, but never a real buyer', function () {
+    $demo = sharedDemo();
+    $buyer = User::factory()->create(['password' => 'buyers-own-pass']);
+    $this->actingAs(User::factory()->admin()->create());
+
+    $component = Livewire::test(Users::class)->call('select', $demo->id)->call('resetDemoPassword');
+
+    expect(Hash::check($component->get('demoNewPassword'), $demo->fresh()->password))->toBeTrue();
+
+    Livewire::test(Users::class)->call('select', $buyer->id)->call('resetDemoPassword')->assertNotFound();
+    expect(Hash::check('buyers-own-pass', $buyer->fresh()->password))->toBeTrue();
 });

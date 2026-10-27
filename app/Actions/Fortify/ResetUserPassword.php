@@ -2,6 +2,7 @@
 
 namespace App\Actions\Fortify;
 
+use App\Http\Middleware\ProtectDemoAccount;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -21,6 +22,13 @@ class ResetUserPassword implements ResetsUserPasswords
      */
     public function reset(User $user, array $input): void
     {
+        // Demo accounts are shared, so a reset link must not let one person lock the others out.
+        if ($user->is_demo) {
+            throw ValidationException::withMessages([
+                'email' => ProtectDemoAccount::MESSAGE,
+            ]);
+        }
+
         Validator::make($input, [
             'password' => $this->passwordRules(),
         ])->validate();

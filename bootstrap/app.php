@@ -5,6 +5,7 @@ use App\Http\Middleware\EnsureNotSuspended;
 use App\Http\Middleware\EnsureOwnPassword;
 use App\Http\Middleware\EnsureProduct;
 use App\Http\Middleware\EnsurePublication;
+use App\Http\Middleware\ProtectDemoAccount;
 use App\Http\Middleware\ResolvePublication;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -47,6 +48,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => EnsureAdmin::class,
             'not-suspended' => EnsureNotSuspended::class,
             'own-password' => EnsureOwnPassword::class,
+            'demo-locked' => ProtectDemoAccount::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
