@@ -156,14 +156,23 @@ test('a password reset link cannot change a demo account password', function () 
     expect(Hash::check('shared-demo-pass', $demo->fresh()->password))->toBeTrue();
 });
 
-test('an admin gives a demo account a new password, but never a real buyer', function () {
+test('an admin gives a demo account a new password and turns off two-step sign in, but never for a real buyer', function () {
     $demo = sharedDemo();
+    $demo->forceFill(['two_factor_secret' => encrypt('secret'), 'two_factor_confirmed_at' => now()])->save();
     $buyer = User::factory()->create(['password' => 'buyers-own-pass']);
     $this->actingAs(User::factory()->admin()->create());
 
     $component = Livewire::test(Users::class)->call('select', $demo->id)->call('resetDemoPassword');
 
-    expect(Hash::check($component->get('demoNewPassword'), $demo->fresh()->password))->toBeTrue();
+    $demo->refresh();
+    expect(Hash::check($component->get('demoNewPassword'), $demo->password))->toBeTrue()
+        ->and($demo->two_factor_secret)->toBeNull()
+        ->and($demo->two_factor_confirmed_at)->toBeNull();
+
+    $this->post(route('logout'));
+    $this->post(route('login'), ['email' => $demo->email, 'password' => $component->get('demoNewPassword')])->assertRedirect(route('dashboard'));
+    $this->assertAuthenticatedAs($demo);
+    $this->actingAs(User::factory()->admin()->create());
 
     Livewire::test(Users::class)->call('select', $buyer->id)->call('resetDemoPassword')->assertNotFound();
     expect(Hash::check('buyers-own-pass', $buyer->fresh()->password))->toBeTrue();

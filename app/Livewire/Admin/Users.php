@@ -281,8 +281,8 @@ class Users extends Component
     }
 
     /**
-     * Gives a shared demo account a fresh password. Its users cannot change it themselves, so this is how it is
-     * recovered; it also signs everyone out of the account.
+     * Gives a shared demo account a fresh password and turns off any two-step sign in. Its users cannot change
+     * either themselves, so this is how it is recovered; it also signs everyone out of the account.
      */
     public function resetDemoPassword(): void
     {
@@ -290,7 +290,13 @@ class Users extends Component
 
         $user = User::query()->where('is_demo', true)->where('is_admin', false)->findOrFail($this->selectedId);
         $password = Str::password(12, symbols: false);
-        $user->forceFill(['password' => $password, 'remember_token' => Str::random(60)])->save();
+        $user->forceFill([
+            'password' => $password,
+            'remember_token' => Str::random(60),
+            'two_factor_secret' => null,
+            'two_factor_recovery_codes' => null,
+            'two_factor_confirmed_at' => null,
+        ])->save();
 
         $this->demoNewPassword = $password;
         $this->dispatch('toast', message: 'Demo password reset.', tone: 'success');
