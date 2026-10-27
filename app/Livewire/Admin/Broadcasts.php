@@ -45,10 +45,35 @@ class Broadcasts extends Component
 
     public bool $includeDemo = false;
 
+    /**
+     * Whether the Preview tab (the rendered email) is showing instead of the editor.
+     */
+    public bool $previewing = false;
+
     public function mount(): void
     {
         $this->fromName = (string) config('mail.from.name');
         $this->fromEmail = (string) config('mail.from.address');
+        $this->useSample('announcement');
+    }
+
+    /**
+     * Fills the message with a ready-made email to edit.
+     */
+    public function useSample(string $key): void
+    {
+        $sample = $this->samples()[$key] ?? null;
+
+        if (! $sample) {
+            return;
+        }
+
+        $this->subject = $sample['subject'];
+        $this->body = $sample['body'];
+        $this->buttonLabel = $sample['button_label'];
+        $this->buttonUrl = $sample['button_url'];
+        $this->previewing = false;
+        $this->resetValidation();
     }
 
     public function sendTest(): void
@@ -76,7 +101,7 @@ class Broadcasts extends Component
         $broadcast->save();
         SendBroadcast::dispatch($broadcast);
 
-        $this->reset('subject', 'body', 'buttonLabel', 'buttonUrl');
+        $this->useSample('announcement');
         $this->dispatch('toast', message: 'Sending now. Emails go out over the next few minutes.', tone: 'success');
     }
 
@@ -86,10 +111,95 @@ class Broadcasts extends Component
         $bumps = BumpOffer::query()->get()->mapWithKeys(fn (BumpOffer $bumpOffer) => ['bump:'.$bumpOffer->id => 'Order bump: '.$bumpOffer->name]);
 
         return view('livewire.admin.broadcasts', [
+            'samples' => collect($this->samples())->map(fn (array $sample) => $sample['label'])->all(),
+            'previewHtml' => $this->previewing ? (string) (new BroadcastEmail($this->draft()))->toMail(auth()->user())->render() : null,
             'itemOptions' => $products->union($bumps)->all(),
             'recipientCount' => Broadcast::recipientsFor($this->audience())->count(),
             'history' => Broadcast::query()->with('sender')->latest()->limit(20)->get(),
         ]);
+    }
+
+    /**
+     * Starting points for common emails. {first_name} is filled in for each customer.
+     *
+     * @return array<string, array{label: string, subject: string, body: string, button_label: string, button_url: string}>
+     */
+    private function samples(): array
+    {
+        $appName = config('app.name');
+
+        return [
+            'announcement' => [
+                'label' => 'Announcement',
+                'subject' => "New in {$appName}: {first_name}, this one saves you time",
+                'body' => <<<MARKDOWN
+                    Hi {first_name},
+
+                    Quick update from the {$appName} team. We have just added something you asked for:
+
+                    **[Name of the new feature]** lets you [what it does, in one sentence].
+
+                    Here is how to try it in under a minute:
+
+                    1. Sign in and open **[where to find it]**.
+                    2. [The one thing to press or choose].
+                    3. That's it. [What happens next].
+
+                    Reply to this email and tell us what you think. We read every reply.
+
+                    Thanks for building with us,
+                    The {$appName} team
+                    MARKDOWN,
+                'button_label' => 'Try it now',
+                'button_url' => route('dashboard'),
+            ],
+            'tip' => [
+                'label' => 'Weekly tip',
+                'subject' => '{first_name}, a 2-minute trick to grow your newsletter',
+                'body' => <<<MARKDOWN
+                    Hi {first_name},
+
+                    Here is this week's tip for getting more from {$appName}.
+
+                    ## [The tip in a few words]
+
+                    [Explain the tip in two or three short sentences. Why it works, and who it helps.]
+
+                    - **Do this:** [the simple action]
+                    - **Why:** [the result they can expect]
+                    - **Time needed:** about 2 minutes
+
+                    Give it a go before your next newsletter goes out.
+
+                    The {$appName} team
+                    MARKDOWN,
+                'button_label' => 'Open my dashboard',
+                'button_url' => route('dashboard'),
+            ],
+            'upgrade' => [
+                'label' => 'Upgrade offer',
+                'subject' => '{first_name}, unlock more for your newsletters',
+                'body' => <<<MARKDOWN
+                    Hi {first_name},
+
+                    You have been publishing with {$appName}, and we think you are ready for the next step.
+
+                    **[Upgrade name]** adds:
+
+                    - [Benefit one]
+                    - [Benefit two]
+                    - [Benefit three]
+
+                    It is a one-time price, and it works with everything you have already set up.
+
+                    [Add a deadline or bonus here if there is one.]
+
+                    The {$appName} team
+                    MARKDOWN,
+                'button_label' => 'See the upgrade',
+                'button_url' => route('upgrades'),
+            ],
+        ];
     }
 
     /**

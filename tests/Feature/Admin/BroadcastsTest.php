@@ -89,8 +89,11 @@ test('a broadcast needs a sender, subject, message and, for owners, at least one
 
     Livewire::test(Broadcasts::class)
         ->set('fromEmail', 'not-an-email')
+        ->set('subject', '')
+        ->set('body', '')
         ->set('mode', 'owners')
         ->set('buttonLabel', 'Open')
+        ->set('buttonUrl', '')
         ->call('send')
         ->assertHasErrors(['fromEmail' => 'email', 'subject' => 'required', 'body' => 'required', 'items' => 'required', 'buttonUrl' => 'required_with']);
 
@@ -123,4 +126,19 @@ test('unsubscribe links cannot be forged', function () {
     $this->post(appUrl('emails/unsubscribe/'.$customer->id))->assertForbidden();
 
     expect($customer->fresh()->emails_unsubscribed_at)->toBeNull();
+});
+
+test('the message starts from an editable sample, and the preview shows the rendered email', function () {
+    $this->actingAs(User::factory()->admin()->create(['name' => 'Ada Admin']));
+
+    Livewire::test(Broadcasts::class)
+        ->assertSet('subject', fn (string $subject) => str_contains($subject, '{first_name}'))
+        ->assertSet('buttonUrl', route('dashboard'))
+        ->call('useSample', 'upgrade')
+        ->assertSet('buttonUrl', route('upgrades'))
+        ->set('body', 'Hi {first_name}, **big news**.')
+        ->set('previewing', true)
+        ->assertSeeHtml('srcdoc=')
+        ->assertSee('Hi Ada,')
+        ->assertSee('See the upgrade');
 });
