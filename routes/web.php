@@ -9,6 +9,7 @@ use App\Http\Controllers\Dashboard\IssueExportController;
 use App\Http\Controllers\Dashboard\IssuePreviewController;
 use App\Http\Controllers\Dashboard\SubscriberExportController;
 use App\Http\Controllers\Dashboard\SwitchPublicationController;
+use App\Http\Controllers\EmailUnsubscribeController;
 use App\Http\Controllers\RedeemCodeController;
 use App\Livewire;
 use Illuminate\Support\Facades\Route;
@@ -30,6 +31,9 @@ Route::domain(config('newspub.app_host'))->group(function () {
 
     Route::get('/welcome/{user}/{hash}', [WelcomeController::class, 'show'])->middleware('signed')->name('welcome.show');
     Route::post('/welcome/{user}/{hash}', [WelcomeController::class, 'store'])->middleware('signed')->name('welcome.store');
+
+    Route::get('/emails/unsubscribe/{user}', [EmailUnsubscribeController::class, 'show'])->middleware('signed')->name('emails.unsubscribe');
+    Route::post('/emails/unsubscribe/{user}', [EmailUnsubscribeController::class, 'store'])->middleware(['signed', 'throttle:20,1']);
 
     Route::get('/redeem/{reseller:reseller_slug?}', [RedeemCodeController::class, 'show'])->middleware('guest')->name('redeem.show');
     Route::post('/redeem/{reseller:reseller_slug?}', [RedeemCodeController::class, 'store'])->middleware(['guest', 'throttle:10,1'])->name('redeem.store');
@@ -95,6 +99,7 @@ Route::domain(config('newspub.app_host'))->group(function () {
             Route::get('/spend', Livewire\Admin\Spend::class)->name('spend');
             Route::get('/content', Livewire\Admin\Content::class)->name('content');
             Route::get('/bumps', Livewire\Admin\Bumps::class)->name('bumps');
+            Route::get('/emails', Livewire\Admin\Broadcasts::class)->name('broadcasts');
             Route::post('/bumps/{bumpOffer}/files', BumpFileUploadController::class)->name('bumps.files.store');
         });
     });

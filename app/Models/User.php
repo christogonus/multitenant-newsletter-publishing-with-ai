@@ -37,6 +37,7 @@ class User extends Authenticatable
             'is_demo' => 'boolean',
             'suspended_at' => 'datetime',
             'uses_default_password' => 'boolean',
+            'emails_unsubscribed_at' => 'datetime',
         ];
     }
 

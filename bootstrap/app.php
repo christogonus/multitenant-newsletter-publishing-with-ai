@@ -32,6 +32,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->validateCsrfTokens(except: [
             'ipn/*',
+            // One-click unsubscribe from mail clients carries no CSRF token; the link is signed instead.
+            'emails/unsubscribe/*',
             'internal/domains/*/certificate-callback',
             'subscribe',
             'report',

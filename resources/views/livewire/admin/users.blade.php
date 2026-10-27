@@ -2,6 +2,7 @@
     <x-ui.page-header title="Buyers" description="Accounts, purchases and refunds." icon="shield">
         <x-slot:actions>
             <x-ui.button icon="plus" wire:click="openDemoForm">Create demo account</x-ui.button>
+            <x-ui.button variant="ghost" :href="route('admin.broadcasts')">Emails</x-ui.button>
             <x-ui.button variant="ghost" :href="route('admin.reports')">Reports</x-ui.button>
             <x-ui.button variant="ghost" :href="route('admin.spend')">AI spend</x-ui.button>
             <x-ui.button variant="ghost" :href="route('admin.bumps')">Order bumps</x-ui.button>
@@ -110,7 +111,7 @@
                     <div class="space-y-3 rounded-card border border-line p-3">
                         <div>
                             <p class="text-sm font-semibold text-ink">Demo password</p>
-                            <p class="text-xs text-muted">People signed in to a demo account cannot change its password, email or two-step sign in. A new password signs everyone out.</p>
+                            <p class="text-xs text-muted">People signed in to a demo account cannot change its password, email or two-step sign in. A new password also turns off two-step sign in and signs everyone out.</p>
                         </div>
                         @if ($demoNewPassword)
                             <x-ui.alert tone="success">Copy the new password now. It is not shown again.</x-ui.alert>
