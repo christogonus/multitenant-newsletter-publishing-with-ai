@@ -7,6 +7,8 @@
         </x-slot:actions>
     </x-ui.page-header>
 
+    <x-admin.trend-radar-notice :with-button="false" />
+
     <form wire:submit="send" class="grid gap-6 lg:grid-cols-[1fr_22rem]">
         <x-ui.card title="Message">
             <div class="space-y-5">

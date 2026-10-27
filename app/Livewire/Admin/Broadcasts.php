@@ -7,6 +7,7 @@ use App\Jobs\SendBroadcast;
 use App\Models\Broadcast;
 use App\Models\BumpOffer;
 use App\Notifications\BroadcastEmail;
+use App\Support\TrendRadar;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rule;
@@ -50,11 +51,16 @@ class Broadcasts extends Component
      */
     public bool $previewing = false;
 
+    /**
+     * Marks what a broadcast delivers, such as "trend-radar-3", so reminders know it went out.
+     */
+    public ?string $tag = null;
+
     public function mount(): void
     {
         $this->fromName = (string) config('mail.from.name');
         $this->fromEmail = (string) config('mail.from.address');
-        $this->useSample('announcement');
+        $this->useSample(request()->query('sample') === 'trend_radar' ? 'trend_radar' : 'announcement');
     }
 
     /**
@@ -72,6 +78,7 @@ class Broadcasts extends Component
         $this->body = $sample['body'];
         $this->buttonLabel = $sample['button_label'];
         $this->buttonUrl = $sample['button_url'];
+        $this->tag = $sample['tag'] ?? null;
         $this->previewing = false;
         $this->resetValidation();
     }
@@ -122,13 +129,38 @@ class Broadcasts extends Component
     /**
      * Starting points for common emails. {first_name} is filled in for each customer.
      *
-     * @return array<string, array{label: string, subject: string, body: string, button_label: string, button_url: string}>
+     * @return array<string, array{label: string, subject: string, body: string, button_label: string, button_url: string, tag?: string}>
      */
     private function samples(): array
     {
         $appName = config('app.name');
+        $trendRadar = app(TrendRadar::class);
+        $edition = $trendRadar->currentEdition();
 
         return [
+            ...($edition >= 2 ? ['trend_radar' => [
+                'label' => "Trend Radar Edition {$edition}",
+                'subject' => "Your Newsletter Trend Radar: Edition {$edition} is here",
+                'body' => <<<MARKDOWN
+                    Hi {first_name},
+
+                    Edition {$edition} of **The Newsletter Trend Radar** is ready for you. This is your {$trendRadar->month($edition)} briefing on what's shifting in the newsletter world, and what to do about it.
+
+                    Inside this edition:
+
+                    - **The big shift:** [one line on this month's biggest change]
+                    - **Platform watch:** what's new at beehiiv, Ghost, Kit and the inbox providers
+                    - **Sponsor market:** [one line on where sponsor money is moving]
+                    - **Niche heat map:** the niches heating up, holding steady and cooling off
+
+                    Each section ends with one move to make now. Read those first if you're short on time.
+
+                    The {$appName} team
+                    MARKDOWN,
+                'button_label' => "Read Edition {$edition}",
+                'button_url' => '',
+                'tag' => TrendRadar::tag($edition),
+            ]] : []),
             'announcement' => [
                 'label' => 'Announcement',
                 'subject' => "New in {$appName}: {first_name}, this one saves you time",
@@ -226,6 +258,7 @@ class Broadcasts extends Component
             'button_label' => $this->buttonLabel ?: null,
             'button_url' => $this->buttonUrl ?: null,
             'audience' => $this->audience(),
+            'tag' => $this->tag,
         ]);
     }
 

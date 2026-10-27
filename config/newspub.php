@@ -133,4 +133,13 @@ return [
      */
     'alert_email' => env('NEWSPUB_ALERT_EMAIL'),
 
+    /*
+     * The Newsletter Trend Radar bonus: 12 monthly editions, Edition 1 in the starting month (it ships with the
+     * bonus pack). From Edition 2 on, the admin area reminds admins to write each edition and email it to buyers.
+     */
+    'trend_radar' => [
+        'starts' => env('NEWSPUB_TREND_RADAR_START', '2026-11-01'),
+        'editions' => 12,
+    ],
+
 ];

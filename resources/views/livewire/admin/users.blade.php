@@ -12,6 +12,8 @@
         </x-slot:actions>
     </x-ui.page-header>
 
+    <x-admin.trend-radar-notice />
+
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
         <x-ui.input wire:model.live.debounce.300ms="search" icon="search" placeholder="Search name or email" aria-label="Search buyers" class="flex-1" />
         <x-ui.checkbox wire:model.live="revokedOnly" label="Only refunded or charged back" />

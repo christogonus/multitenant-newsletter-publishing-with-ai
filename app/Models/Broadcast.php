@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * An email an admin sends to a group of customers: everyone, or the owners of chosen products and order bumps.
  * Suspended accounts and anyone who unsubscribed never get one; demo accounts only when the admin asks.
  */
-#[Fillable(['sent_by', 'from_name', 'from_email', 'subject', 'body', 'button_label', 'button_url', 'audience', 'recipients_count', 'sent_at'])]
+#[Fillable(['sent_by', 'from_name', 'from_email', 'subject', 'body', 'button_label', 'button_url', 'audience', 'tag', 'recipients_count', 'sent_at'])]
 class Broadcast extends Model
 {
     /** @use HasFactory<BroadcastFactory> */

@@ -142,3 +142,33 @@ test('the message starts from an editable sample, and the preview shows the rend
         ->assertSee('Hi Ada,')
         ->assertSee('See the upgrade');
 });
+
+test('the trend radar notice asks for each monthly edition from Edition 2 until its email is sent', function () {
+    Notification::fake();
+    config(['newspub.trend_radar.starts' => '2026-11-01']);
+    $this->actingAs(User::factory()->admin()->create());
+    buyer();
+
+    $this->travelTo('2026-11-20');
+    $this->get(route('admin.users'))->assertOk()->assertDontSee('Trend Radar Edition');
+
+    $this->travelTo('2026-12-03');
+    $this->get(route('admin.users'))->assertSee('Trend Radar Edition 2 (December 2026) is due')
+        ->assertSee(route('admin.broadcasts', ['sample' => 'trend_radar']), false);
+
+    Livewire::withQueryParams(['sample' => 'trend_radar'])->test(Broadcasts::class)
+        ->assertSet('subject', 'Your Newsletter Trend Radar: Edition 2 is here')
+        ->assertSet('tag', 'trend-radar-2')
+        ->set('buttonUrl', 'https://bonuses.example.com/trend-radar-2.pdf')
+        ->call('send')
+        ->assertHasNoErrors();
+
+    expect(Broadcast::sole()->tag)->toBe('trend-radar-2');
+    $this->get(route('admin.users'))->assertDontSee('Trend Radar Edition 2');
+
+    $this->travelTo('2027-01-04');
+    $this->get(route('admin.users'))->assertSee('Trend Radar Edition 3 (January 2027) is due');
+
+    $this->travelTo('2027-11-01');
+    $this->get(route('admin.users'))->assertDontSee('Trend Radar Edition');
+});
