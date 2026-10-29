@@ -126,6 +126,13 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'launchpad' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/launchpad.log'),
+            'level' => 'info',
+            'replace_placeholders' => true,
+        ],
+
         'null' => [
             'driver' => 'monolog',
             'handler' => NullHandler::class,

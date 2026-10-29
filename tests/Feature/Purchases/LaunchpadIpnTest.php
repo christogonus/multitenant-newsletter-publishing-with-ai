@@ -181,6 +181,24 @@ test('an IPN with the wrong key, or none, is rejected', function () {
     expect(User::count())->toBe(0)->and(Purchase::count())->toBe(0);
 });
 
+test('every IPN is logged as it arrived, rejected ones included, without the webhook key', function () {
+    $logged = [];
+    Log::shouldReceive('channel')->with('launchpad')->andReturnSelf();
+    Log::shouldReceive('info')->with('IPN received', Mockery::capture($context))->andReturnUsing(function () use (&$logged, &$context) {
+        $logged[] = $context;
+    });
+    Log::shouldReceive('warning');
+
+    postIpn(ipnPayload(), 'nope')->assertForbidden();
+    $this->postJson(appUrl('ipn/launchpad'), ipnPayload(), ['X-Webhook-Key' => 'test-webhook-key'])->assertOk();
+
+    expect($logged)->toHaveCount(2)
+        ->and(json_decode($logged[0]['body'], true))->toBe(ipnPayload())
+        ->and($logged[0]['query'])->not->toHaveKey('key')
+        ->and($logged[1]['headers'])->not->toHaveKey('x-webhook-key')
+        ->and(json_encode($logged))->not->toContain('test-webhook-key');
+});
+
 test('the key may be sent as a header instead', function () {
     $this->postJson(appUrl('ipn/launchpad'), ipnPayload(), ['X-Webhook-Key' => 'test-webhook-key'])->assertOk();
 

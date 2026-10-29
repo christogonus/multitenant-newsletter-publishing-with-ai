@@ -37,6 +37,8 @@ class LaunchpadIpnController extends Controller
 {
     public function __invoke(Request $request, RecordPurchase $recordPurchase): Response
     {
+        $this->logReceived($request);
+
         $expectedKey = (string) config('products.launchpad.webhook_key');
 
         if ($expectedKey === '') {
@@ -115,6 +117,21 @@ class LaunchpadIpnController extends Controller
         }
 
         return response($result['duplicate'] ? 'Duplicate' : 'OK', 200);
+    }
+
+    /**
+     * Writes every IPN exactly as it arrived to storage/logs/launchpad.log, before the key is checked,
+     * with the webhook key left out. A full or unwritable disk never fails the IPN.
+     */
+    private function logReceived(Request $request): void
+    {
+        rescue(fn () => Log::channel('launchpad')->info('IPN received', [
+            'ip' => $request->ip(),
+            'method' => $request->method(),
+            'query' => collect($request->query->all())->except('key')->all(),
+            'headers' => collect($request->headers->all())->except(['x-webhook-key', 'cookie', 'authorization'])->map(fn (array $values): string => implode(', ', $values))->all(),
+            'body' => $request->getContent(),
+        ]));
     }
 
     /**
