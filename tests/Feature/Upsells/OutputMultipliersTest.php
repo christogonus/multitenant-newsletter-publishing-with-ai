@@ -169,6 +169,16 @@ test('a banner that is too narrow or not an image is rejected', function (Upload
     'not an image' => fn () => UploadedFile::fake()->create('banner.pdf', 100, 'application/pdf'),
 ]);
 
+test('a logo that is not an image is rejected without breaking the page', function () {
+    Storage::fake('public');
+    $newsletter = Newsletter::factory()->for(buyer(Product::Oto8Premium))->create();
+    $this->actingAs($newsletter->user);
+
+    Livewire::test(Design::class)->set('logo', UploadedFile::fake()->create('logo.pdf', 100, 'application/pdf'))->call('saveBranding')->assertHasErrors('logo');
+
+    expect($newsletter->fresh()->branding['logo_path'] ?? null)->toBeNull();
+});
+
 test('a brand colour that is not a hex colour is rejected', function () {
     $newsletter = Newsletter::factory()->for(buyer(Product::Oto8Premium))->create();
     $this->actingAs($newsletter->user);

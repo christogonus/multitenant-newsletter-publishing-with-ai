@@ -78,7 +78,7 @@
                 <x-ui.select wire:model="font" label="Font" :options="$fonts" placeholder="Use the template's font" />
                 <x-ui.field label="Logo" for="logo" :error="$errors->first('logo')" hint="PNG, JPG or WEBP, under 1 MB." class="sm:col-span-2">
                     <div class="flex flex-wrap items-center gap-4">
-                        @if ($logo)
+                        @if ($logo?->isPreviewable())
                             <img src="{{ $logo->temporaryUrl() }}" alt="New logo preview" class="h-12 rounded border border-line bg-white p-1">
                         @elseif (! empty($this->newsletter->branding['logo_path']))
                             <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($this->newsletter->branding['logo_path']) }}" alt="Current logo" class="h-12 rounded border border-line bg-white p-1">
