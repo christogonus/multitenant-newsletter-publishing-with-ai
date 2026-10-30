@@ -15,7 +15,9 @@ use App\Models\Issue;
 use App\Models\Newsletter;
 use App\Models\SocialPost;
 use App\Support\DomainVerifier;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\Support\FakeDnsVerifier;
 
@@ -136,6 +138,36 @@ test('premium buyers set brand colours that reach the public page', function () 
 
     $this->get(publicationUrl($newsletter))->assertOk()->assertSee('--accent: #ff6600', false);
 });
+
+test('any owner uploads a banner that shows on their public page, and can remove it', function () {
+    Storage::fake('public');
+    $newsletter = Newsletter::factory()->create();
+    $this->actingAs($newsletter->user);
+
+    Livewire::test(Design::class)->set('banner', UploadedFile::fake()->image('banner.jpg', 1600, 400))->call('saveBanner')->assertHasNoErrors();
+
+    $path = $newsletter->fresh()->branding['banner_path'];
+    Storage::disk('public')->assertExists($path);
+    $this->get(publicationUrl($newsletter))->assertOk()->assertSee('class="banner"', false)->assertSee(Storage::disk('public')->url($path), false);
+
+    Livewire::test(Design::class)->call('removeBanner');
+
+    Storage::disk('public')->assertMissing($path);
+    $this->get(publicationUrl($newsletter))->assertOk()->assertDontSee('class="banner"', false);
+});
+
+test('a banner that is too narrow or not an image is rejected', function (UploadedFile $file) {
+    Storage::fake('public');
+    $newsletter = Newsletter::factory()->create();
+    $this->actingAs($newsletter->user);
+
+    Livewire::test(Design::class)->set('banner', $file)->call('saveBanner')->assertHasErrors('banner');
+
+    expect($newsletter->fresh()->branding['banner_path'] ?? null)->toBeNull();
+})->with([
+    'too narrow' => fn () => UploadedFile::fake()->image('banner.jpg', 300, 100),
+    'not an image' => fn () => UploadedFile::fake()->create('banner.pdf', 100, 'application/pdf'),
+]);
 
 test('a brand colour that is not a hex colour is rejected', function () {
     $newsletter = Newsletter::factory()->for(buyer(Product::Oto8Premium))->create();

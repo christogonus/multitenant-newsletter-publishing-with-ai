@@ -41,6 +41,27 @@
         </div>
     </x-ui.card>
 
+    <x-ui.card title="Banner" description="A wide image across the top of your page. It does not appear in your emails.">
+        <form wire:submit="saveBanner" class="space-y-4">
+            <x-ui.field label="Banner image" for="banner" :error="$errors->first('banner')" hint="PNG, JPG or WEBP, under 2 MB. About 1600 by 400 pixels looks best.">
+                <div class="space-y-3">
+                    @if ($banner?->isPreviewable())
+                        <img src="{{ $banner->temporaryUrl() }}" alt="New banner preview" class="max-h-40 w-full rounded border border-line object-cover">
+                    @elseif (! empty($this->newsletter->branding['banner_path']))
+                        <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($this->newsletter->branding['banner_path']) }}" alt="Current banner" class="max-h-40 w-full rounded border border-line object-cover">
+                    @endif
+                    <input id="banner" type="file" wire:model="banner" accept="image/png,image/jpeg,image/webp" class="text-sm text-muted file:mr-3 file:min-h-11 file:rounded-control file:border-0 file:bg-subtle file:px-4 file:font-semibold file:text-ink" />
+                </div>
+            </x-ui.field>
+            <div class="flex flex-wrap justify-end gap-3">
+                @if (! empty($this->newsletter->branding['banner_path']) && ! $banner)
+                    <x-ui.button variant="ghost" wire:click="removeBanner" wire:confirm="Remove the banner from your page?">Remove banner</x-ui.button>
+                @endif
+                <x-ui.button type="submit" area="create" loading="saveBanner">Save banner</x-ui.button>
+            </div>
+        </form>
+    </x-ui.card>
+
     @if (! $hasPremium)
         <x-ui.locked-feature :product="$premiumProduct">
             Unlock 4 premium designs, your own logo, colours and fonts, and your own web address such as news.yourname.com.

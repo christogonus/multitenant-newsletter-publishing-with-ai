@@ -34,9 +34,10 @@ class Newsletter extends Model
             $newsletter->domain?->delete();
         });
 
-        // Uploaded logos and issue pictures go with the publication.
+        // Uploaded logos, banners and issue pictures go with the publication.
         static::deleted(function (Newsletter $newsletter) {
             Storage::disk('public')->deleteDirectory('logos/'.$newsletter->id);
+            Storage::disk('public')->deleteDirectory('banners/'.$newsletter->id);
             Storage::disk('public')->deleteDirectory('issue-images/'.$newsletter->id);
         });
     }

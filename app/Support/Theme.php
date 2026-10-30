@@ -25,7 +25,7 @@ class Theme
     }
 
     /**
-     * @return array{key: string, name: string, font: string, heading_font: string, background: string, surface: string, text: string, muted: string, accent: string, header: string, radius: string, logo_url: ?string}
+     * @return array{key: string, name: string, font: string, heading_font: string, background: string, surface: string, text: string, muted: string, accent: string, header: string, radius: string, logo_url: ?string, banner_url: ?string}
      */
     public static function for(Newsletter $newsletter): array
     {
@@ -55,6 +55,8 @@ class Theme
             }
         }
 
+        // The banner is for every publication, not only premium ones.
+        $bannerPath = $newsletter->branding['banner_path'] ?? null;
         $fonts = config('templates.fonts');
 
         return [
@@ -70,6 +72,7 @@ class Theme
             'header' => $tokens['header'],
             'radius' => $tokens['radius'],
             'logo_url' => $logoUrl,
+            'banner_url' => $bannerPath ? Storage::disk('public')->url($bannerPath) : null,
         ];
     }
 

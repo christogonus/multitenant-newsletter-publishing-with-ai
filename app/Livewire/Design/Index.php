@@ -34,6 +34,9 @@ class Index extends Component
     /** @var TemporaryUploadedFile|null */
     public $logo = null;
 
+    /** @var TemporaryUploadedFile|null */
+    public $banner = null;
+
     public string $hostname = '';
 
     public function mount(): void
@@ -108,6 +111,54 @@ class Index extends Component
         }
 
         unset($branding['logo_path']);
+        $newsletter->update(['branding' => $branding]);
+        PublicPageCache::bust($newsletter);
+        unset($this->newsletter);
+    }
+
+    /**
+     * The wide image across the top of the public page. Open to every publication, unlike the rest of the brand.
+     */
+    public function saveBanner(): void
+    {
+        $newsletter = $this->newsletter;
+        $this->authorize('update', $newsletter);
+
+        $this->validate([
+            'banner' => ['required', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048', 'dimensions:min_width=600,max_width=4000,max_height=2000'],
+        ], [
+            'banner.required' => 'Choose an image first.',
+            'banner.max' => 'The banner must be smaller than 2 MB.',
+            'banner.dimensions' => 'Use an image at least 600 pixels wide and no larger than 4000 by 2000 pixels.',
+        ]);
+
+        $branding = $newsletter->branding ?? [];
+
+        if (! empty($branding['banner_path'])) {
+            Storage::disk('public')->delete($branding['banner_path']);
+        }
+
+        $branding['banner_path'] = $this->banner->store('banners/'.$newsletter->id, 'public');
+        $this->banner = null;
+
+        $newsletter->update(['branding' => $branding]);
+        PublicPageCache::bust($newsletter);
+        unset($this->newsletter);
+        $this->toast('Banner saved. It now shows at the top of your page.');
+    }
+
+    public function removeBanner(): void
+    {
+        $newsletter = $this->newsletter;
+        $this->authorize('update', $newsletter);
+
+        $branding = $newsletter->branding ?? [];
+
+        if (! empty($branding['banner_path'])) {
+            Storage::disk('public')->delete($branding['banner_path']);
+        }
+
+        unset($branding['banner_path']);
         $newsletter->update(['branding' => $branding]);
         PublicPageCache::bust($newsletter);
         unset($this->newsletter);

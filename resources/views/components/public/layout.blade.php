@@ -43,6 +43,7 @@
         .masthead.band a, .masthead.band .tagline { color: var(--on-accent); }
         .masthead .name { font-family: {!! $theme['heading_font'] !!}; font-size: 30px; font-weight: 800; text-decoration: none; color: inherit; }
         .masthead .tagline { color: var(--muted); margin: 4px 0 0; font-size: 16px; }
+        .banner { display: block; width: 100%; height: auto; max-height: 320px; object-fit: cover; border-radius: var(--radius); margin-top: 8px; }
         .masthead img.logo { max-height: 56px; max-width: 220px; display: inline-block; margin-bottom: 8px; }
         .bg-dark .masthead:not(.band) .name, .bg-dark .masthead:not(.band) .tagline { color: #f8fafc; }
         .muted { color: var(--muted); }
@@ -84,6 +85,9 @@
 </head>
 <body @class(['bg-dark' => \App\Support\Theme::onColor($theme['background']) === '#ffffff'])>
     <div class="wrap">
+        @if ($theme['banner_url'])
+            <img class="banner" src="{{ $theme['banner_url'] }}" alt="">
+        @endif
         <header @class(['masthead', 'band' => $theme['header'] === 'band'])>
             @if ($theme['logo_url'])
                 <div><img class="logo" src="{{ $theme['logo_url'] }}" alt="{{ $newsletter->name }} logo"></div>
