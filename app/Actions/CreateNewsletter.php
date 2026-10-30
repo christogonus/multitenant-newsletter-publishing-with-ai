@@ -4,8 +4,10 @@ namespace App\Actions;
 
 use App\Exceptions\PublicationLimitReachedException;
 use App\Models\Newsletter;
+use App\Models\ReservedSubdomain;
 use App\Models\User;
 use App\Support\Entitlements;
+use Closure;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -14,7 +16,12 @@ class CreateNewsletter
 {
     public function __construct(private Entitlements $entitlements) {}
 
+    public const SUBDOMAIN_MIN_LENGTH = 5;
+
     /**
+     * The length and reserved-name checks only apply to a new address, so a publication
+     * that already has a short or now-reserved subdomain can keep it.
+     *
      * @return array<int, mixed>
      */
     public static function subdomainRules(?Newsletter $ignore = null): array
@@ -22,10 +29,19 @@ class CreateNewsletter
         return [
             'required',
             'string',
-            'min:3',
             'max:40',
             'regex:/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/',
-            Rule::notIn(config('newspub.reserved_subdomains')),
+            function (string $attribute, mixed $value, Closure $fail) use ($ignore): void {
+                if ($ignore && $value === $ignore->subdomain) {
+                    return;
+                }
+
+                if (mb_strlen((string) $value) < self::SUBDOMAIN_MIN_LENGTH) {
+                    $fail('Use at least '.self::SUBDOMAIN_MIN_LENGTH.' characters.');
+                } elseif (in_array($value, ReservedSubdomain::names(), true)) {
+                    $fail('That web address is reserved. Try another.');
+                }
+            },
             Rule::unique('newsletters', 'subdomain')->ignore($ignore),
         ];
     }
@@ -73,7 +89,7 @@ class CreateNewsletter
     public function availableSubdomain(string $name): string
     {
         $base = Str::limit(Str::slug($name), 34, '') ?: 'newsletter';
-        $base = in_array($base, config('newspub.reserved_subdomains'), true) ? $base.'-news' : $base;
+        $base = mb_strlen($base) < self::SUBDOMAIN_MIN_LENGTH || in_array($base, ReservedSubdomain::names(), true) ? $base.'-news' : $base;
         $candidate = $base;
         $suffix = 2;
 

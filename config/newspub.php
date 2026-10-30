@@ -22,9 +22,13 @@ return [
     'public_scheme' => env('NEWSPUB_PUBLIC_SCHEME', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_SCHEME) ?: 'https'),
 
     /*
-     * Subdomains no publication may claim.
+     * Subdomains no publication may claim. Admins add more under Admin, Reserved addresses.
      */
-    'reserved_subdomains' => ['www', 'app', 'admin', 'api', 'mail', 'help', 'support', 'blog', 'status', 'static', 'cdn', 'internal'],
+    'reserved_subdomains' => [
+        'www', 'app', 'admin', 'api', 'mail', 'help', 'support', 'blog', 'status', 'static', 'cdn', 'internal',
+        'email', 'webmail', 'noreply', 'no-reply', 'cpanel', 'whm', 'webdisk', 'smtp', 'imap', 'pop', 'pop3', 'ftp',
+        'autodiscover', 'autoconfig', 'billing', 'login', 'account', 'dashboard',
+    ],
 
     /*
     |--------------------------------------------------------------------------

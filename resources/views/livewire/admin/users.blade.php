@@ -6,6 +6,7 @@
             <x-ui.button variant="ghost" :href="route('admin.reports')">Reports</x-ui.button>
             <x-ui.button variant="ghost" :href="route('admin.spend')">AI spend</x-ui.button>
             <x-ui.button variant="ghost" :href="route('admin.bumps')">Order bumps</x-ui.button>
+            <x-ui.button variant="ghost" :href="route('admin.subdomains')">Reserved addresses</x-ui.button>
             <x-ui.button variant="ghost" :href="route('admin.content')">Content</x-ui.button>
             <x-ui.button variant="ghost" href="/pulse" icon-right="external">Pulse</x-ui.button>
             <x-ui.button variant="ghost" href="/horizon" icon-right="external">Queues</x-ui.button>

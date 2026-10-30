@@ -99,6 +99,7 @@ Route::domain(config('newspub.app_host'))->group(function () {
             Route::get('/spend', Livewire\Admin\Spend::class)->name('spend');
             Route::get('/content', Livewire\Admin\Content::class)->name('content');
             Route::get('/bumps', Livewire\Admin\Bumps::class)->name('bumps');
+            Route::get('/subdomains', Livewire\Admin\Subdomains::class)->name('subdomains');
             Route::get('/emails', Livewire\Admin\Broadcasts::class)->name('broadcasts');
             Route::post('/bumps/{bumpOffer}/files', BumpFileUploadController::class)->name('bumps.files.store');
         });
