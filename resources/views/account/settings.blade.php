@@ -12,6 +12,8 @@
 
         @if (session('status') === 'profile-information-updated')
             <x-ui.alert tone="success">Your details were saved.</x-ui.alert>
+        @elseif (session('status') === 'email-changed')
+            <x-ui.alert tone="success">Your email was changed. Use the new one next time you sign in.</x-ui.alert>
         @elseif (session('status') === 'password-updated')
             <x-ui.alert tone="success">Your password was changed.</x-ui.alert>
         @elseif (session('status') === 'two-factor-authentication-confirmed')
@@ -36,13 +38,17 @@
                 @elseif ($onStartingPassword)
                     <x-ui.input name="email" type="email" label="Email" :value="$user->email" hint="You can change your email after you choose your own password." readonly required />
                 @else
-                    <x-ui.input name="email" type="email" label="Email" :value="old('email', $user->email)" hint="The email you sign in with. Your purchases stay linked to this account if you change it." required />
+                    <x-ui.input name="email" type="email" label="Email" :value="$user->email" hint="The email you sign in with. To change it, use Change email below." readonly required />
                 @endif
                 @unless ($isSharedDemo)
                     <div class="sm:col-span-2 flex justify-end"><x-ui.button type="submit">Save details</x-ui.button></div>
                 @endunless
             </form>
         </x-ui.card>
+
+        @unless ($isSharedDemo || $onStartingPassword)
+            <livewire:account.change-email />
+        @endunless
 
         @if ($isSharedDemo)
             <x-ui.card title="Password">

@@ -2,12 +2,15 @@
 
 use App\Enums\Product;
 use App\Enums\PurchaseAction;
+use App\Livewire\Account\ChangeEmail;
 use App\Models\BumpOffer;
 use App\Models\Purchase;
 use App\Models\User;
+use App\Notifications\EmailChangeCode;
 use App\Notifications\IpnNeedsAttention;
 use App\Notifications\WelcomeBuyer;
 use Illuminate\Support\Facades\Notification;
+use Livewire\Livewire;
 
 beforeEach(function () {
     configureLaunchpad();
@@ -208,13 +211,17 @@ test('a buyer who changes their login email keeps getting upsells and refunds on
 test('nobody can switch their login to an email another account paid with', function () {
     postIpn(ipnPayload());
     User::sole()->forceFill(['email' => 'new-login@example.com'])->save();
-    $other = User::factory()->create();
+    $other = User::factory()->create(['password' => 'their-own-secret']);
 
-    $this->actingAs($other)
-        ->put(route('user-profile-information.update'), ['name' => $other->name, 'email' => 'buyer@example.com'])
-        ->assertSessionHasErrorsIn('updateProfileInformation', 'email');
+    $this->actingAs($other);
+    Livewire::test(ChangeEmail::class)
+        ->set('email', 'buyer@example.com')
+        ->set('password', 'their-own-secret')
+        ->call('sendCode')
+        ->assertHasErrors('email');
 
     expect($other->fresh()->email)->not->toBe('buyer@example.com');
+    Notification::assertSentOnDemandTimes(EmailChangeCode::class, 0);
 });
 
 test('gold grants silver but silver does not grant gold', function () {
