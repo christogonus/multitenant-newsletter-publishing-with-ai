@@ -5,6 +5,7 @@ namespace App\Livewire\Account;
 use App\Models\User;
 use App\Notifications\EmailChangeCode;
 use App\Notifications\EmailChanged;
+use App\Support\LoginEmail;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -12,7 +13,6 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 /**
@@ -57,9 +57,9 @@ class ChangeEmail extends Component
         $this->email = Str::lower(trim($this->email));
 
         $this->validate([
-            'email' => $this->emailRules($user),
+            'email' => LoginEmail::rules($user),
             'password' => ['required', 'current_password:web'],
-        ], $this->emailMessages());
+        ], LoginEmail::messages('email'));
 
         $code = (string) random_int(100000, 999999);
         Cache::put($this->cacheKey(), ['email' => $this->email, 'hash' => $this->hashCode($code)], now()->addMinutes(self::CODE_MINUTES));
@@ -87,7 +87,7 @@ class ChangeEmail extends Component
         }
 
         // Someone else may have taken the address since the code was sent.
-        $validator = Validator::make(['email' => $newEmail], ['email' => $this->emailRules($user)], $this->emailMessages());
+        $validator = Validator::make(['email' => $newEmail], ['email' => LoginEmail::rules($user)], LoginEmail::messages('email'));
 
         if ($validator->fails()) {
             $this->addError('code', $validator->errors()->first('email'));
@@ -132,34 +132,6 @@ class ChangeEmail extends Component
     }
 
     /**
-     * @return array<int, mixed>
-     */
-    private function emailRules(User $user): array
-    {
-        return [
-            'required',
-            'string',
-            'email',
-            'max:255',
-            Rule::notIn([Str::lower($user->email)]),
-            Rule::unique('users', 'email')->ignore($user->id),
-            // Purchases are matched on the email they were paid with, so it must keep pointing at the account that paid.
-            Rule::unique('purchases', 'buyer_email')->ignore($user->id, 'user_id'),
-        ];
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function emailMessages(): array
-    {
-        return [
-            'email.not_in' => 'That is already your email.',
-            'email.unique' => 'That email is already used by another account.',
-        ];
-    }
-
-    /**
      * The email the code unlocks, or null. Each code works once and allows a few wrong guesses before it is thrown
      * away; the guess is counted atomically first, so guesses sent in parallel can't share an attempt.
      */
@@ -196,6 +168,15 @@ class ChangeEmail extends Component
     private function attemptsKey(): string
     {
         return $this->cacheKey().':attempts';
+    }
+
+    /**
+     * Throws away a code that is waiting to be typed, for when an admin moves the account to another email.
+     */
+    public static function forgetCode(User $user): void
+    {
+        Cache::forget('email-change-code:'.$user->id);
+        Cache::forget('email-change-code:'.$user->id.':attempts');
     }
 
     private function hashCode(string $code): string

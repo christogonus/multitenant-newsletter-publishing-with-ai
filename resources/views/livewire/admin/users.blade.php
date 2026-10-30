@@ -84,6 +84,19 @@
                 </form>
 
                 @if (! $selected->is_admin && ! $selected->is(auth()->user()))
+                    @unless ($selected->is_demo)
+                        <div class="space-y-3 border-t border-line pt-4">
+                            <div>
+                                <p class="text-sm font-semibold text-ink">Change email</p>
+                                <p class="text-xs text-muted">For a mistyped checkout email or a lost inbox. First check this is the real buyer, for example from their transaction ID, because this hands them the account. Login details go to the new email{{ $selected->uses_default_password ? '.' : ', and their current password stops working.' }}</p>
+                            </div>
+                            <form wire:submit="changeEmail" class="space-y-3">
+                                <x-ui.input wire:model="newEmail" type="email" label="New email" autocomplete="off" />
+                                <x-ui.button type="submit" variant="secondary" icon="envelope" loading="changeEmail" wire:confirm="Move {{ $selected->email }} to the new email? They can no longer sign in with this one.">Change email</x-ui.button>
+                            </form>
+                        </div>
+                    @endunless
+
                     <div class="space-y-3 border-t border-line pt-4">
                         <p class="text-sm font-semibold text-ink">Account status</p>
                         @if ($selected->isSuspended())

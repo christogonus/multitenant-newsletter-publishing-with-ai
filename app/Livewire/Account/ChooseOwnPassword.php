@@ -3,6 +3,7 @@
 namespace App\Livewire\Account;
 
 use App\Actions\Fortify\PasswordValidationRules;
+use App\Models\User;
 use App\Notifications\PasswordChangeCode;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
@@ -113,6 +114,14 @@ class ChooseOwnPassword extends Component
     private function cacheKey(): string
     {
         return 'password-change-code:'.Auth::id();
+    }
+
+    /**
+     * Throws away a code that is waiting to be typed, for when an admin moves the account to another email.
+     */
+    public static function forgetCode(User $user): void
+    {
+        Cache::forget('password-change-code:'.$user->id);
     }
 
     private function hashCode(string $code): string

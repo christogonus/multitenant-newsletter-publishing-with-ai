@@ -7,12 +7,17 @@ use App\Actions\RecordPurchase;
 use App\Enums\Product;
 use App\Enums\PurchaseAction;
 use App\Enums\PurchaseSource;
+use App\Livewire\Account\ChangeEmail;
+use App\Livewire\Account\ChooseOwnPassword;
 use App\Models\BumpOffer;
 use App\Models\Purchase;
 use App\Models\User;
+use App\Notifications\EmailChanged;
 use App\Notifications\UpgradeUnlocked;
 use App\Notifications\WelcomeBuyer;
+use App\Support\LoginEmail;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Title;
@@ -42,6 +47,8 @@ class Users extends Component
     public bool $suspendedOnly = false;
 
     public string $suspensionReason = '';
+
+    public string $newEmail = '';
 
     /**
      * The email typed to confirm deleting an account.
@@ -79,7 +86,7 @@ class Users extends Component
     public function select(int $userId): void
     {
         $this->selectedId = $userId;
-        $this->reset('suspensionReason', 'deleteConfirmation', 'demoNewPassword');
+        $this->reset('suspensionReason', 'deleteConfirmation', 'demoNewPassword', 'newEmail');
         $this->resetValidation();
         $this->dispatch('open-slide-over', 'buyer');
     }
@@ -200,6 +207,41 @@ class Users extends Component
         $user->forceFill(['suspended_at' => null, 'suspension_reason' => null])->save();
 
         $this->dispatch('toast', message: $user->email.' is active again.', tone: 'success');
+    }
+
+    /**
+     * Moves a buyer to the email they really use, for a mistyped checkout email or a lost inbox, and sends their login
+     * details there. An own password is replaced because it may be known to whoever holds the old email: that also
+     * signs out other sessions and kills old set-password links. The shared starting password stays as it is.
+     */
+    public function changeEmail(): void
+    {
+        $this->authorizeAdmin();
+
+        $user = $this->manageableUser();
+
+        abort_if($user->is_demo, 403);
+
+        $this->newEmail = Str::lower(trim($this->newEmail));
+
+        $this->validate(['newEmail' => LoginEmail::rules($user)], LoginEmail::messages('newEmail'));
+
+        $oldEmail = $user->email;
+
+        if (! $user->uses_default_password) {
+            $user->forceFill(['password' => Str::password(32), 'remember_token' => Str::random(60)]);
+        }
+
+        $user->forceFill(['email' => $this->newEmail])->save();
+
+        ChangeEmail::forgetCode($user);
+        ChooseOwnPassword::forgetCode($user);
+
+        Notification::route('mail', $oldEmail)->notify(new EmailChanged);
+        $user->notify(new WelcomeBuyer);
+
+        $this->reset('newEmail');
+        $this->dispatch('toast', message: 'Moved to '.$user->email.'. Login details are on the way there.', tone: 'success');
     }
 
     /**
