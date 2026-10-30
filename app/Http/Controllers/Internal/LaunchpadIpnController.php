@@ -112,7 +112,7 @@ class LaunchpadIpnController extends Controller
         );
 
         if ($bumpOffer) {
-            $this->deliverBump($recordPurchase, $bumpOffer, $email, $name, $action, $transactionId, $bumpAmount, $productId, $payload);
+            $recordPurchase->handleBump($bumpOffer, $email, $name, $action, $transactionId, $bumpAmount, $productId, $payload);
         } elseif ($tookBump && ! $result['duplicate']) {
             // Never fail the sale over it, but make sure someone notices and gives the bump by hand.
             Log::error('IPN: buyer took the order bump but no active bump is set up', ['product' => $product->value, 'transaction_id' => $transactionId]);
@@ -145,40 +145,6 @@ class LaunchpadIpnController extends Controller
             'headers' => collect($request->headers->all())->except(['x-webhook-key', 'cookie', 'authorization'])->map(fn (array $values): string => implode(', ', $values))->all(),
             'body' => $request->getContent(),
         ]));
-    }
-
-    /**
-     * Records the bump line, plus the built-in product it unlocks (if any) on the same transaction.
-     *
-     * @param  array<string, mixed>  $payload
-     */
-    private function deliverBump(RecordPurchase $recordPurchase, BumpOffer $bumpOffer, string $email, ?string $name, PurchaseAction $action, string $transactionId, float $amount, string $productId, array $payload): void
-    {
-        $recordPurchase->handle(
-            email: $email,
-            name: $name,
-            product: null,
-            action: $action,
-            transactionId: $transactionId,
-            amount: $amount,
-            gatewayProductId: $productId,
-            payload: $payload,
-            sendWelcome: false,
-            bumpOffer: $bumpOffer,
-        );
-
-        if ($bumpOffer->unlocks_product) {
-            $recordPurchase->handle(
-                email: $email,
-                name: $name,
-                product: $bumpOffer->unlocks_product,
-                action: $action,
-                transactionId: $transactionId,
-                gatewayProductId: $productId,
-                payload: $payload,
-                sendWelcome: false,
-            );
-        }
     }
 
     /**

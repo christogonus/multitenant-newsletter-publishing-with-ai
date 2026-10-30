@@ -101,6 +101,42 @@ class RecordPurchase
     }
 
     /**
+     * Records an order bump taken on a transaction: the bump line, plus the built-in product it unlocks (if any).
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    public function handleBump(BumpOffer $bumpOffer, string $email, ?string $name, PurchaseAction $action, string $transactionId, float $amount, ?string $gatewayProductId, array $payload, ?User $user = null): void
+    {
+        $this->handle(
+            email: $email,
+            name: $name,
+            product: null,
+            action: $action,
+            transactionId: $transactionId,
+            amount: $amount,
+            gatewayProductId: $gatewayProductId,
+            payload: $payload,
+            sendWelcome: false,
+            bumpOffer: $bumpOffer,
+            user: $user,
+        );
+
+        if ($bumpOffer->unlocks_product) {
+            $this->handle(
+                email: $email,
+                name: $name,
+                product: $bumpOffer->unlocks_product,
+                action: $action,
+                transactionId: $transactionId,
+                gatewayProductId: $gatewayProductId,
+                payload: $payload,
+                sendWelcome: false,
+                user: $user,
+            );
+        }
+    }
+
+    /**
      * The account that has paid with this email before, even if its login email has since changed;
      * otherwise the account that logs in with it.
      */
