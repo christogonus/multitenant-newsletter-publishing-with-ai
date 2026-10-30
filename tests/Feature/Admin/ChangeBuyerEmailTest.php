@@ -9,10 +9,12 @@ use App\Notifications\EmailChangeCode;
 use App\Notifications\EmailChanged;
 use App\Notifications\PasswordChangeCode;
 use App\Notifications\WelcomeBuyer;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
+use Symfony\Component\Finder\SplFileInfo;
 
 beforeEach(function () {
     configureLaunchpad();
@@ -131,6 +133,16 @@ test('admins cannot move an admin account, their own, or a shared demo account',
     }
 
     expect(User::where('email', 'real@example.com')->exists())->toBeFalse();
+});
+
+test('no submit button carries a confirm box, because Livewire only honours it on the form', function () {
+    $offenders = collect(File::allFiles(resource_path('views')))
+        ->filter(fn (SplFileInfo $view) => preg_match('/<x-ui\.button\b(?=[^\n]*type="submit")(?=[^\n]*wire:confirm)/', $view->getContents()))
+        ->map(fn (SplFileInfo $view) => $view->getRelativePathname())
+        ->values()
+        ->all();
+
+    expect($offenders)->toBe([]);
 });
 
 test('buyers cannot move an account', function () {

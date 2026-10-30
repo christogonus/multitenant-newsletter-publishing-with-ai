@@ -90,9 +90,9 @@
                                 <p class="text-sm font-semibold text-ink">Change email</p>
                                 <p class="text-xs text-muted">For a mistyped checkout email or a lost inbox. First check this is the real buyer, for example from their transaction ID, because this hands them the account. Login details go to the new email{{ $selected->uses_default_password ? '.' : ', and their current password stops working.' }}</p>
                             </div>
-                            <form wire:submit="changeEmail" class="space-y-3">
+                            <form wire:submit="changeEmail" wire:confirm="Move {{ $selected->email }} to the new email? They can no longer sign in with this one." class="space-y-3">
                                 <x-ui.input wire:model="newEmail" type="email" label="New email" autocomplete="off" />
-                                <x-ui.button type="submit" variant="secondary" icon="envelope" loading="changeEmail" wire:confirm="Move {{ $selected->email }} to the new email? They can no longer sign in with this one.">Change email</x-ui.button>
+                                <x-ui.button type="submit" variant="secondary" icon="envelope" loading="changeEmail">Change email</x-ui.button>
                             </form>
                         </div>
                     @endunless
@@ -106,9 +106,9 @@
                             </x-ui.alert>
                             <x-ui.button variant="secondary" icon="check" wire:click="unsuspend" loading="unsuspend">Lift suspension</x-ui.button>
                         @else
-                            <form wire:submit="suspend" class="space-y-3">
+                            <form wire:submit="suspend" wire:confirm="Suspend {{ $selected->email }}? Their dashboard closes and their publications show “coming soon” until you lift it." class="space-y-3">
                                 <x-ui.input wire:model="suspensionReason" label="Private note" hint="Only admins see this. The owner is told to contact support." placeholder="e.g. Chargeback under review" optional />
-                                <x-ui.button type="submit" variant="secondary" icon="x-mark" loading="suspend" wire:confirm="Suspend {{ $selected->email }}? Their dashboard closes and their publications show “coming soon” until you lift it.">Suspend account</x-ui.button>
+                                <x-ui.button type="submit" variant="secondary" icon="x-mark" loading="suspend">Suspend account</x-ui.button>
                             </form>
                         @endif
                     </div>

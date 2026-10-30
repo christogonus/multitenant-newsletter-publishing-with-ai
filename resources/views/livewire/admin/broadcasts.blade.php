@@ -9,7 +9,7 @@
 
     <x-admin.trend-radar-notice :with-button="false" />
 
-    <form wire:submit="send" class="grid gap-6 lg:grid-cols-[1fr_22rem]">
+    <form wire:submit="send" wire:confirm="Send this email to {{ number_format($recipientCount) }} {{ \Illuminate\Support\Str::plural('person', $recipientCount) }}? This cannot be undone." class="grid gap-6 lg:grid-cols-[1fr_22rem]">
         <x-ui.card title="Message">
             <div class="space-y-5">
                 <div class="grid gap-5 sm:grid-cols-2">
@@ -143,7 +143,7 @@
             </x-ui.card>
 
             <div class="flex flex-col gap-2">
-                <x-ui.button type="submit" icon="envelope" loading="send" wire:confirm="Send this email to {{ number_format($recipientCount) }} {{ \Illuminate\Support\Str::plural('person', $recipientCount) }}? This cannot be undone.">Send to {{ number_format($recipientCount) }}</x-ui.button>
+                <x-ui.button type="submit" icon="envelope" loading="send">Send to {{ number_format($recipientCount) }}</x-ui.button>
                 <x-ui.button type="button" variant="secondary" wire:click="sendTest" loading="sendTest">Send a test to me</x-ui.button>
             </div>
         </div>
