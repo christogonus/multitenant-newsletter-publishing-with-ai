@@ -43,6 +43,12 @@ test('sales without the bump, refunded sales and buyers who already own the bump
     Notification::assertNotSentTo(User::all(), UpgradeUnlocked::class);
 });
 
+test('a Starter + Vault sale is not reported as a missing bump', function () {
+    postIpn(ipnPayload(['product_id' => launchpadId(Product::BumpVault), 'bump' => 'true']));
+
+    $this->artisan('launchpad:backfill-bumps')->doesntExpectOutputToContain('still has no active order bump')->assertSuccessful();
+});
+
 test('a dry run only lists the buyers, and products with no bump set up are reported', function () {
     postIpn(ipnPayload(['bump' => 'true']));
     postIpn(ipnPayload(['transaction_id' => 'pi_upsell', 'product_id' => 3003, 'bump' => 'true']));

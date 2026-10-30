@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Actions\RecordPurchase;
+use App\Enums\Product;
 use App\Enums\PurchaseAction;
 use App\Enums\PurchaseSource;
 use App\Models\BumpOffer;
@@ -29,6 +30,7 @@ class BackfillOrderBumps extends Command
             ->with('user')
             ->where('purchases.source', PurchaseSource::LaunchpadJv)
             ->whereNotNull('purchases.product_key')
+            ->where('purchases.product_key', '!=', Product::BumpVault)
             ->whereNotExists(function ($bumps) {
                 $bumps->selectRaw('1')
                     ->from('purchases as bumps')

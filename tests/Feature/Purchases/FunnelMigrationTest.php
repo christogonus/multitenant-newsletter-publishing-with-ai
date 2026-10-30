@@ -1,8 +1,22 @@
 <?php
 
 use App\Enums\Product;
+use App\Models\Purchase;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Laravel\Pennant\Feature;
+
+test('Starter + Vault buyers stored as locked out regain the app after the migration', function () {
+    $buyer = User::factory()->create();
+    Feature::for($buyer)->deactivate(Product::FrontEnd->value);
+    Purchase::factory()->for($buyer)->create(['product_key' => Product::BumpVault]);
+    Feature::flushCache();
+
+    (require database_path('migrations/2026_10_30_182320_forget_stored_front_end_access.php'))->up();
+    Feature::flushCache();
+
+    expect($buyer->owns(Product::FrontEnd))->toBeTrue();
+});
 
 /**
  * Writes a ledger row with a product key the enum no longer knows, the way it sits in the database before migrating.

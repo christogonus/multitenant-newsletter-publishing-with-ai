@@ -5,6 +5,7 @@ use App\Enums\PurchaseAction;
 use App\Models\BumpOffer;
 use App\Models\Purchase;
 use App\Models\User;
+use App\Notifications\IpnNeedsAttention;
 use App\Notifications\WelcomeBuyer;
 use Illuminate\Support\Facades\Notification;
 
@@ -89,6 +90,24 @@ test('a sale with the vault bump unlocks the vault too, splits the total and sen
         ->and(Purchase::where('bump_offer_id', $vault->id)->sole()->amount)->toBe('17.00');
 
     Notification::assertSentTimes(WelcomeBuyer::class, 1);
+});
+
+test('a Starter + Vault sale opens both the app and the vault, without a missing-bump alert', function () {
+    $admin = User::factory()->create();
+    $admin->forceFill(['is_admin' => true])->save();
+
+    postIpn(ipnPayload(['product_id' => launchpadId(Product::BumpVault), 'bump' => 'true']))->assertOk();
+
+    $buyer = User::where('email', 'buyer@example.com')->sole();
+    expect($buyer->owns(Product::FrontEnd))->toBeTrue()
+        ->and($buyer->owns(Product::BumpVault))->toBeTrue();
+    $this->actingAs($buyer)->get(appUrl('dashboard'))->assertOk()->assertDontSee('access is not active');
+    Notification::assertNotSentTo($admin, IpnNeedsAttention::class);
+
+    postIpn(ipnPayload(['product_id' => launchpadId(Product::BumpVault), 'action' => 'REFUND']))->assertOk();
+
+    expect($buyer->fresh()->owns(Product::FrontEnd))->toBeFalse()
+        ->and($buyer->fresh()->owns(Product::BumpVault))->toBeFalse();
 });
 
 test('refunding a transaction with the order bump takes back both', function () {

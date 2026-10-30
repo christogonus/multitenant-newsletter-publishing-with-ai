@@ -149,13 +149,14 @@ enum Product: string
     }
 
     /**
-     * Products whose ownership also grants this one (Gold includes Silver).
+     * Products whose ownership also grants this one (Gold includes Silver, and the vault is sold as "Starter + Vault").
      *
      * @return list<self>
      */
     public function grantedBy(): array
     {
         return match ($this) {
+            self::FrontEnd => [self::FrontEnd, self::BumpVault],
             self::Oto2Silver => [self::Oto2Silver, self::Oto2Gold],
             default => [$this],
         };

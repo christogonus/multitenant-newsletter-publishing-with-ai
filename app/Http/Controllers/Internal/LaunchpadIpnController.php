@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\Notification;
  * - Live sales arrive without "transaction_id", "total_amount" or checkout_*: the sale's "id" is the transaction ID then, and the amount is 0.
  * - "bump" says the order bump was taken on this same transaction, and "total_amount" includes it.
  *   It does not say which bump: that is the product's active bump, set up under Admin, Order bumps.
+ *   The "Starter + Vault" product already is the bump, so its "bump" flag means nothing more to deliver.
  * - "action" has been seen as "SALE", "Purchase" and "REFUND", so it is compared case-insensitively.
  * - A refund covers the whole transaction, order bump included, and lands on the account that made the sale.
  * - Buyers are matched on the email they paid with before their login email, so changing it on /account loses nothing.
@@ -96,7 +97,7 @@ class LaunchpadIpnController extends Controller
         }
 
         $total = (float) $request->input('total_amount', 0);
-        $tookBump = filter_var($request->input('bump', false), FILTER_VALIDATE_BOOLEAN);
+        $tookBump = $product !== Product::BumpVault && filter_var($request->input('bump', false), FILTER_VALIDATE_BOOLEAN);
         $bumpOffer = $tookBump ? BumpOffer::activeFor($product) : null;
         $bumpAmount = $bumpOffer ? min($total, (float) $bumpOffer->price) : 0;
 
