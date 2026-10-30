@@ -14,6 +14,8 @@ use Illuminate\Http\Request;
  * so sales that were turned away (or never processed) create their accounts after all.
  * Sales already recorded come back as duplicates, so running it twice is safe. Replays are
  * logged again with an X-Replayed-From-Log header, and later replays skip those lines.
+ * IPNs with a wrong key are logged as "IPN refused" with no body, so they can never be replayed.
+ * Logs written before that rule may hold fake sales: review them line by line before replaying one.
  */
 #[Signature('launchpad:replay {path? : The log file, storage/logs/launchpad.log by default} {--dry-run : Only list the IPNs that would be replayed}')]
 #[Description('Replay the LaunchpadJV IPNs saved in launchpad.log')]

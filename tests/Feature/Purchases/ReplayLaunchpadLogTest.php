@@ -55,6 +55,32 @@ test('replaying the log creates the buyers of sales that were never recorded, an
     Notification::assertSentTimes(WelcomeBuyer::class, 1);
 });
 
+test('a fake sale sent with a wrong key is logged without its body and cannot be replayed', function () {
+    $path = tempnam(sys_get_temp_dir(), 'launchpad');
+    config(['logging.channels.launchpad' => ['driver' => 'single', 'path' => $path]]);
+
+    postIpn(ipnPayload(['user' => ['email' => 'attacker@example.com']]), key: 'wrong-key')->assertForbidden();
+
+    expect(file_get_contents($path))->toContain('IPN refused')->not->toContain('attacker@example.com');
+
+    $this->artisan('launchpad:replay', ['path' => $path])->assertSuccessful();
+
+    expect(User::count())->toBe(0);
+});
+
+test('a sale with the right key is logged in full and can be replayed', function () {
+    $path = tempnam(sys_get_temp_dir(), 'launchpad');
+    config(['logging.channels.launchpad' => ['driver' => 'single', 'path' => $path]]);
+
+    postIpn(ipnPayload())->assertOk();
+    Purchase::query()->delete();
+    User::query()->delete();
+
+    $this->artisan('launchpad:replay', ['path' => $path])->assertSuccessful();
+
+    expect(User::sole()->email)->toBe('buyer@example.com');
+});
+
 test('a dry run records nothing', function () {
     $path = launchpadLogFile([
         launchpadLogLine(['id' => 128049, 'product_id' => 3001, 'action' => 'SALE', 'user' => ['email' => 'live-buyer@example.com']]),

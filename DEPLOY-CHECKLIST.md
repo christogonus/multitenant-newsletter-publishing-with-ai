@@ -13,6 +13,7 @@ For a Ploi server running PHP 8.5, MySQL and Redis. Paths assume the site lives 
 
 - [ ] `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://your-domain.com`, `APP_KEY` set (`php artisan key:generate` once).
 - [ ] Database: `DB_CONNECTION=mysql` plus `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`.
+- [ ] `TRUSTED_PROXIES`: leave empty when nginx faces the internet. If you put Cloudflare or a load balancer in front, list its IPs or ranges here, never `*`, or every visitor shares one rate limit.
 - [ ] Queues and cache on Redis: `QUEUE_CONNECTION=redis`, `CACHE_STORE=redis`, `REDIS_HOST`, `REDIS_PASSWORD`, `REDIS_PORT`.
 - [ ] Mail: `MAIL_MAILER`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` (welcome emails and set-password links depend on it).
 - [ ] `NEWSPUB_PUBLIC_ROOT=your-domain.com` (publications become `name.your-domain.com`), `NEWSPUB_SUPPORT_EMAIL`, `NEWSPUB_ALERT_EMAIL`.

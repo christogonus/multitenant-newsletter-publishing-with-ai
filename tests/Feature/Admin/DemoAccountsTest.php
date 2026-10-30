@@ -98,6 +98,15 @@ test('make-admin promotes an existing account, and --revoke removes it', functio
     expect($user->fresh()->is_admin)->toBeFalse();
 });
 
+test('make-admin refuses an account still on the shared starting password', function () {
+    $user = User::factory()->create(['email' => 'owner@example.com']);
+    $user->forceFill(['uses_default_password' => true])->save();
+
+    $this->artisan('newspub:make-admin', ['email' => 'owner@example.com'])->assertFailed();
+
+    expect($user->fresh()->is_admin)->toBeFalse();
+});
+
 test('make-admin creates a missing account with a one-time password', function () {
     $this->artisan('newspub:make-admin', ['email' => 'first@example.com', '--name' => 'First Admin'])
         ->expectsOutputToContain('Created admin first@example.com')

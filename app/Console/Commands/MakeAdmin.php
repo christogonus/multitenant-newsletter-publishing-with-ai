@@ -41,6 +41,12 @@ class MakeAdmin extends Command
         }
 
         if ($user) {
+            if ($user->uses_default_password) {
+                $this->components->error("{$email} still uses the shared starting password. Sign in and choose your own first.");
+
+                return self::FAILURE;
+            }
+
             $user->forceFill(['is_admin' => true])->save();
             $this->components->info("{$email} is now an admin.");
 

@@ -40,9 +40,11 @@ class LaunchpadIpnController extends Controller
 {
     public function __invoke(Request $request, RecordPurchase $recordPurchase): Response
     {
-        $this->logReceived($request);
-
         $expectedKey = (string) config('products.launchpad.webhook_key');
+        $providedKey = (string) ($request->query('key') ?? $request->header('X-Webhook-Key', ''));
+        $hasValidKey = $expectedKey !== '' && hash_equals($expectedKey, $providedKey);
+
+        $this->logReceived($request, $hasValidKey);
 
         if ($expectedKey === '') {
             Log::error('IPN rejected: LAUNCHPAD_WEBHOOK_KEY is not set');
@@ -50,9 +52,7 @@ class LaunchpadIpnController extends Controller
             return response('Not configured', 503);
         }
 
-        $providedKey = (string) ($request->query('key') ?? $request->header('X-Webhook-Key', ''));
-
-        if (! hash_equals($expectedKey, $providedKey)) {
+        if (! $hasValidKey) {
             Log::warning('IPN rejected: bad webhook key', ['ip' => $request->ip()]);
 
             return response('Forbidden', 403);
@@ -134,17 +134,18 @@ class LaunchpadIpnController extends Controller
     }
 
     /**
-     * Writes every IPN exactly as it arrived to storage/logs/launchpad.log, before the key is checked,
-     * with the webhook key left out. A full or unwritable disk never fails the IPN.
+     * Writes every IPN exactly as it arrived to storage/logs/launchpad.log, with the webhook key left out.
+     * The body is only kept when the key was right: launchpad:replay trusts what it finds here, and
+     * anyone can post a fake sale with a wrong key. A full or unwritable disk never fails the IPN.
      */
-    private function logReceived(Request $request): void
+    private function logReceived(Request $request, bool $hasValidKey): void
     {
-        rescue(fn () => Log::channel('launchpad')->info('IPN received', [
+        rescue(fn () => Log::channel('launchpad')->info($hasValidKey ? 'IPN received' : 'IPN refused', [
             'ip' => $request->ip(),
             'method' => $request->method(),
             'query' => collect($request->query->all())->except('key')->all(),
             'headers' => collect($request->headers->all())->except(['x-webhook-key', 'cookie', 'authorization'])->map(fn (array $values): string => implode(', ', $values))->all(),
-            'body' => $request->getContent(),
+            ...($hasValidKey ? ['body' => $request->getContent()] : []),
         ]));
     }
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureAdmin;
+use App\Http\Middleware\EnsureLivewireOnAppHost;
 use App\Http\Middleware\EnsureNotSuspended;
 use App\Http\Middleware\EnsureOwnPassword;
 use App\Http\Middleware\EnsureProduct;
@@ -25,10 +26,11 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->trustProxies(at: '*');
+        // Nothing is trusted unless TRUSTED_PROXIES lists it (config/trustedproxy.php), so visitors cannot fake their IP or the reset link's address.
+        $middleware->trustProxies(headers: Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_PROTO | Request::HEADER_X_FORWARDED_PORT);
 
         // Changing a password signs out every other session for that account.
-        $middleware->web(append: [AuthenticateSession::class]);
+        $middleware->web(append: [AuthenticateSession::class, EnsureLivewireOnAppHost::class]);
 
         $middleware->validateCsrfTokens(except: [
             'ipn/*',
