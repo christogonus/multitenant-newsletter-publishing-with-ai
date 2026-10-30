@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Notification;
  *   "user": { "id": 25381, "name": "...", "email": "..." }
  * }
  *
+ * - A sale where the buyer is the vendor ("user.id" equals "vendor_id") is LaunchpadJV's test, and is ignored.
  * - Live sales arrive without "transaction_id", "total_amount" or checkout_*: the sale's "id" is the transaction ID then, and the amount is 0.
  * - "bump" says the order bump was taken on this same transaction, and "total_amount" includes it.
  *   It does not say which bump: that is the product's active bump, set up under Admin, Order bumps.
@@ -54,6 +55,15 @@ class LaunchpadIpnController extends Controller
             Log::warning('IPN rejected: bad webhook key', ['ip' => $request->ip()]);
 
             return response('Forbidden', 403);
+        }
+
+        $vendorId = trim((string) $request->input('vendor_id'));
+        $buyerId = trim((string) ($request->input('user.id') ?: $request->input('user_id')));
+
+        if ($vendorId !== '' && $vendorId === $buyerId) {
+            Log::info('IPN ignored: the vendor bought from themselves (a test)', ['vendor_id' => $vendorId, 'product_id' => $request->input('product_id')]);
+
+            return response('Ignored', 200);
         }
 
         $actionName = strtolower(trim((string) $request->input('action')));

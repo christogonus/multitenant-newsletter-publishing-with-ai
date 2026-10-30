@@ -56,6 +56,14 @@ test('a live sale without transaction_id or total_amount is recorded under its s
     Notification::assertSentTo($user, WelcomeBuyer::class);
 });
 
+test('a test sale where the vendor is the buyer is ignored', function () {
+    postIpn(ipnPayload(['user_id' => 2139, 'vendor_id' => 2139, 'user' => ['id' => 2139]]))->assertOk()->assertSee('Ignored');
+
+    expect(User::count())->toBe(0)
+        ->and(Purchase::count())->toBe(0);
+    Notification::assertNothingSent();
+});
+
 test('the action is read case-insensitively and "Purchase" counts as a sale', function () {
     postIpn(ipnPayload(['action' => 'Purchase']))->assertOk();
 
