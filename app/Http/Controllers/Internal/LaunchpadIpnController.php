@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Notification;
  *   "user": { "id": 25381, "name": "...", "email": "..." }
  * }
  *
+ * - Live sales arrive without "transaction_id", "total_amount" or checkout_*: the sale's "id" is the transaction ID then, and the amount is 0.
  * - "bump" says the order bump was taken on this same transaction, and "total_amount" includes it.
  *   It does not say which bump: that is the product's active bump, set up under Admin, Order bumps.
  * - "action" has been seen as "SALE", "Purchase" and "REFUND", so it is compared case-insensitively.
@@ -60,7 +61,7 @@ class LaunchpadIpnController extends Controller
         $productId = trim((string) $request->input('product_id'));
         $offerId = trim((string) $request->input('offer_id'));
         $product = Product::fromLaunchpad($productId, $offerId);
-        $transactionId = trim((string) $request->input('transaction_id'));
+        $transactionId = trim((string) ($request->input('transaction_id') ?: $request->input('id')));
 
         // "user" is the LaunchpadJV account; checkout_* is what was typed at checkout.
         $email = trim((string) ($request->input('user.email') ?: $request->input('checkout_email')));
@@ -73,6 +74,8 @@ class LaunchpadIpnController extends Controller
         }
 
         if ($transactionId === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            Log::error('IPN rejected: missing transaction or buyer email', ['transaction_id' => $transactionId, 'email' => $email, 'product_id' => $productId]);
+
             return response('Missing transaction or buyer email', 422);
         }
 

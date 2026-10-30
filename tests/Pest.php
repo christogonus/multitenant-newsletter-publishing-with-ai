@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
+use Monolog\Handler\NullHandler;
 use Tests\DuskTestCase;
 use Tests\TestCase;
 
@@ -68,7 +69,10 @@ function postIpn(array $payload, string $key = 'test-webhook-key'): TestResponse
  */
 function configureLaunchpad(): void
 {
-    config(['products.launchpad.webhook_key' => 'test-webhook-key']);
+    config([
+        'products.launchpad.webhook_key' => 'test-webhook-key',
+        'logging.channels.launchpad' => ['driver' => 'monolog', 'handler' => NullHandler::class],
+    ]);
 
     foreach (Product::cases() as $index => $product) {
         config(["products.products.{$product->value}.launchpad_ids" => [(string) (3001 + $index)]]);

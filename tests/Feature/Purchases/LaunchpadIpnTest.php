@@ -32,6 +32,30 @@ test('a sale creates the buyer, records the purchase and unlocks the front end',
     Notification::assertSentTo($user, WelcomeBuyer::class);
 });
 
+test('a live sale without transaction_id or total_amount is recorded under its sale id', function () {
+    postIpn([
+        'id' => 128049,
+        'product_id' => 3001,
+        'offer_id' => 606,
+        'vendor_id' => 2139,
+        'quantity' => 1,
+        'affiliate_user' => 976,
+        'bump' => 'false',
+        'coupon_code' => 'NewsPub25',
+        'status' => 'success',
+        'action' => 'SALE',
+        'user' => ['id' => 8507, 'name' => 'Lee Live', 'email' => 'live-buyer@example.com'],
+        'product' => ['id' => 3001, 'name' => 'NewsletterPub AI Starter'],
+    ])->assertOk()->assertSee('OK');
+
+    $user = User::where('email', 'live-buyer@example.com')->sole();
+
+    expect($user->owns(Product::FrontEnd))->toBeTrue()
+        ->and(Purchase::sole()->transaction_id)->toBe('128049');
+
+    Notification::assertSentTo($user, WelcomeBuyer::class);
+});
+
 test('the action is read case-insensitively and "Purchase" counts as a sale', function () {
     postIpn(ipnPayload(['action' => 'Purchase']))->assertOk();
 
