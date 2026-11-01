@@ -46,7 +46,10 @@
         <x-ui.alert tone="danger" title="This newsletter did not finish">
             {{ $issue->generation_error ?: 'Something went wrong while writing.' }} It did not count toward your weekly newsletters.
             <x-slot:actions>
-                <x-ui.button wire:click="retry" icon="retry" loading="retry" area="create">Try again</x-ui.button>
+                <div class="flex flex-col gap-2">
+                    <x-ui.button wire:click="retry" icon="retry" loading="retry" area="create">Try again</x-ui.button>
+                    <x-ui.button variant="secondary" x-on:click="$dispatch('open-modal', 'delete-issue')" icon="trash">Delete</x-ui.button>
+                </div>
             </x-slot:actions>
         </x-ui.alert>
     @else
@@ -213,9 +216,11 @@
                 <x-ui.button wire:click="schedule" area="automate" icon="calendar" loading="schedule">Schedule</x-ui.button>
             </x-slot:footer>
         </x-ui.modal>
+    @endif
 
+    @if ($issue->status !== \App\Enums\IssueStatus::Generating)
         <x-ui.modal name="delete-issue" title="Delete this newsletter?" max-width="md">
-            <p class="text-sm text-muted">It is removed from your page and cannot be brought back.</p>
+            <p class="text-sm text-muted">It cannot be brought back. If it is live, it also comes off your page.</p>
             <x-slot:footer>
                 <x-ui.button variant="secondary" x-on:click="open = false">Keep it</x-ui.button>
                 <x-ui.button variant="danger" wire:click="delete" loading="delete">Delete newsletter</x-ui.button>

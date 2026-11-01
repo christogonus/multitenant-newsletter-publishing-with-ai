@@ -128,3 +128,19 @@ test('a failed generation can be retried and does not count toward the weekly qu
 
     expect($issue->fresh()->status)->toBe(IssueStatus::Draft);
 });
+
+test('a failed generation can be deleted from its screen', function () {
+    $newsletter = Newsletter::factory()->create();
+    $issue = Issue::factory()->for($newsletter)->create(['status' => IssueStatus::Failed]);
+
+    $this->actingAs($newsletter->user);
+
+    Livewire::test(Editor::class, ['issue' => $issue])
+        ->assertSee('This newsletter did not finish')
+        ->assertSeeHtml("open-modal', 'delete-issue'")
+        ->assertSee('Delete newsletter')
+        ->call('delete')
+        ->assertRedirect(route('issues.index'));
+
+    expect(Issue::find($issue->id))->toBeNull();
+});
