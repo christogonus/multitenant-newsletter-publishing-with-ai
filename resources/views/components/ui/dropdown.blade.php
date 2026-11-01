@@ -14,6 +14,7 @@
             $width,
             'right-0' => $align === 'right',
             'left-0' => $align === 'left',
+            'left-0 max-w-[calc(100vw-8rem)] sm:right-0 sm:left-auto sm:max-w-none' => $align === 'left-on-phones',
         ])
         role="menu"
     >

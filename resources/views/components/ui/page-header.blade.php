@@ -1,8 +1,11 @@
 @props(['title', 'description' => null, 'area' => null, 'icon' => null, 'back' => null])
 
-<div {{ $attributes->class(['relative overflow-hidden rounded-hero border border-line bg-card px-5 py-6 shadow-card sm:px-8']) }}>
-    <div @class(['pointer-events-none absolute -top-16 -right-16 size-56 rounded-full opacity-15 blur-2xl', \App\Support\Ui::bar($area)])></div>
-    <div class="pointer-events-none absolute -bottom-20 left-1/3 size-48 rounded-full bg-gold opacity-10 blur-2xl"></div>
+<div {{ $attributes->class(['relative rounded-hero border border-line bg-card px-5 py-6 shadow-card sm:px-8']) }}>
+    {{-- Only the glows are clipped: clipping the whole header would also cut off dropdown menus in the actions slot. --}}
+    <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-hero" aria-hidden="true">
+        <div @class(['absolute -top-16 -right-16 size-56 rounded-full opacity-15 blur-2xl', \App\Support\Ui::bar($area)])></div>
+        <div class="absolute -bottom-20 left-1/3 size-48 rounded-full bg-gold opacity-10 blur-2xl"></div>
+    </div>
     @if ($back)
         <a href="{{ $back }}" class="relative mb-3 inline-flex min-h-11 items-center gap-1 text-sm font-medium text-muted hover:text-ink sm:min-h-0">
             <x-ui.icon name="arrow-left" size="4" /> Back

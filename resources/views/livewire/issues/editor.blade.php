@@ -53,7 +53,7 @@
         <x-ui.page-header :title="$title ?: 'Untitled newsletter'" icon="pencil-square" area="create" :back="route('issues.index')">
             <x-slot:actions>
                 <x-ui.pill :tone="$issue->status->tone()">{{ $issue->status->label() }}</x-ui.pill>
-                <x-ui.dropdown>
+                <x-ui.dropdown align="left-on-phones">
                     <x-slot:trigger>
                         <x-ui.button variant="secondary" icon-right="chevron-down">More</x-ui.button>
                     </x-slot:trigger>
