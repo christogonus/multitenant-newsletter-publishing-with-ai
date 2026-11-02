@@ -14,7 +14,7 @@
         <x-ui.card title="How the AI writes" description="These notes guide every newsletter.">
             <div class="space-y-5">
                 <x-ui.input wire:model="audience" label="Who is it for?" optional />
-                <x-ui.textarea wire:model="voice" label="Voice and style" rows="3" optional placeholder="For example: warm and funny, short sentences, uses everyday examples" />
+                <x-ui.textarea wire:model="voice" label="Voice and style" rows="3" optional maxlength="{{ \App\Models\Newsletter::VOICE_MAX_LENGTH }}" placeholder="For example: warm and funny, short sentences, uses everyday examples" />
             </div>
         </x-ui.card>
 

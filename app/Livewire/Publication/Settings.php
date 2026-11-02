@@ -6,6 +6,7 @@ use App\Actions\CreateNewsletter;
 use App\Enums\Frequency;
 use App\Enums\Product;
 use App\Livewire\Concerns\InteractsWithPublication;
+use App\Models\Newsletter;
 use App\Support\PublicPageCache;
 use Illuminate\Contracts\View\View;
 use Illuminate\Validation\Rule;
@@ -60,7 +61,7 @@ class Settings extends Component
             'tagline' => ['nullable', 'string', 'max:160'],
             'niche' => ['required', 'string', 'max:80'],
             'audience' => ['nullable', 'string', 'max:160'],
-            'voice' => ['nullable', 'string', 'max:300'],
+            'voice' => ['nullable', 'string', 'max:'.Newsletter::VOICE_MAX_LENGTH],
             'frequency' => ['required', Rule::enum(Frequency::class)],
             'subdomain' => CreateNewsletter::subdomainRules($newsletter),
         ], [

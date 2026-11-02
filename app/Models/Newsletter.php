@@ -27,6 +27,8 @@ class Newsletter extends Model
     /** @use HasFactory<NewsletterFactory> */
     use HasFactory;
 
+    public const VOICE_MAX_LENGTH = 500;
+
     protected static function booted(): void
     {
         // Delete the custom domain through the model (not the database cascade) so it leaves the web server too.
