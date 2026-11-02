@@ -117,7 +117,7 @@ test('a request that never completes is reported as failed after the timeout', f
     RefreshDomainCertificateJob::dispatchSync($waiting);
 
     expect($waiting->fresh())->tls_status->toBe(TlsStatus::Failed)
-        ->and($waiting->fresh()->tls_error)->toContain('does not point to us');
+        ->and($waiting->fresh()->tls_error)->toContain('Request again');
 });
 
 test('a working domain that stops opening securely is flagged to the owner', function () {

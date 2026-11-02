@@ -53,7 +53,11 @@ class RequestDomainCertificateJob implements ShouldBeUnique, ShouldQueue
         }
 
         try {
-            $provisioner->addDomain($domain->hostname);
+            // www needs its own tenant too, or the web server cannot answer the certificate check for it.
+            foreach ($domain->certificateHostnames() as $hostname) {
+                $provisioner->addDomain($hostname);
+            }
+
             $domain->update(['tenant_created' => true]);
 
             $provisioner->requestCertificate($domain->hostname, self::callbackUrl($domain), array_slice($domain->certificateHostnames(), 1));

@@ -118,7 +118,7 @@ test('the owner sees which record is still missing', function () {
         ->assertSee('Not found yet');
 });
 
-test('the certificate for a bare domain also covers www', function () {
+test('www joins the server and the certificate covers it, even when the bare domain is already there', function () {
     config([
         'newspub.certificates.driver' => 'ploi',
         'newspub.certificates.ploi' => ['token' => 't', 'server_id' => '1', 'site_id' => '2'],
@@ -133,7 +133,27 @@ test('the certificate for a bare domain also covers www', function () {
     RequestDomainCertificateJob::dispatchSync($domain);
 
     expect($domain->fresh()->tls_status)->toBe(TlsStatus::Requested);
+    Http::assertSent(fn (Request $request) => $request->method() === 'POST' && str_ends_with($request->url(), '/tenants') && $request['tenants'] === ['www.theirsite.com']);
+    Http::assertNotSent(fn (Request $request) => $request->method() === 'POST' && str_ends_with($request->url(), '/tenants') && $request['tenants'] === ['theirsite.com']);
     Http::assertSent(fn (Request $request) => str_ends_with($request->url(), '/request-certificate') && $request['domains'] === 'theirsite.com,www.theirsite.com');
+});
+
+test('disconnecting a bare domain takes www off the server too', function () {
+    config([
+        'newspub.certificates.driver' => 'ploi',
+        'newspub.certificates.ploi' => ['token' => 't', 'server_id' => '1', 'site_id' => '2'],
+    ]);
+    Http::fake([
+        'ploi.io/api/servers/1/sites/2/tenants/theirsite.com' => Http::response(null, 200),
+        'ploi.io/api/servers/1/sites/2/tenants/www.theirsite.com' => Http::response(null, 404),
+    ]);
+    $domain = Domain::create(['newsletter_id' => Newsletter::factory()->create()->id, 'hostname' => 'theirsite.com', 'is_apex' => true, 'verification_token' => 'tok', 'verified_at' => now(), 'tenant_created' => true]);
+
+    $domain->delete();
+
+    Http::assertSentCount(2);
+    Http::assertSent(fn (Request $request) => $request->method() === 'DELETE' && str_ends_with($request->url(), '/tenants/theirsite.com'));
+    Http::assertSent(fn (Request $request) => $request->method() === 'DELETE' && str_ends_with($request->url(), '/tenants/www.theirsite.com'));
 });
 
 test('www of a verified bare domain forwards to the bare domain', function () {

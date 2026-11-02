@@ -30,7 +30,9 @@ class Domain extends Model
         // A disconnected domain is taken off the web server too, along with its certificate.
         static::deleted(function (Domain $domain) {
             if ($domain->tenant_created) {
-                RemoveDomainTenantJob::dispatch($domain->hostname);
+                foreach ($domain->certificateHostnames() as $hostname) {
+                    RemoveDomainTenantJob::dispatch($hostname);
+                }
             }
         });
     }

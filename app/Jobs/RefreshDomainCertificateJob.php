@@ -59,7 +59,7 @@ class RefreshDomainCertificateJob implements ShouldQueue
         return match (true) {
             $domain->tls_status === TlsStatus::Requested && $domain->tls_requested_at?->lt(now()->subMinutes(Domain::CERTIFICATE_TIMEOUT_MINUTES)) => [
                 'tls_status' => TlsStatus::Failed,
-                'tls_error' => 'The secure certificate was not issued in time. This usually means your address does not point to us yet. Check the settings where you bought your domain, wait a few minutes, then press "Request again".',
+                'tls_error' => 'We could not finish setting up your secure connection in time. Wait a few minutes, then press "Request again". If it keeps failing, please contact support.',
             ],
             $domain->tls_status === TlsStatus::Active => [
                 'tls_status' => TlsStatus::Failed,
